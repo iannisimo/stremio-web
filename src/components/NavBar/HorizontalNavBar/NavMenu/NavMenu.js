@@ -39,7 +39,7 @@ const NavMenu = (props) => {
     return (
         <Popup
             open={menuOpen}
-            direction={'bottom-left'}
+            direction={props.direction ?? 'bottom-left'}
             onCloseRequest={closeMenu}
             renderLabel={renderLabel}
             renderMenu={renderMenu}
@@ -49,6 +49,7 @@ const NavMenu = (props) => {
 };
 
 NavMenu.propTypes = {
+    direction: PropTypes.string,
     renderLabel: PropTypes.func
 };
 

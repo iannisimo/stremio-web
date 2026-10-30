@@ -1,0 +1,60 @@
+// Collapsed rail: icons centered in the rail. Expanded rail: icon + label.
+.rail-button-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0 1.1rem;
+    border-radius: 0.9rem;
+    color: var(--tv-text-2);
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    .icon, .logo {
+        flex: none;
+        width: 1.8rem;
+        height: 1.8rem;
+        color: inherit;
+    }
+
+    .label {
+        flex: 1;
+        font-size: 1.1rem;
+        font-weight: 600;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        color: inherit;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &:global(.selected) {
+        color: var(--tv-text);
+        background-color: var(--tv-fill);
+    }
+
+    &:focus, &:global(.active) {
+        color: var(--tv-focus-text);
+        background-color: var(--tv-focus);
+    }
+
+    @media (pointer: fine) {
+        &:hover:not(:focus) {
+            color: var(--tv-text);
+            background-color: var(--tv-fill-hover);
+        }
+    }
+}
+
+:global(.rail):focus-within, :global(.rail):has(:global(.active)) {
+    .rail-button-container .label {
+        opacity: 1;
+    }
+}
+
+@media (pointer: fine) {
+    :global(.rail):hover {
+        .rail-button-container .label {
+            opacity: 1;
+        }
+    }
+}
