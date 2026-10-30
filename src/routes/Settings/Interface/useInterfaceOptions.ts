@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { useCore } from 'stremio/core';
-import { useRemoteNavigationSetting } from 'stremio/services/RemoteNavigation';
 import { interfaceLanguages, useLanguageSorting } from 'stremio/common';
 import { INTERFACE_SCALES } from 'stremio/common/CONSTANTS';
 import { normalizeInterfaceScale } from 'stremio/common/interfaceScale';
@@ -120,12 +119,6 @@ const useInterfaceOptions = (profile: Profile) => {
         }
     }), [profile.settings]);
 
-    const [remoteNavigation, setRemoteNavigation] = useRemoteNavigationSetting();
-    const remoteNavigationToggle = useMemo(() => ({
-        checked: remoteNavigation,
-        onClick: () => setRemoteNavigation(!remoteNavigation),
-    }), [remoteNavigation]);
-
     return {
         interfaceLanguageSelect,
         interfaceSize,
@@ -133,7 +126,6 @@ const useInterfaceOptions = (profile: Profile) => {
         quitOnCloseToggle,
         hideSpoilersToggle,
         gamepadSupportToggle,
-        remoteNavigationToggle,
     };
 };
 

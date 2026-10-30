@@ -59,7 +59,6 @@ const Checkbox = React.forwardRef<HTMLInputElement, Props>(({ name, disabled, cl
                         { [styles['error']]: error }
                     )}
                     role={'checkbox'}
-                    data-nav={''}
                     tabIndex={disabled ? -1 : 0}
                     aria-checked={checked}
                     onKeyDown={onKeyDown}

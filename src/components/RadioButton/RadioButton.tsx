@@ -41,7 +41,6 @@ const RadioButton = ({ disabled, selected, className, label, ariaLabel, onChange
                         { [styles['error']]: error }
                     )}
                     role={'radio'}
-                    data-nav={''}
                     tabIndex={disabled ? -1 : 0}
                     aria-checked={selected}
                     aria-label={ariaLabel}

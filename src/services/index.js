@@ -3,7 +3,6 @@
 const Chromecast = require('./Chromecast');
 const { ServicesProvider, useServices } = require('./ServicesContext');
 const { GamepadProvider, useGamepad } = require('./GamepadContext');
-const RemoteNavigation = require('./RemoteNavigation');
 
 module.exports = {
     Chromecast,
@@ -11,6 +10,4 @@ module.exports = {
     useServices,
     GamepadProvider,
     useGamepad,
-    useRemoteNavigationSetting: RemoteNavigation.useRemoteNavigationSetting,
-    isRemoteNavigationEnabled: RemoteNavigation.isRemoteNavigationEnabled,
 };

@@ -89,7 +89,6 @@ const NumberInput = forwardRef<HTMLInputElement, Props>(({ defaultValue = 0, sho
                     ref={ref}
                     type={'number'}
                     tabIndex={0}
-                    data-nav={''}
                     value={displayValue}
                     {...props}
                     className={classnames(props.className, styles['value'], { [styles.disabled]: props.disabled })}
