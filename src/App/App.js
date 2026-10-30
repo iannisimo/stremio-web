@@ -1,12 +1,11 @@
 // Copyright (C) 2017-2023 Smart code 203358507
 
-require('spatial-navigation-polyfill');
 const React = require('react');
 const { useTranslation } = require('react-i18next');
 const { createPath, useLocation, useNavigate } = require('react-router');
 const { useCore } = require('stremio/core');
 const { Routes, useGoBack } = require('stremio-router');
-const { Chromecast, ServicesProvider, GamepadProvider, useRemoteNavigationSetting } = require('stremio/services');
+const { Chromecast, ServicesProvider, GamepadProvider } = require('stremio/services');
 const { FullscreenProvider, ToastProvider, TooltipProvider, ShortcutsProvider, DiscordProvider, CONSTANTS, useBinaryState, useProfile, withCoreSuspender, usePlatform } = require('stremio/common');
 const ServicesToaster = require('./ServicesToaster');
 const SearchParamsHandler = require('./SearchParamsHandler');
@@ -33,7 +32,6 @@ const App = () => {
     const locationPath = createPath(location);
     const previousPathRef = React.useRef(locationPath);
     const [gamepadSupportEnabled, setGamepadSupportEnabled] = React.useState(false);
-    const [remoteNavigationEnabled] = useRemoteNavigationSetting();
     const services = React.useMemo(() => {
         return {
             chromecast: new Chromecast(),
@@ -160,7 +158,7 @@ const App = () => {
         <ServicesProvider services={services}>
             <ToastProvider className={styles['toasts-container']}>
                 <TooltipProvider className={styles['tooltip-container']}>
-                    <GamepadProvider enabled={gamepadSupportEnabled} remoteNavigation={remoteNavigationEnabled} onGuide={toggleGamepadModal}>
+                    <GamepadProvider enabled={gamepadSupportEnabled} onGuide={toggleGamepadModal}>
                         <ShortcutsProvider onShortcut={onShortcut}>
                             <FullscreenProvider>
                                 <DiscordProvider>
