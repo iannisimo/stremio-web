@@ -12,7 +12,7 @@ type Props = {
 
 const SideDrawerButton = ({ className, onClick }: Props) => {
     return (
-        <div className={classNames(className, styles['side-drawer-button'])} onClick={onClick}>
+        <div className={classNames(className, styles['side-drawer-button'])} data-nav={''} onClick={onClick}>
             <Icon name={'chevron-back'} className={styles['icon']} />
         </div>
     );

@@ -77,6 +77,7 @@ const Scale = ({ min, max, step, options, value, tabIndex, onChange }: Props) =>
                             className={classNames(styles['label'], { [styles['active']]: preview === tick })}
                             key={tick}
                             aria-pressed={preview === tick}
+                            data-nav={''}
                             onClick={onTickClick}
                         >
                             {tick}%
@@ -88,6 +89,7 @@ const Scale = ({ min, max, step, options, value, tabIndex, onChange }: Props) =>
                 ref={inputRef}
                 type={'range'}
                 tabIndex={tabIndex}
+                data-nav={''}
                 aria-label={t('SETTINGS_UI_ZOOM')}
                 aria-valuetext={`${preview}%`}
                 value={preview}

@@ -99,7 +99,7 @@ const SearchBar = React.memo(({ className, query, active }) => {
     }, [routeFocused, active]);
 
     return (
-        <div className={classnames(className, styles['search-bar-container'], { 'active': active })} onClick={searchBarOnClick} ref={containerRef}>
+        <div className={classnames(className, styles['search-bar-container'], { 'active': active })} data-nav={active ? undefined : ''} onClick={searchBarOnClick} ref={containerRef}>
             {
                 active ?
                     <TextInput

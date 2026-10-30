@@ -29,6 +29,7 @@ const TextInput = forwardRef<HTMLInputElement, Props>((props, ref) => {
             autoComplete={'off'}
             spellCheck={false}
             tabIndex={0}
+            data-nav={''}
             {...props}
             ref={ref}
             className={classnames(props.className, styles['text-input'], { 'disabled': props.disabled })}

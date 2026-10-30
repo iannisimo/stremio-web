@@ -16,6 +16,7 @@ type Props = {
     disabled?: boolean,
     role?: React.AriaRole,
     tabIndex?: number,
+    nav?: boolean,
     children: React.ReactNode,
     onKeyDown?: (event: React.KeyboardEvent) => void,
     onMouseDown?: (event: React.MouseEvent) => void,
@@ -26,7 +27,7 @@ type Props = {
     onDoubleClick?: () => void,
 };
 
-const Button = forwardRef(({ className, href, disabled, children, onLongPress, onDoubleClick, ...props }: Props, ref) => {
+const Button = forwardRef(({ className, href, disabled, children, onLongPress, onDoubleClick, nav = true, ...props }: Props, ref) => {
     const longPress = useLongPress(onLongPress!, { detect: LongPressEventType.Pointer });
     const to = typeof href === 'string' && href.startsWith('#/') && typeof props.download !== 'string' ? href.slice(1) : null;
     const component: React.ElementType = to !== null ? Link : typeof href === 'string' && href.length > 0 ? 'a' : 'div';
@@ -64,6 +65,7 @@ const Button = forwardRef(({ className, href, disabled, children, onLongPress, o
         {
             tabIndex: 0,
             ...props,
+            'data-nav': nav ? '' : undefined,
             ref,
             className: classNames(className, styles['button-container'], { 'disabled': disabled }),
             href,

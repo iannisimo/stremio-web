@@ -114,7 +114,7 @@ const SideDrawer = memo(forwardRef<HTMLDivElement, Props>(({ seriesInfo, classNa
 
     return (
         <div ref={ref} className={classNames(styles['side-drawer'], className)} onMouseDown={onMouseDown}>
-            <div className={styles['close-button']} onClick={closeSideDrawer}>
+            <div className={styles['close-button']} data-nav={''} onClick={closeSideDrawer}>
                 <Icon className={styles['icon']} name={'chevron-forward'} />
             </div>
             <div className={styles['info']}>
