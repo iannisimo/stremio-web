@@ -10,6 +10,7 @@ import styles from './FullscreenDialog.less';
 
 export type DialogAction = {
     label: string,
+    focusKey?: string,
     href?: string,
     target?: string,
     onClick?: () => void,
@@ -25,6 +26,7 @@ type Props = {
     message?: string,
     actions: DialogAction[],
     children?: React.ReactNode,
+    initialFocusKey?: string,
     onClose?: () => void,
 };
 
@@ -33,7 +35,7 @@ const Modal = RouterModal as React.ComponentType<{ className?: string, children?
 
 let nextId = 0;
 
-const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, onClose }: Props) => {
+const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, initialFocusKey, onClose }: Props) => {
     const routeFocused = useRouteFocused();
     const modalsContainer = useModalsContainer() as HTMLElement | null;
     const containerRef = useRef<HTMLElement | null>(null);
@@ -41,7 +43,7 @@ const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, 
     const group = useFocusGroup<HTMLDivElement>({ focusKey: id, isFocusBoundary: true, saveLastFocusedChild: false });
 
     useEffect(() => {
-        const frame = requestAnimationFrame(() => setFocus(`${id}-action-0`));
+        const frame = requestAnimationFrame(() => setFocus(initialFocusKey ?? actions[0]?.focusKey ?? `${id}-action-0`));
         return () => cancelAnimationFrame(frame);
     }, []);
 
@@ -49,6 +51,8 @@ const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, 
         if (!routeFocused || typeof onClose !== 'function') return;
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key !== 'Escape' && event.key !== 'Backspace' && event.key !== 'BrowserBack') return;
+            // Backspace edits text fields
+            if (event.key === 'Backspace' && event.target instanceof HTMLElement && event.target.matches('input, textarea')) return;
             // only the top-most dialog reacts
             const modals = Array.from(modalsContainer?.querySelectorAll(':scope > .modal-container') ?? []);
             if (modals[modals.length - 1] !== containerRef.current) return;
@@ -99,7 +103,7 @@ const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, 
                                 <Button
                                     key={index}
                                     className={styles['action']}
-                                    focusKey={`${id}-action-${index}`}
+                                    focusKey={action.focusKey ?? `${id}-action-${index}`}
                                     href={action.href}
                                     target={action.target}
                                     onClick={action.onClick}

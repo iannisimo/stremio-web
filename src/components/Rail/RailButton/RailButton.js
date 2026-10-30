@@ -8,7 +8,11 @@ const { Link } = require('react-router-dom');
 const { useFocusable } = require('stremio/services/Navigation');
 
 const RailButton = ({ className, logo, icon, label, href, selected, focusKey, onClick }) => {
-    const { ref } = useFocusable({ focusKey });
+    const { ref } = useFocusable({
+        focusKey,
+        // action tabs have no link to follow
+        onEnterPress: typeof href === 'string' ? undefined : () => onClick?.(),
+    });
     const renderLogoFallback = React.useCallback(() => (
         typeof icon === 'string' && icon.length > 0 ?
             <Icon className={styles['icon']} name={icon} />
@@ -24,8 +28,11 @@ const RailButton = ({ className, logo, icon, label, href, selected, focusKey, on
             }
         });
     };
+    const Element = typeof href === 'string' ? Link : 'div';
+    const linkProps = typeof href === 'string' ? { to: href } : { role: 'button' };
+    const iconName = selected || typeof href !== 'string' ? icon : `${icon}-outline`;
     return (
-        <Link ref={ref} className={classnames(className, styles['rail-button-container'], { 'selected': selected })} title={label} tabIndex={-1} to={href} onClick={onClick} onDoubleClick={onDoubleClick}>
+        <Element ref={ref} className={classnames(className, styles['rail-button-container'], { 'selected': selected })} title={label} tabIndex={-1} {...linkProps} onClick={onClick} onDoubleClick={onDoubleClick}>
             {
                 typeof logo === 'string' && logo.length > 0 ?
                     <Image
@@ -36,7 +43,7 @@ const RailButton = ({ className, logo, icon, label, href, selected, focusKey, on
                     />
                     :
                     typeof icon === 'string' && icon.length > 0 ?
-                        <Icon className={styles['icon']} name={selected ? icon : `${icon}-outline`} />
+                        <Icon className={styles['icon']} name={iconName} />
                         :
                         null
             }
@@ -46,7 +53,7 @@ const RailButton = ({ className, logo, icon, label, href, selected, focusKey, on
                     :
                     null
             }
-        </Link>
+        </Element>
     );
 };
 

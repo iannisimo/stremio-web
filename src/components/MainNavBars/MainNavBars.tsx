@@ -1,9 +1,10 @@
 // Copyright (C) 2017-2023 Smart code 203358507
 
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import { HorizontalNavBar } from 'stremio/components/NavBar';
 import Rail from 'stremio/components/Rail';
+import PlayUrlDialog from 'stremio/components/PlayUrlDialog';
 import { useContentGamepadNavigation, useVerticalNavGamepadNavigation } from 'stremio/services/GamepadNavigation';
 import styles from './MainNavBars.less';
 
@@ -14,7 +15,8 @@ const TABS = [
     { id: 'library', label: 'Library', icon: 'library', href: '/library' },
     { id: 'calendar', label: 'Calendar', icon: 'calendar', href: '/calendar' },
     { id: 'addons', label: 'ADDONS', icon: 'addons', href: '/addons' },
-    { id: 'settings', label: 'SETTINGS', icon: 'settings', href: '/settings' },
+    { id: 'play-url', label: 'PLAY_URL_MAGNET_LINK', icon: 'magnet-link', bottom: true },
+    { id: 'settings', label: 'SETTINGS', icon: 'settings', href: '/settings', bottom: true },
 ];
 
 type Props = {
@@ -33,6 +35,12 @@ const MainNavBars = memo(({ className, route, query, children }: Props) => {
     useVerticalNavGamepadNavigation(navRef, navRoute);
 
     const search = route === 'search';
+
+    const [playUrlOpen, setPlayUrlOpen] = useState(false);
+    const closePlayUrl = useCallback(() => setPlayUrlOpen(false), []);
+    const tabs = useMemo(() => TABS.map((tab) => (
+        tab.id === 'play-url' ? { ...tab, onClick: () => setPlayUrlOpen(true) } : tab
+    )), []);
 
     return (
         <div className={classnames(className, styles['main-nav-bars-container'], { [styles['search']]: search })}>
@@ -54,10 +62,15 @@ const MainNavBars = memo(({ className, route, query, children }: Props) => {
                 ref={navRef}
                 className={styles['vertical-nav-bar']}
                 selected={route}
-                tabs={TABS}
-                profileMenu={true}
+                tabs={tabs}
             />
             <div ref={contentRef} className={styles['nav-content-container']}>{children}</div>
+            {
+                playUrlOpen ?
+                    <PlayUrlDialog onClose={closePlayUrl} />
+                    :
+                    null
+            }
         </div>
     );
 });

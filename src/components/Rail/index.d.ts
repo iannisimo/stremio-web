@@ -6,6 +6,7 @@ type Tab = {
     icon?: string,
     logo?: string,
     href?: string,
+    bottom?: boolean,
     onClick?: () => void,
 };
 
@@ -13,7 +14,6 @@ type Props = {
     className?: string,
     selected?: string,
     tabs: Tab[],
-    profileMenu?: boolean,
 };
 
 declare const Rail: ForwardRefExoticComponent<Props & RefAttributes<HTMLElement>>;
