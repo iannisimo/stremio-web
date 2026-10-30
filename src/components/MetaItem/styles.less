@@ -20,7 +20,7 @@
     padding: 1rem;
     overflow: visible;
 
-    &:global(.hovered), &:focus-within, &:global(.active), &:global(.selected) {
+    :global(html[data-input='mouse']) &:global(.hovered), &:focus-within, &:global(.active), &:global(.selected) {
         outline-style: none;
         transition: background-color 100ms ease-out;
 

@@ -32,7 +32,6 @@ const ContinueWatchingItem = ({ _id, notifications, ...props }) => {
         <LibItem
             {...props}
             _id={_id}
-            actionMenu={true}
             posterChangeCursor={true}
             notifications={notifications}
             onDismissClick={onDismissClick}

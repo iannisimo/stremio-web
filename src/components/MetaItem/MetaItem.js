@@ -8,16 +8,16 @@ const { useHover } = require('react-aria/useHover');
 const filterInvalidDOMProps = require('filter-invalid-dom-props').default;
 const { useNavigateWithOrigin } = require('stremio-router');
 const { default: Icon } = require('@stremio/stremio-icons/react');
-const { default: ActionMenu } = require('stremio/components/ActionMenu');
 const { default: Button } = require('stremio/components/Button');
 const { default: Image } = require('stremio/components/Image');
-const Multiselect = require('stremio/components/Multiselect');
+const { useLongPressEnter } = require('stremio/services/Navigation');
 const useBinaryState = require('stremio/common/useBinaryState');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
 const { ICON_FOR_TYPE } = require('stremio/common/CONSTANTS');
+const MetaItemActions = require('./MetaItemActions');
 const styles = require('./styles');
 
-const MetaItem = React.memo(({ className, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, actionMenu, deepLinks, href: customHref, dataset, optionOnSelect, onDismissClick, onPlayClick, watched, live, ...props }) => {
+const MetaItem = React.memo(({ className, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, href: customHref, dataset, optionOnSelect, onPlayClick, watched, live, metaItem, ...props }) => {
     const { t } = useTranslation();
     const artwork = poster && typeof poster === 'object' ? poster : { src: poster, shape: posterShape, changeCursor: posterChangeCursor };
     const { navigateWithOrigin } = useNavigateWithOrigin();
@@ -29,6 +29,12 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
     const metaItemOnClick = React.useCallback((event) => {
         if (typeof props.onClick === 'function') {
             props.onClick(event);
+        }
+
+        if (!event.defaultPrevented && typeof onPlayClick === 'function') {
+            event.preventDefault();
+            onPlayClick(event);
+            return;
         }
 
         if (
@@ -44,17 +50,7 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
             event.preventDefault();
             navigateWithOrigin(href);
         }
-    }, [href, navigateWithOrigin, props.onClick]);
-    const dismissOnClick = React.useCallback((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onDismissClick(event);
-    }, [onDismissClick]);
-    const playOnClick = React.useCallback((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        onPlayClick(event);
-    }, [onPlayClick]);
+    }, [href, navigateWithOrigin, props.onClick, onPlayClick]);
     const menuOnSelect = React.useCallback((event) => {
         if (typeof optionOnSelect === 'function') {
             optionOnSelect({
@@ -66,29 +62,19 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
             });
         }
     }, [dataset, optionOnSelect]);
+    const hasOptions = Array.isArray(options) && options.length > 0;
+    const longPress = useLongPressEnter(onMenuOpen);
+    const onSelectOption = React.useCallback((value) => menuOnSelect({ value, nativeEvent: {} }), [menuOnSelect]);
     const renderPosterFallback = React.useCallback(() => (
         <Icon
             className={styles['placeholder-icon']}
             name={ICON_FOR_TYPE.has(type) ? ICON_FOR_TYPE.get(type) : ICON_FOR_TYPE.get('other')}
         />
     ), [type]);
-    const renderMenuLabelContent = React.useCallback(() => (
-        <Icon className={styles['icon']} name={'more-vertical'} />
-    ), []);
-    const hasOptions = Array.isArray(options) && options.length > 0;
     return (
-        <div {...hoverProps} className={classnames(className, styles['meta-item-container'], styles['poster-shape-poster'], styles[`poster-shape-${artwork.shape}`], { 'active': menuOpen, 'hovered': isHovered })}>
+        <div {...hoverProps} {...longPress} className={classnames(className, styles['meta-item-container'], styles['poster-shape-poster'], styles[`poster-shape-${artwork.shape}`], { 'active': menuOpen, 'hovered': isHovered })}>
             <Button title={name} href={href} {...filterInvalidDOMProps(props)} className={styles['meta-item-link']} onClick={metaItemOnClick}>
                 <div className={classnames(styles['poster-container'], { 'poster-change-cursor': artwork.changeCursor })}>
-                    {
-                        onDismissClick ?
-                            <div title={t('LIBRARY_RESUME_DISMISS')} className={styles['dismiss-icon-layer']} onClick={dismissOnClick}>
-                                <Icon className={styles['dismiss-icon']} name={'close'} />
-                                <div className={styles['dismiss-icon-backdrop']} />
-                            </div>
-                            :
-                            null
-                    }
                     {
                         watched ?
                             <div className={styles['watched-icon-layer']}>
@@ -114,16 +100,6 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
                         }
                     </div>
                     {artwork.overlay}
-                    {
-                        onPlayClick ?
-                            <div title={t('CONTINUE_WATCHING')} className={styles['play-icon-layer']} onClick={playOnClick}>
-                                <Icon className={styles['play-icon']} name={'play'} />
-                                <div className={styles['play-icon-outer']} />
-                                <div className={styles['play-icon-background']} />
-                            </div>
-                            :
-                            null
-                    }
                     {
                         progress > 0 ?
                             <div className={styles['progress-bar-layer']}>
@@ -151,7 +127,7 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
                 </div>
                 {
                     (typeof name === 'string' && name.length > 0) || hasOptions ?
-                        <div className={classnames(styles['title-bar-container'], { [styles['has-menu']]: hasOptions })}>
+                        <div className={styles['title-bar-container']}>
                             <div className={styles['title-label']}>
                                 {typeof name === 'string' && name.length > 0 ? name : ''}
                             </div>
@@ -161,29 +137,17 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
                 }
             </Button>
             {
-                hasOptions ?
-                    actionMenu ?
-                        <ActionMenu
-                            className={styles['menu-label-container']}
-                            title={name}
-                            options={options}
-                            onOpen={onMenuOpen}
-                            onClose={onMenuClose}
-                            onSelect={menuOnSelect}
-                            tabIndex={-1}
-                        >
-                            <Icon className={styles['icon']} name={'more-vertical'} />
-                        </ActionMenu>
-                        :
-                        <Multiselect
-                            className={styles['menu-label-container']}
-                            renderLabelContent={renderMenuLabelContent}
-                            options={options}
-                            onOpen={onMenuOpen}
-                            onClose={onMenuClose}
-                            onSelect={menuOnSelect}
-                            tabIndex={-1}
-                        />
+                menuOpen ?
+                    <MetaItemActions
+                        name={name}
+                        image={typeof artwork.src === 'string' ? artwork.src : undefined}
+                        href={href}
+                        metaItem={metaItem}
+                        watched={watched}
+                        options={options}
+                        onSelectOption={onSelectOption}
+                        onClose={onMenuClose}
+                    />
                     :
                     null
             }
@@ -211,7 +175,6 @@ MetaItem.propTypes = {
     progress: PropTypes.number,
     newVideos: PropTypes.number,
     options: PropTypes.array,
-    actionMenu: PropTypes.bool,
     href: PropTypes.string,
     deepLinks: PropTypes.shape({
         metaDetailsVideos: PropTypes.string,
@@ -220,11 +183,11 @@ MetaItem.propTypes = {
     }),
     dataset: PropTypes.object,
     optionOnSelect: PropTypes.func,
-    onDismissClick: PropTypes.func,
     onPlayClick: PropTypes.func,
     onClick: PropTypes.func,
     watched: PropTypes.bool,
-    live: PropTypes.bool
+    live: PropTypes.bool,
+    metaItem: PropTypes.object,
 };
 
 module.exports = MetaItem;
