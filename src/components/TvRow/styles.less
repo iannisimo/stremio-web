@@ -1,0 +1,106 @@
+
+// TV row: one horizontal strip of fixed-size cards, See All as the last card.
+@poster-width: 11.5rem;
+@landscape-width: 22rem;
+@row-gutter: 4rem;
+
+.tv-row-container {
+    overflow: visible;
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        padding: 0 @row-gutter;
+        margin-bottom: 0.25rem;
+
+        .title-container {
+            flex: 1;
+            max-height: 2.4em;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--tv-text);
+        }
+    }
+
+    .message-container {
+        max-height: 3.6em;
+        padding: 0.5rem @row-gutter;
+        font-size: 1.2rem;
+        color: var(--tv-text-2);
+    }
+
+    .meta-items-container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0 calc(@row-gutter - 1rem);
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-padding: 0 calc(@row-gutter - 1rem);
+        scroll-behavior: smooth;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        .meta-item {
+            flex: 0 0 auto;
+
+            &.poster-shape-poster, &.poster-shape-square {
+                width: calc(@poster-width + 2rem);
+            }
+
+            &.poster-shape-landscape {
+                width: calc(@landscape-width + 2rem);
+            }
+        }
+
+        .see-all-container {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 1rem;
+            border-radius: var(--border-radius);
+            color: var(--tv-text-2);
+            background-color: var(--tv-fill);
+            transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s var(--tv-ease);
+
+            &.poster-shape-poster, &.poster-shape-square {
+                width: @poster-width;
+                height: calc(@poster-width * var(--poster-shape-ratio));
+            }
+
+            &.poster-shape-square {
+                height: @poster-width;
+            }
+
+            &.poster-shape-landscape {
+                width: @landscape-width;
+                height: calc(@landscape-width * var(--landscape-shape-ratio));
+            }
+
+            .icon {
+                width: 2.5rem;
+                height: 2.5rem;
+                color: inherit;
+            }
+
+            .label {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: inherit;
+            }
+
+            &:focus, &:hover {
+                color: var(--tv-focus-text);
+                background-color: var(--tv-focus);
+                transform: scale(1.05);
+            }
+        }
+    }
+}

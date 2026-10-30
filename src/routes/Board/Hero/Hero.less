@@ -1,0 +1,202 @@
+.hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 78vh;
+    min-height: 28rem;
+    padding: 0 4rem 5rem;
+    overflow: hidden;
+
+    .backdrop {
+        position: absolute;
+        inset: 0;
+        background-size: cover;
+        background-position: center 20%;
+        opacity: 0;
+        transition: opacity 1s ease;
+
+        &.active {
+            opacity: 1;
+            animation: hero-drift 12s linear forwards;
+        }
+    }
+
+    .shade {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(0deg, var(--primary-background-color) 0%, rgba(20, 20, 22, 0.7) 18%, rgba(20, 20, 22, 0) 50%),
+            linear-gradient(90deg, rgba(20, 20, 22, 0.92) 0%, rgba(20, 20, 22, 0.55) 38%, rgba(20, 20, 22, 0) 70%);
+    }
+
+    .info {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 44rem;
+        overflow: visible;
+
+        .text {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            animation: hero-info-in 0.6s var(--tv-ease);
+        }
+    }
+
+    .logo {
+        max-width: 28rem;
+        max-height: 9rem;
+        margin-bottom: 1.5rem;
+        object-fit: contain;
+        object-position: left bottom;
+        filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.5));
+    }
+
+    .title {
+        margin-bottom: 1.25rem;
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        color: var(--tv-text);
+    }
+
+    .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 0;
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: var(--tv-text);
+
+        span:not(:last-child)::after {
+            content: '·';
+            margin: 0 0.6rem;
+            color: var(--tv-text-3);
+        }
+    }
+
+    .description {
+        display: -webkit-box;
+        margin-top: 1rem;
+        font-size: 1.2rem;
+        line-height: 1.5;
+        color: var(--tv-text-2);
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+    }
+
+    .actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        overflow: visible;
+    }
+
+    .button {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        height: 3.75rem;
+        padding: 0 2.25rem;
+        border-radius: 999px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--tv-text);
+        background-color: var(--tv-fill);
+        transition: transform 0.18s var(--tv-ease), background-color 0.15s ease, color 0.15s ease, box-shadow 0.18s ease;
+
+        .icon {
+            width: 1.3rem;
+            height: 1.3rem;
+            color: inherit;
+        }
+
+        span {
+            color: inherit;
+        }
+
+        &.primary {
+            color: var(--tv-focus-text);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+
+        &:focus {
+            color: var(--tv-focus-text);
+            background-color: var(--tv-focus);
+            transform: scale(1.06);
+            box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.45);
+        }
+    }
+
+    .dots {
+        position: absolute;
+        right: 4rem;
+        bottom: 5.5rem;
+        display: flex;
+        gap: 0.5rem;
+
+        .dot {
+            position: relative;
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.35);
+            cursor: pointer;
+            transition: width 0.35s var(--tv-ease);
+
+            &.active {
+                width: 2rem;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: inherit;
+                    background: var(--tv-text);
+                    transform-origin: left;
+                    animation: hero-progress linear forwards;
+                }
+
+                &.paused::after {
+                    animation-play-state: paused;
+                }
+            }
+        }
+    }
+}
+
+@keyframes hero-drift {
+    from {
+        transform: scale(1.04);
+    }
+
+    to {
+        transform: scale(1.1);
+    }
+}
+
+@keyframes hero-info-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.75rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes hero-progress {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
+    }
+}

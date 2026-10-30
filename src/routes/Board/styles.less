@@ -25,31 +25,30 @@
         .board-content {
             height: 100%;
             width: 100%;
-            padding: 0 1rem;
+            padding: 0 0 4rem;
             overflow-y: auto;
+            scroll-behavior: smooth;
 
             .board-row {
-                margin-top: 1rem;
-                margin-bottom: 2rem;
+                position: relative;
+                margin-bottom: 1.5rem;
+            }
+
+            .continue-watching-logo {
+                position: absolute;
+                left: 1rem;
+                right: 30%;
+                bottom: 1.25rem;
+                max-height: 40%;
+                object-fit: contain;
+                object-position: left bottom;
+                filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.6));
+                pointer-events: none;
             }
         }
     }
-
-    .board-warning-container {
-        position: absolute;
-        bottom: calc(var(--safe-area-inset-bottom) + 0.5rem);
-        left: calc(var(--safe-area-inset-left) + 0.5rem);
-        right: calc(var(--safe-area-inset-right) + 0.5rem);
-    }
 }
 
-.board-container {
-    .board-content-container {
-        .board-content {
-            .visible-items(~".board-row-poster, .board-row-square, .continue-watching-row", ~".board-row-landscape");
-        }
-    }
-}
 
 @media only screen and (max-width: @minimum) {
     .board-container {
@@ -87,18 +86,10 @@
                 }
             }
         }
-        
-        .board-warning-container {
-            bottom: calc(var(--vertical-nav-bar-size) + 0.5rem);
-            height: 7rem;
-        }
     }
 }
 
 @media @phone-landscape {
     .board-container {
-        .board-warning-container {
-            left: calc(var(--safe-area-inset-left) + var(--vertical-nav-bar-size) + 0.5rem);
-        }
     }
 }
