@@ -10,6 +10,7 @@ const { FullscreenProvider, ToastProvider, TooltipProvider, ShortcutsProvider, D
 const ServicesToaster = require('./ServicesToaster');
 const SearchParamsHandler = require('./SearchParamsHandler');
 const DeepLinkHandler = require('./DeepLinkHandler');
+const { default: KeepFullscreen } = require('stremio/services/KeepFullscreen');
 const { default: ShellOpenHandler } = require('./ShellOpenHandler');
 const { default: UpdaterBanner } = require('./UpdaterBanner');
 const { default: ShortcutsModal } = require('./ShortcutsModal');
@@ -172,6 +173,7 @@ const App = () => {
                                     <SearchParamsHandler />
                                     <DeepLinkHandler />
                                     <ShellOpenHandler />
+                                    <KeepFullscreen />
                                     <UpdaterBanner className={styles['updater-banner-container']} />
                                     <ProtectedRoutes />
                                 </DiscordProvider>

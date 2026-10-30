@@ -63,6 +63,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | File | What we changed | Why |
 |---|---|---|
 | `package.json`, `pnpm-lock.yaml` | `@noriginmedia/norigin-spatial-navigation` | Remote navigation engine |
+| `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider` | "Always fullscreen" setting |
+| `src/routes/Settings/Interface/Interface.tsx` | "Always fullscreen" toggle (localStorage, not core settings) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
@@ -83,6 +85,9 @@ Never touched by upstream merges.
 
 - `src/services/Navigation/`: Norigin setup, DOM-focus sync, input mode
   (keyboard vs mouse), `useFocusGroup`, `useLongPressEnter`, `mergeRefs`.
+- `src/services/KeepFullscreen/`: "Always fullscreen" setting (localStorage
+  `keepFullscreen`) and the listener that re-enters fullscreen on any key or
+  click, through upstream `useFullscreen` (works in the shell too).
 - `src/components/FullscreenDialog/`: full-screen dialog used for alerts and
   card actions.
 - `src/components/MetaItem/MetaItemActions.js`: card actions dialog.

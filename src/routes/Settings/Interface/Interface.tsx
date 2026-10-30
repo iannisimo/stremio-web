@@ -1,7 +1,9 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import { usePlatform } from 'stremio/common';
 import { Scale, MultiselectMenu, Toggle } from 'stremio/components';
 import { Section, Option } from '../components';
+import useFullscreen from 'stremio/common/Fullscreen/useFullscreen';
+import { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from 'stremio/services/KeepFullscreen';
 import useInterfaceOptions from './useInterfaceOptions';
 
 type Props = {
@@ -19,6 +21,16 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
         hideSpoilersToggle,
         gamepadSupportToggle,
     } = useInterfaceOptions(profile);
+
+    const [keepFullscreen, setKeepFullscreen] = useKeepFullscreenSetting();
+    const [, requestFullscreen, , , fullscreenSupported] = useFullscreen();
+    const keepFullscreenToggle = useMemo(() => ({
+        checked: keepFullscreen,
+        onClick: () => {
+            setKeepFullscreen(!keepFullscreen);
+            if (!keepFullscreen) requestFullscreen();
+        },
+    }), [keepFullscreen, setKeepFullscreen, requestFullscreen]);
 
     return (
         <Section ref={ref} label={'INTERFACE'}>
@@ -46,6 +58,15 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                         <Toggle
                             tabIndex={-1}
                             {...escExitFullscreenToggle}
+                        />
+                    </Option>
+            }
+            {
+                fullscreenSupported &&
+                    <Option label={KEEP_FULLSCREEN_LABEL}>
+                        <Toggle
+                            tabIndex={-1}
+                            {...keepFullscreenToggle}
                         />
                     </Option>
             }
