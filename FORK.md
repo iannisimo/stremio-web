@@ -29,7 +29,10 @@ Then:
        src/components/NavBar/VerticalNavBar \
        src/components/MetaRow \
        src/components/EventModal \
-       src/routes/Board/StreamingServerWarning
+       src/routes/Board/StreamingServerWarning \
+       src/routes/MetaDetails/StreamsList \
+       src/routes/MetaDetails/VideosList \
+       src/components/MetaPreview
    ```
 
    Port anything worth keeping (bug fixes, new options) into our versions.
@@ -50,10 +53,12 @@ listed. Upstream fixes to them have to be ported by hand.
 | `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) |
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home |
+| `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
 | Top bar (`HorizontalNavBar`) on main pages | `Rail` (search; no profile menu) | Kept only on the Search page |
 
 Still upstream's and reused by our versions, so their changes reach us:
-`EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
+`MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
+`SharePrompt`, `MetaPreview/Ratings/useRating`, `EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
 models, `NavMenu`, `MetaItem`, `Button`.
 
 ## Upstream files we edit
@@ -76,6 +81,9 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |
 | `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/` | Opt-in `readOnly` mode (pills, no action buttons) | Discover preview |
 | `src/components/NavBar/HorizontalNavBar/NavMenu/NavMenu.js` | `direction` prop | Was for the rail's profile menu (removed); unused now |
+| `src/routes/MetaDetails/MetaDetails.js` | Normal branch renders `TvDetail`; no `HorizontalNavBar`, no gamepad hook (Live TV branches unchanged) | Detail page TV layout |
+| `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
+| `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards | Discover |
 
@@ -94,6 +102,11 @@ Never touched by upstream merges.
 - `src/components/PlayUrlDialog/`: "Play URL / magnet" from the rail (uses
   upstream's `usePlayUrl`, replaces the profile menu's clipboard item).
 - `src/components/Rail/`, `TvRow/`, `TvEventModal/`.
+- `src/routes/MetaDetails/TvDetail/`: detail page (layout, info block, episodes and
+  streams panels, season switcher, long-press row actions, `detailLogic.js` with
+  tests in `tests/tvDetail.spec.js`). Rows are upstream's `Stream` / `Video`,
+  restyled with `[class*="name-"]` selectors from `TvStreamsPanel.less` /
+  `TvEpisodesPanel.less`; check those if upstream renames inner classes.
 - `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.
 - `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
 

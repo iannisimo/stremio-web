@@ -1,0 +1,75 @@
+.tv-detail {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--primary-background-color);
+
+    .backdrop {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 20%;
+        pointer-events: none;
+    }
+
+    .shade {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(0deg, var(--primary-background-color) 0%, rgba(20, 20, 22, 0.7) 22%, rgba(20, 20, 22, 0) 55%),
+            linear-gradient(90deg, rgba(20, 20, 22, 0.92) 0%, rgba(20, 20, 22, 0.55) 45%, rgba(20, 20, 22, 0.25) 100%);
+    }
+
+    .info {
+        position: absolute;
+        left: 5rem;
+        bottom: 4rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 46%;
+        overflow: visible;
+    }
+
+    .panel {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        width: 34%;
+        border: 1px solid var(--tv-stroke);
+        border-radius: 1.25rem;
+        background: var(--tv-glass-strong);
+        backdrop-filter: blur(24px);
+        overflow: hidden;
+    }
+
+    .message {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+
+        .message-image {
+            width: 12rem;
+            height: 12rem;
+            object-fit: contain;
+            opacity: 0.9;
+        }
+
+        .message-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--tv-text-2);
+        }
+    }
+}

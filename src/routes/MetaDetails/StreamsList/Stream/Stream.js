@@ -13,7 +13,7 @@ const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const StreamPlaceholder = require('./StreamPlaceholder');
 const styles = require('./styles');
 
-const Stream = ({ className = '', compact = false, isEpg = false, videoId = undefined, videoReleased = undefined, addonName, name, description, thumbnail = undefined, progress, deepLinks, externalPlayerCallbackCanMarkWatched, ...props }) => {
+const Stream = ({ className = '', compact = false, isEpg = false, videoId = undefined, videoReleased = undefined, addonName, name, description, thumbnail = undefined, progress, deepLinks, externalPlayerCallbackCanMarkWatched, focusKey = undefined, ...props }) => {
     const profile = useProfile();
     const toast = useToast();
     const platform = usePlatform();
@@ -292,6 +292,7 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
     return (
         <Popup
             className={className}
+            focusKey={focusKey}
             onMouseUp={popupLabelOnMouseUp}
             onLongPress={popupLabelOnLongPress}
             onContextMenu={popupLabelOnContextMenu}
@@ -337,6 +338,7 @@ Stream.propTypes = {
         })
     }),
     externalPlayerCallbackCanMarkWatched: PropTypes.bool,
+    focusKey: PropTypes.string,
     onClick: PropTypes.func
 };
 

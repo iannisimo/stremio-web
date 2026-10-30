@@ -1,0 +1,202 @@
+.tv-streams-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 1.25rem 1rem 1rem;
+
+    .episode-header {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding: 0 0.25rem;
+
+        .episode-title {
+            min-width: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--tv-text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .addon-chips {
+        flex: none;
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding: 0.25rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .chip {
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 2.5rem;
+        padding: 0 1.1rem;
+        border-radius: 999px;
+        font-size: 1rem;
+        font-weight: 600;
+        white-space: nowrap;
+        color: var(--tv-text);
+        background-color: var(--tv-fill);
+        transition: background-color 0.15s ease, color 0.15s ease;
+
+        .icon {
+            width: 1.2rem;
+            height: 1.2rem;
+            color: inherit;
+        }
+
+        &.selected {
+            background-color: var(--tv-select);
+            box-shadow: inset 0 0 0 2px var(--tv-stroke-strong);
+        }
+
+        &:focus {
+            color: var(--tv-focus-text);
+            background-color: var(--tv-focus);
+        }
+    }
+
+    .list {
+        flex: 1;
+        min-height: 0;
+        padding: 0.25rem;
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        [class*="stream-container-"] {
+            gap: 0.75rem 1rem;
+            margin-bottom: 0.6rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            color: var(--tv-text);
+            background-color: var(--tv-fill);
+            transition: background-color 0.15s ease, color 0.15s ease;
+
+            &:hover {
+                background-color: var(--tv-fill-hover);
+            }
+
+            &:focus {
+                color: var(--tv-focus-text);
+                background-color: var(--tv-focus);
+            }
+
+            [class*="addon-name-"], [class*="description-container-"] {
+                color: inherit;
+            }
+
+            [class*="description-container-"] {
+                font-size: 1rem;
+                line-height: 1.35;
+            }
+
+            [class*="progress-bar-"] {
+                border-radius: 999px;
+            }
+
+            [class*="icon-"] {
+                color: var(--tv-focus-text);
+                background-color: transparent;
+            }
+
+            &:focus [class*="icon-"] {
+                opacity: 1;
+            }
+        }
+    }
+
+    .message {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 1rem;
+        overflow-y: auto;
+
+        .picker {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .message-image {
+            flex: none;
+            width: 9rem;
+            height: 9rem;
+            object-fit: contain;
+            opacity: 0.9;
+        }
+
+        .message-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--tv-text-2);
+        }
+    }
+
+    .install-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        height: 3.25rem;
+        margin: 0.5rem auto 0;
+        padding: 0 1.75rem;
+        border-radius: 999px;
+        color: var(--tv-text);
+        background-color: var(--tv-fill);
+        transition: transform 0.18s var(--tv-ease), background-color 0.15s ease, color 0.15s ease;
+
+        .icon {
+            width: 1.3rem;
+            height: 1.3rem;
+            color: inherit;
+        }
+
+        .label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: inherit;
+        }
+
+        &:focus {
+            color: var(--tv-focus-text);
+            background-color: var(--tv-focus);
+            transform: scale(1.04);
+        }
+    }
+
+    .loading {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem 0;
+
+        .loading-label {
+            font-size: 0.95rem;
+            color: var(--tv-text-2);
+        }
+
+        .loading-bar {
+            width: 90%;
+            height: 0.25rem;
+            border-radius: 999px;
+            background-color: var(--tv-select);
+        }
+    }
+}

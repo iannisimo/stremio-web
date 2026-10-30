@@ -214,6 +214,7 @@ const Video = ({ className, id, title, thumbnail, season, episode, released, upc
                 {
                     deepLinks && typeof deepLinks.player === 'string' ?
                         <Button
+                            focusable={false}
                             className={styles['play-button-container']}
                             title={t('CTX_WATCH')}
                             onClick={playButtonOnClick}

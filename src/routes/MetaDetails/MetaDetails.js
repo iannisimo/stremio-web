@@ -2,15 +2,15 @@
 
 const React = require('react');
 const { useParams, useLocation, useNavigate } = require('react-router');
-const { useTranslation } = require('react-i18next');
-const classnames = require('classnames');
 const { useCore } = require('stremio/core');
-const { useContentGamepadNavigation } = require('stremio/services/GamepadNavigation');
 const { withCoreSuspender, useProfile } = require('stremio/common');
-const { useNavigateWithOrigin } = require('stremio-router');
-const { HorizontalNavBar, DelayedRenderer, Image, MetaPreview } = require('stremio/components');
-const StreamsList = require('./StreamsList');
-const VideosList = require('./VideosList');
+const { useNavigateWithOrigin, useGoBack } = require('stremio-router');
+const { default: toPath } = require('stremio-router/toPath');
+const { HorizontalNavBar } = require('stremio/components');
+const { default: TvDetail } = require('./TvDetail');
+const { default: TvDetailInfo, TvDetailInfoPlaceholder } = require('./TvDetail/TvDetailInfo');
+const { default: TvStreamsPanel } = require('./TvDetail/TvStreamsPanel');
+const { default: TvEpisodesPanel } = require('./TvDetail/TvEpisodesPanel');
 const { default: LiveTvDetails } = require('./LiveTvDetails');
 const { default: LiveTvPlaceholder } = require('./LiveTvDetails/Placeholder');
 const useMetaDetails = require('./useMetaDetails');
@@ -18,16 +18,13 @@ const useSeason = require('./useSeason');
 const { default: useExternalPlayerCallback } = require('./useExternalPlayerCallback');
 const styles = require('./styles');
 
-const GAMEPAD_HANDLER_ID = 'metadetails';
-
 const MetaDetails = () => {
     const { type, id, videoId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const { getStoredOrigin } = useNavigateWithOrigin();
     const contentRef = React.useRef(null);
-    const videosScrollMemoryRef = React.useRef(null);
-    const { t } = useTranslation();
+    const returnVideoIdRef = React.useRef(null);
     const core = useCore();
     const profile = useProfile();
     const urlParams = React.useMemo(() => ({
@@ -62,6 +59,10 @@ const MetaDetails = () => {
             :
             null;
     }, [metaDetails.metaItem, streamPath]);
+    // so the episode list can refocus the episode we came back from
+    if (streamPath !== null) {
+        returnVideoIdRef.current = streamPath.id;
+    }
     const externalPlayerCallbackCanMarkWatched = React.useMemo(() => {
         return typeof video?.id === 'string' &&
             metaDetails.libraryItem?.state?.video_id === video.id &&
@@ -128,16 +129,19 @@ const MetaDetails = () => {
             : url.replace(encodeURIComponent(urlParams.videoId), searchVideoHash);
         navigate(searchVideoPath, { replace: true });
     }, [urlParams, location]);
-    const renderBackgroundImageFallback = React.useCallback(() => null, []);
-    const renderBackground = React.useMemo(() => !!(
-        metaPath &&
-        metaDetails?.metaItem &&
-        metaDetails.metaItem.content.type !== 'Loading' &&
-        typeof metaDetails.metaItem.content.content?.background === 'string' &&
-        metaDetails.metaItem.content.content.background.length > 0
-    ), [metaPath, metaDetails]);
     const originPath = React.useMemo(() => getStoredOrigin(), [getStoredOrigin]);
-    useContentGamepadNavigation(contentRef, GAMEPAD_HANDLER_ID);
+    const goBack = useGoBack(originPath);
+    const onBack = React.useCallback(() => {
+        if (streamPath !== null && readyMeta?.type === 'series' && typeof video?.deepLinks?.metaDetailsVideos === 'string') {
+            const navigateTo = `${video.deepLinks.metaDetailsVideos}${
+                typeof video.season === 'number'
+                    ? `?${new URLSearchParams({ 'season': video.season })}`
+                    : ''}`;
+            navigate(toPath(navigateTo), { replace: true });
+        } else {
+            goBack();
+        }
+    }, [streamPath, readyMeta, video, navigate, goBack]);
     if (type === 'tv' && (metaDetails.selected === null || (isEpgProvider && metaDetails.metaItem?.content.type === 'Loading'))) {
         return (
             <div className={styles['metadetails-container']}>
@@ -173,123 +177,83 @@ const MetaDetails = () => {
             </LiveTvDetails>
         );
     }
-    return (
-        <div className={styles['metadetails-container']}>
-            {
-                renderBackground ?
-                    <div className={styles['background-image-layer']}>
-                        <Image
-                            className={styles['background-image']}
-                            src={metaDetails.metaItem.content.content.background}
-                            renderFallback={renderBackgroundImageFallback}
-                            alt={' '}
-                        />
-                    </div>
+    const metaState = metaPath === null ?
+        'none'
+        :
+        metaDetails.metaItem === null ?
+            'noAddons'
+            :
+            metaDetails.metaItem.content.type === 'Err' ?
+                'error'
+                :
+                metaDetails.metaItem.content.type === 'Loading' ?
+                    'loading'
                     :
-                    null
-            }
-            <HorizontalNavBar
-                className={styles['nav-bar']}
-                backButton={true}
-                fullscreenButton={true}
-                navMenu={true}
-                originPath={originPath}
+                    'ready';
+    const info = metaState === 'loading' ?
+        <TvDetailInfoPlaceholder />
+        :
+        metaState === 'ready' ?
+            <TvDetailInfo
+                key={readyMeta.id}
+                meta={readyMeta}
+                video={video}
+                ratingInfo={metaDetails.ratingInfo}
+                onToggleLibrary={readyMeta.inLibrary ? removeFromLibrary : addToLibrary}
+                onToggleWatched={toggleWatched}
             />
-            <div ref={contentRef} className={styles['metadetails-content']}>
-                {
-                    metaPath === null ?
-                        <DelayedRenderer delay={500}>
-                            <div className={styles['meta-message-container']}>
-                                <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
-                                <div className={styles['message-label']}>{t('ERR_NO_META_SELECTED')}</div>
-                            </div>
-                        </DelayedRenderer>
-                        :
-                        metaDetails.metaItem === null ?
-                            <div className={styles['meta-message-container']}>
-                                <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
-                                <div className={styles['message-label']}>{t('ERR_NO_ADDONS_FOR_META')}</div>
-                            </div>
-                            :
-                            metaDetails.metaItem.content.type === 'Err' ?
-                                <div className={styles['meta-message-container']}>
-                                    <Image className={styles['image']} src={require('/assets/images/empty.png')} alt={' '} />
-                                    <div className={styles['message-label']}>{t('ERR_NO_META_FOUND')}</div>
-                                </div>
-                                :
-                                metaDetails.metaItem.content.type === 'Loading' ?
-                                    <MetaPreview.Placeholder className={styles['meta-preview']} />
-                                    :
-                                    <React.Fragment>
-                                        <MetaPreview
-                                            className={classnames(styles['meta-preview'], 'animation-fade-in')}
-                                            name={metaDetails.metaItem.content.content.name}
-                                            logo={metaDetails.metaItem.content.content.logo}
-                                            runtime={metaDetails.metaItem.content.content.runtime}
-                                            releaseInfo={metaDetails.metaItem.content.content.releaseInfo}
-                                            released={metaDetails.metaItem.content.content.released}
-                                            description={
-                                                video !== null && typeof video.overview === 'string' && video.overview.length > 0 ?
-                                                    video.overview
-                                                    :
-                                                    metaDetails.metaItem.content.content.description
-                                            }
-                                            links={metaDetails.metaItem.content.content.links}
-                                            trailerStreams={metaDetails.metaItem.content.content.trailerStreams}
-                                            inLibrary={metaDetails.metaItem.content.content.inLibrary}
-                                            toggleInLibrary={metaDetails.metaItem.content.content.inLibrary ? removeFromLibrary : addToLibrary}
-                                            watched={metaDetails.metaItem.content.content.watched}
-                                            toggleWatched={toggleWatched}
-                                            metaId={metaDetails.metaItem.content.content.id}
-                                            ratingInfo={metaDetails.ratingInfo}
-                                        />
-                                    </React.Fragment>
-                }
-                <div className={styles['spacing']} />
-                {
-                    streamPath !== null ?
-                        <StreamsList
-                            className={styles['streams-list']}
-                            streams={metaDetails.streams}
-                            video={video}
-                            type={streamPath.type}
-                            externalPlayerCallbackCanMarkWatched={externalPlayerCallbackCanMarkWatched}
-                            onEpisodeSearch={handleEpisodeSearch}
-                        />
-                        :
-                        metaPath !== null ?
-                            <VideosList
-                                className={styles['videos-list']}
-                                metaItem={metaDetails.metaItem}
-                                libraryItem={metaDetails.libraryItem}
-                                season={season}
-                                selectedVideoId={metaDetails.libraryItem?.state?.video_id}
-                                seasonOnSelect={seasonOnSelect}
-                                toggleNotifications={toggleNotifications}
-                                scrollMemoryRef={videosScrollMemoryRef}
-                                titleKey={JSON.stringify([metaPath.type, metaPath.id])}
-                            />
-                            :
-                            null
-                }
-            </div>
-        </div>
+            :
+            null;
+    // temporary: old components until the TV ones replace them
+    const panel = streamPath !== null ?
+        <TvStreamsPanel
+            streams={metaDetails.streams}
+            video={video}
+            type={streamPath.type}
+            externalPlayerCallbackCanMarkWatched={externalPlayerCallbackCanMarkWatched}
+            onEpisodeSearch={handleEpisodeSearch}
+            onBack={onBack}
+        />
+        :
+        metaPath !== null ?
+            <TvEpisodesPanel
+                metaItem={metaDetails.metaItem}
+                libraryItem={metaDetails.libraryItem}
+                season={season}
+                returnVideoId={returnVideoIdRef.current}
+                seasonOnSelect={seasonOnSelect}
+                toggleNotifications={toggleNotifications}
+            />
+            :
+            null;
+    return (
+        <TvDetail
+            meta={readyMeta}
+            metaState={metaState}
+            info={info}
+            panel={panel}
+            onBack={onBack}
+        />
     );
 };
 
 const MetaDetailsFallback = () => {
     const { type } = useParams();
-    return (
-        <div className={styles['metadetails-container']}>
-            <HorizontalNavBar
-                className={styles['nav-bar']}
-                backButton={true}
-                fullscreenButton={true}
-                navMenu={true}
-            />
-            {type === 'tv' && <LiveTvPlaceholder />}
-        </div>
-    );
+    const goBack = useGoBack();
+    if (type === 'tv') {
+        return (
+            <div className={styles['metadetails-container']}>
+                <HorizontalNavBar
+                    className={styles['nav-bar']}
+                    backButton={true}
+                    fullscreenButton={true}
+                    navMenu={true}
+                />
+                <LiveTvPlaceholder />
+            </div>
+        );
+    }
+    return <TvDetail meta={null} metaState={'loading'} info={null} panel={null} onBack={goBack} />;
 };
 
 module.exports = withCoreSuspender(MetaDetails, MetaDetailsFallback);

@@ -1,0 +1,156 @@
+.tv-episodes-panel {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding: 1.25rem 1rem 1rem;
+
+    .header {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.25rem;
+
+        .search {
+            flex: 1;
+            min-width: 0;
+            height: 2.75rem;
+            padding: 0 1.1rem;
+            border: none;
+            border-radius: 999px;
+            font-size: 1.05rem;
+            color: var(--tv-text);
+            background-color: var(--tv-fill);
+
+            &::placeholder {
+                color: var(--tv-text-3);
+            }
+
+            &:focus {
+                color: var(--tv-focus-text);
+                background-color: var(--tv-focus);
+
+                &::placeholder {
+                    color: rgba(20, 20, 22, 0.5);
+                }
+            }
+        }
+    }
+
+    .toggles {
+        flex: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 0.5rem 0.25rem 0.25rem;
+    }
+
+    .chip {
+        flex: none;
+        display: flex;
+        align-items: center;
+        height: 2.25rem;
+        padding: 0 1rem;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--tv-text);
+        background-color: var(--tv-fill);
+        transition: background-color 0.15s ease, color 0.15s ease;
+
+        &.selected {
+            background-color: var(--tv-select);
+            box-shadow: inset 0 0 0 2px var(--tv-stroke-strong);
+        }
+
+        &:focus {
+            color: var(--tv-focus-text);
+            background-color: var(--tv-focus);
+        }
+    }
+
+    .list {
+        flex: 1;
+        min-height: 0;
+        margin-top: 0.5rem;
+        padding: 0.25rem;
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        [class*="video-container-"] {
+            gap: 0.5rem;
+            margin-bottom: 0.6rem;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 1rem;
+            color: var(--tv-text);
+            background-color: var(--tv-fill);
+            transition: background-color 0.15s ease, color 0.15s ease;
+
+            &:hover {
+                background-color: var(--tv-fill-hover);
+            }
+
+            &:focus {
+                color: var(--tv-focus-text);
+                background-color: var(--tv-focus);
+            }
+
+            &[class*="selected"] {
+                animation: none;
+                box-shadow: inset 0 0 0 2px var(--tv-stroke-strong);
+            }
+
+            [class*="title-container-"] {
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: inherit;
+            }
+
+            [class*="released-container-"] {
+                color: inherit;
+            }
+
+            [class*="thumbnail-"] {
+                border-radius: 0.6rem;
+            }
+
+            [class*="play-button-container-"] {
+                display: none;
+            }
+        }
+    }
+
+    .message {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.25rem;
+        padding: 1rem;
+        overflow-y: auto;
+
+        .picker {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .message-image {
+            flex: none;
+            width: 9rem;
+            height: 9rem;
+            object-fit: contain;
+            opacity: 0.9;
+        }
+
+        .message-label {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            color: var(--tv-text-2);
+        }
+    }
+}
