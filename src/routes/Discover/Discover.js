@@ -250,6 +250,7 @@ const Discover = () => {
                         playname={selectedMetaItemIndex === index}
                         deepLinks={metaItem.deepLinks}
                         watched={metaItem.watched}
+                        metaItem={metaItem}
                         data-index={index}
                         onClick={metaItemOnClick}
                     />
@@ -274,6 +275,7 @@ const Discover = () => {
         toggleWatched,
         metaId: selectedMetaItem.id,
         like: selectedMetaItem.like,
+        readOnly: true,
     };
 
     const renderMetaPreview = () => {
@@ -286,7 +288,7 @@ const Discover = () => {
                 {...metaPreviewProps}
                 className={styles['meta-preview-container']}
                 ref={metaPreviewRef}
-                background={selectedMetaItem.poster}
+                background={selectedMetaItem.background ?? selectedMetaItem.poster}
                 links={selectedMetaItem.links}
             />;
         } else if (discover.catalog !== null && discover.catalog.content.type === 'Loading') {

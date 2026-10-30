@@ -7,7 +7,7 @@ const { Button } = require('stremio/components');
 const useTranslate = require('stremio/common/useTranslate');
 const styles = require('./styles');
 
-const MetaLinks = ({ className, label, links }) => {
+const MetaLinks = ({ className, label, links, readOnly }) => {
     const { string, stringWithPrefix } = useTranslate();
     return (
         <div className={classnames(className, styles['meta-links-container'])}>
@@ -23,9 +23,14 @@ const MetaLinks = ({ className, label, links }) => {
                 Array.isArray(links) && links.length > 0 ?
                     <div className={styles['links-container']}>
                         {links.map(({ label, href }, index) => (
-                            <Button key={index} className={styles['link-container']} title={label} href={href}>
-                                { string(label) }
-                            </Button>
+                            readOnly ?
+                                <div key={index} className={classnames(styles['link-container'], styles['pill'])} title={label}>
+                                    { string(label) }
+                                </div>
+                                :
+                                <Button key={index} className={styles['link-container']} title={label} href={href}>
+                                    { string(label) }
+                                </Button>
                         ))}
                     </div>
                     :
@@ -38,6 +43,7 @@ const MetaLinks = ({ className, label, links }) => {
 MetaLinks.propTypes = {
     className: PropTypes.string,
     label: PropTypes.string,
+    readOnly: PropTypes.bool,
     links: PropTypes.arrayOf(PropTypes.shape({
         label: PropTypes.string,
         href: PropTypes.string

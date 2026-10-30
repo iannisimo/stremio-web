@@ -28,7 +28,7 @@ const ALLOWED_LINK_REDIRECTS = [
     routesRegexp.metadetails.regexp
 ];
 
-const MetaPreview = React.forwardRef(({ className, compact, name, logo, background, runtime, releaseInfo, released, description, deepLinks, links, trailerStreams, inLibrary, toggleInLibrary, watched, toggleWatched, ratingInfo, metadata, children, actions, showIcon = 'play', onShowClick }, ref) => {
+const MetaPreview = React.forwardRef(({ className, compact, name, logo, background, runtime, releaseInfo, released, description, deepLinks, links, trailerStreams, inLibrary, toggleInLibrary, watched, toggleWatched, ratingInfo, metadata, children, actions, showIcon = 'play', onShowClick, readOnly }, ref) => {
     const { t } = useTranslation();
     const [shareModalOpen, openShareModal, closeShareModal] = useBinaryState(false);
     const isMobileLandscape = useMediaQuery(`(max-width: ${screenSizes.xsmall}) and (max-height: ${screenSizes['phone-landscape-size']}) and (orientation: landscape)`);
@@ -157,19 +157,25 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                                         null
                             }
                             {
-                                linksGroups.has(CONSTANTS.IMDB_LINK_CATEGORY) ?
-                                    <Button
-                                        className={styles['imdb-button-container']}
-                                        title={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}
-                                        href={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).href}
-                                        target={'_blank'}
-                                        tabIndex={0}
-                                    >
+                                linksGroups.has(CONSTANTS.IMDB_LINK_CATEGORY) && readOnly ?
+                                    <div className={classnames(styles['imdb-button-container'], styles['read-only'])}>
                                         <div className={styles['label']}>{linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}</div>
                                         <Icon className={styles['icon']} name={'imdb'} />
-                                    </Button>
+                                    </div>
                                     :
-                                    null
+                                    linksGroups.has(CONSTANTS.IMDB_LINK_CATEGORY) ?
+                                        <Button
+                                            className={styles['imdb-button-container']}
+                                            title={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}
+                                            href={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).href}
+                                            target={'_blank'}
+                                            tabIndex={0}
+                                        >
+                                            <div className={styles['label']}>{linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}</div>
+                                            <Icon className={styles['icon']} name={'imdb'} />
+                                        </Button>
+                                        :
+                                        null
                             }
                         </div>
                         :
@@ -196,6 +202,7 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                                 className={styles['meta-links']}
                                 label={category}
                                 links={linksGroups.get(category)}
+                                readOnly={readOnly}
                             />
                         ))
                 }
@@ -212,7 +219,7 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                 }
                 {children}
             </div>
-            <div className={styles['action-buttons-container']}>
+            {readOnly ? null : <div className={styles['action-buttons-container']}>
                 {actions !== undefined ? actions : <>
                     {
                         typeof trailerHref === 'string' ?
@@ -283,7 +290,7 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                             null
                     }
                 </>}
-            </div>
+            </div>}
         </div>
     );
 });
@@ -321,6 +328,7 @@ MetaPreview.propTypes = {
     toggleWatched: PropTypes.func,
     ratingInfo: PropTypes.object,
     onShowClick: PropTypes.func,
+    readOnly: PropTypes.bool,
 };
 
 module.exports = MetaPreview;
