@@ -3,6 +3,7 @@ import { usePlatform } from 'stremio/common';
 import { Scale, MultiselectMenu, Toggle } from 'stremio/components';
 import { Section, Option } from '../components';
 import useInterfaceOptions from './useInterfaceOptions';
+import { REMOTE_NAVIGATION_LABEL } from 'stremio/services/RemoteNavigation';
 
 type Props = {
     profile: Profile,
@@ -18,6 +19,7 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
         escExitFullscreenToggle,
         hideSpoilersToggle,
         gamepadSupportToggle,
+        remoteNavigationToggle,
     } = useInterfaceOptions(profile);
 
     return (
@@ -59,6 +61,12 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                 <Toggle
                     tabIndex={-1}
                     {...gamepadSupportToggle}
+                />
+            </Option>
+            <Option label={REMOTE_NAVIGATION_LABEL}>
+                <Toggle
+                    tabIndex={-1}
+                    {...remoteNavigationToggle}
                 />
             </Option>
         </Section>
