@@ -5,11 +5,13 @@ import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import GamepadContext from './GamepadContext';
 import type { ControllerType } from './GamepadContext';
+import useRemoteKeyboard from '../RemoteNavigation/useRemoteKeyboard';
 
 type GamepadEventHandlers = Map<string, Map<string, (data?: string) => void>>;
 
 type GamepadProviderProps = {
     enabled: boolean;
+    remoteNavigation?: boolean;
     onGuide?: () => void;
     children: React.ReactNode;
 };
@@ -25,7 +27,7 @@ const detectControllerType = (gamepad: Gamepad): ControllerType => {
     return 'generic';
 };
 
-const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) => {
+const GamepadProvider = ({ enabled, remoteNavigation = false, onGuide, children }: GamepadProviderProps) => {
     const { t } = useTranslation();
     const toast = useToast();
     const connectedGamepads = useRef<number>(0);
@@ -64,27 +66,32 @@ const GamepadProvider = ({ enabled, onGuide, children }: GamepadProviderProps) =
         lockPrefix.current = null;
     }, []);
 
-    const emit = (event: string, data?: string) => {
+    const emit = useCallback((event: string, data?: string): boolean => {
         if (eventHandlers.current.has(event)) {
             const handlersMap = eventHandlers.current.get(event)!;
 
-            if (!handlersMap || handlersMap.size === 0) return;
+            if (!handlersMap || handlersMap.size === 0) return false;
 
             if (lockPrefix.current) {
                 const matching = Array.from(handlersMap.entries())
                     .filter(([id]) => id.startsWith(lockPrefix.current!));
                 if (matching.length > 0) {
                     matching[matching.length - 1][1](data);
+                    return true;
                 }
-                return;
+                return false;
             }
 
             const latestHandler = Array.from(handlersMap.values()).slice(-1)[0];
             if (latestHandler) {
                 latestHandler(data);
+                return true;
             }
         }
-    };
+        return false;
+    }, []);
+
+    useRemoteKeyboard(remoteNavigation, emit);
 
     const onGamepadConnected = useCallback((e: GamepadEvent) => {
         setControllerType(detectControllerType(e.gamepad));
