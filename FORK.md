@@ -70,7 +70,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`) | Makes every button remote-reachable |
 | `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar only on Search | TV shell |
-| `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu |
+| `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |

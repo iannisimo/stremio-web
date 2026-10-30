@@ -28,7 +28,8 @@ const TvRow = ({ className, title, catalog, message, itemComponent, notification
 
     const group = useFocusGroup();
 
-    const shape = items?.[0]?.posterShape ?? 'poster';
+    // square cards are drawn as posters
+    const shape = items?.[0]?.posterShape === 'landscape' ? 'landscape' : 'poster';
 
     return (
         <FocusContext.Provider value={group.focusKey}>
