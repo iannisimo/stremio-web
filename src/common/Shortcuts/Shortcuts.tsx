@@ -2,7 +2,9 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { PRIMARY_MODIFIER, getKeyboardShortcutKey, getKeyboardShortcutKeys } from './keyboard';
 import shortcuts from './shortcuts.json';
 
-const SHORTCUTS = shortcuts.map(({ shortcuts }) => shortcuts).flat();
+// TV fork: no app-wide shortcuts, only the player's
+const groups = shortcuts.filter(({ name }) => name !== 'general');
+const SHORTCUTS = groups.map(({ shortcuts }) => shortcuts).flat();
 
 export type ShortcutName = string;
 export type ShortcutListener = (combo: number, key: string, repeat: boolean) => void;
@@ -88,7 +90,7 @@ const ShortcutsProvider = ({ children, onShortcut }: Props) => {
         listeners.current.get(name)?.delete(listener);
     }, []);
 
-    const value = useMemo(() => ({ grouped: shortcuts, on, off }), [on, off]);
+    const value = useMemo(() => ({ grouped: groups, on, off }), [on, off]);
 
     useEffect(() => {
         document.addEventListener('keydown', onKeyDown);
