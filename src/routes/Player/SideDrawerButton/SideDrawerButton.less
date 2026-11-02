@@ -27,9 +27,17 @@
         transition: 0.3s opacity ease-in-out;
     }
 
-    &:hover {
+    &:hover, &:focus {
         .icon {
             opacity: 1;
+        }
+    }
+
+    &:focus {
+        background-color: var(--tv-focus);
+
+        .icon {
+            color: var(--tv-focus-text);
         }
     }
 }

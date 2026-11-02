@@ -96,9 +96,24 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/routes/MetaDetails/LiveTvDetails/LiveTvDetails.tsx`, `src/components/ColorInput/ColorInput.tsx` | Phone-layout media query replaced by `false` (and its imports dropped) | No bottom sheets on narrow or tall screens |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
 | `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
+| `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward`/`volume` shortcuts `enabled=false`; `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode | Remote-first player |
+| `src/routes/Player/ControlBar/ControlBar.js` | `focusKey`s and `disabled` on the buttons; `data-tv-statistics` on the statistics button; mute, cast, "…" and the buttons-menu toggle `data-tv-hidden` + `focusable={false}` | Same |
+| `src/routes/Player/ControlBar/SeekBar/SeekBar.js`, `styles.less` | Slider is focusable (`player-seek`), focus style on the thumb; time label not focusable | ←/→ seek on the focused bar |
+| `src/routes/Player/SideDrawerButton/` | Focusable (`player-drawer-button`), Enter opens | Remote reach |
+| `src/routes/Player/useKeyboardSeek.ts` | `seekBy` honours a caller's larger offset while held | Remote hold-to-seek ramp |
+| `src/routes/Player/SubtitlesMenu/Stepper/Stepper.tsx` | Enter steps once; buttons at the limit not focusable | Subtitles popup |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
 | `src/services/Navigation/navigation.ts`, `index.ts` | `addKeyInterceptor`; remote Select/Menu keys; `getCurrentFocusKey` export | Screens that claim keys first (player) |
+
+## Upstream UI we hide
+
+Still rendered (smaller merges), but hidden: mute button and volume slider, the
+"…" options button (right click still opens `OptionsMenu`), the cast button,
+the small-screen "more" toggle, the top bar's back/fullscreen buttons and logo.
+Buttons get `data-tv-hidden` + `focusable={false}`; the rest is hidden by
+attribute selectors in `src/routes/Player/TvControls/tvPlayer.less`. If
+upstream renames those classes, they show up again.
 
 ## Our own files
 
@@ -132,6 +147,14 @@ Never touched by upstream merges.
   (then core's `LoginWithToken`), "Standard login" for email and password.
 - `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.
 - `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
+- `src/routes/Player/TvControls/`: player remote handling (`useTvPlayer`,
+  `usePlayerKeys`: hidden-controls seek, Back closes popups and refocuses
+  the opener), the control bar focus group, the player focus boundary,
+  `TvPopup` / `withTvPopup` around upstream's menus (speed, subtitles and
+  audio centered, restyled with `[class*="name-"]` selectors in
+  `TvPopup.less`; check those if upstream renames inner classes), and
+  `TvStatistics` (panel shown while the statistics button is focused or
+  hovered; upstream's `StatisticsMenu` no longer opens).
 
 ## Conventions
 

@@ -1,0 +1,42 @@
+// Player overrides for the remote. Upstream elements we don't use stay
+// rendered (so merges stay small) and are hidden here; their Buttons also get
+// focusable={false}. Selectors are attribute-based, so CSS-module hashing
+// doesn't matter.
+
+[data-tv-hidden],
+[class*='control-bar-buttons-menu-button-'],
+[class*='volume-slider-'],
+[class*='nav-bar-layer-'] [class*='logo-container-'] {
+    display: none !important;
+}
+
+// upstream clips everything (* { overflow: hidden }), which cuts the focused
+// button's scale, outline and shadow
+[class*='control-bar-buttons-container-'],
+[class*='control-bar-buttons-menu-container-'] {
+    overflow: visible;
+}
+
+[class*='control-bar-button-']:focus {
+    color: var(--tv-focus-text);
+    background-color: var(--tv-focus);
+    transform: scale(1.1);
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.45);
+
+    [class*='icon-'] {
+        color: inherit;
+    }
+}
+
+// Small screens fold the buttons into a menu: show them inline instead.
+@media only screen and (max-width: 640px) {
+    [class*='control-bar-buttons-menu-container-'] {
+        display: flex !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: none !important;
+        overflow: visible !important;
+    }
+}

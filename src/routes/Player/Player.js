@@ -18,16 +18,19 @@ const { HorizontalNavBar, Transition, ContextMenu } = require('stremio/component
 const { default: Buffering } = require('./Buffering');
 const VolumeChangeIndicator = require('./VolumeChangeIndicator');
 const Error = require('./Error');
-const ControlBar = require('./ControlBar');
-const NextVideoPopup = require('./NextVideoPopup');
-const StatisticsMenu = require('./StatisticsMenu');
+const { default: ControlBar } = require('./TvControls/TvControlBar');
+const { default: withTvPopup } = require('./TvControls/popups');
+const { default: withTvPlayerRoot } = require('./TvControls/TvPlayerRoot');
+const { default: useTvPlayer } = require('./TvControls/useTvPlayer');
+const NextVideoPopup = withTvPopup(require('./NextVideoPopup'), { focusKey: 'player-popup-next', initial: '[class*="play-button"]' });
+const StatisticsMenu = withTvPopup(require('./StatisticsMenu'), { focusKey: 'player-popup-statistics' });
 const OptionsMenu = require('./OptionsMenu');
-const { default: CastDevicesMenu } = require('./CastDevicesMenu');
-const SubtitlesMenu = require('./SubtitlesMenu');
-const { default: AudioMenu } = require('./AudioMenu');
-const SpeedMenu = require('./SpeedMenu');
+const CastDevicesMenu = withTvPopup(require('./CastDevicesMenu').default, { focusKey: 'player-popup-cast' });
+const SubtitlesMenu = withTvPopup(require('./SubtitlesMenu'), { focusKey: 'player-popup-subtitles', centered: true });
+const AudioMenu = withTvPopup(require('./AudioMenu').default, { focusKey: 'player-popup-audio', centered: true });
+const SpeedMenu = withTvPopup(require('./SpeedMenu'), { focusKey: 'player-popup-speed', centered: true });
 const { default: SideDrawerButton } = require('./SideDrawerButton');
-const { default: SideDrawer } = require('./SideDrawer');
+const SideDrawer = withTvPopup(require('./SideDrawer').default, { focusKey: 'player-popup-drawer' });
 const usePlayer = require('./usePlayer');
 const { default: usePlayOnDevice } = require('./usePlayOnDevice');
 const { default: useCastDevice } = require('./useCastDevice');
@@ -396,6 +399,24 @@ const Player = () => {
         }
     }, [player.nextVideo, isEpg, handleNextVideoNavigation, profile.settings, cancelKeyboardSeek, nextVideo]);
 
+    useTvPlayer({
+        routeFocused,
+        playerRef,
+        controlBarRef,
+        overlayHidden,
+        menusOpen,
+        nextVideoPopupOpen,
+        openMenu: subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : statisticsMenuOpen ? 'statistics' : castDevicesMenuOpen ? 'cast' : sideDrawerOpen ? 'episodes' : null,
+        seekTimeDuration: settings.seekTimeDuration,
+        seekShortTimeDuration: settings.seekShortTimeDuration,
+        seekBy: onKeyboardSeekRequested,
+        setImmersed,
+        setImmersedDebounced,
+        closeMenus,
+        dismissNextVideoPopup: onDismissNextVideoPopup,
+        goBack,
+    });
+
     const onVideoClick = React.useCallback(() => {
         if (video.state.paused !== null && !consumePlaybackSpeedHoldClick()) {
             if (video.state.paused) {
@@ -445,6 +466,8 @@ const Player = () => {
     }, []);
 
     const onContainerMouseLeave = React.useCallback(() => {
+        // keyboard mode turns pointer events off, which fires a leave
+        if (document.documentElement.dataset.input === 'keyboard') return;
         setImmersedDebounced.cancel();
         setImmersed(true);
     }, []);
@@ -713,15 +736,16 @@ const Player = () => {
         return () => platform.shell.off('media-key', onMediaKey);
     }, [isEpg, video.state.paused, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
 
+    // arrows are the remote's: useTvPlayer seeks and navigates
     useShortcut('seekForward', React.useCallback((combo) => {
         const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
         onKeyboardSeekRequested(seekDuration);
-    }, [settings.seekShortTimeDuration, settings.seekTimeDuration, onKeyboardSeekRequested]), !menusOpen && canSeek);
+    }, [settings.seekShortTimeDuration, settings.seekTimeDuration, onKeyboardSeekRequested]), false);
 
     useShortcut('seekBackward', React.useCallback((combo) => {
         const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
         onKeyboardSeekRequested(-seekDuration);
-    }, [settings.seekShortTimeDuration, settings.seekTimeDuration, onKeyboardSeekRequested]), !menusOpen && canSeek);
+    }, [settings.seekShortTimeDuration, settings.seekTimeDuration, onKeyboardSeekRequested]), false);
 
     useShortcut('mute', React.useCallback(() => {
         video.state.muted === true ? onUnmuteRequested() : onMuteRequested();
@@ -732,7 +756,7 @@ const Player = () => {
             const volume = combo === 0 ? Math.min(video.state.volume + 5, 200) : Math.max(video.state.volume - 5, 0);
             onVolumeChangeRequested(volume);
         }
-    }, [onVolumeChangeRequested, video.state.volume]), !menusOpen);
+    }, [onVolumeChangeRequested, video.state.volume]), false);
 
     useShortcut('audioMenu', React.useCallback(() => {
         closeMenus();
@@ -815,6 +839,11 @@ const Player = () => {
     }, [isEpg, closeMenus, player.nextVideo, nextVideo, handleNextVideoNavigation]));
 
     useShortcut('exit', React.useCallback(() => {
+        // with something open, Back only closes it
+        if (menusOpen) {
+            closeMenus();
+            return;
+        }
         closeMenus();
         // When escExitFullscreen is enabled, FullscreenProvider handles the first
         // Escape press by leaving fullscreen. Only skip navigating back in that case,
@@ -823,7 +852,7 @@ const Player = () => {
             return;
         }
         goBack();
-    }, [closeMenus, settings.escExitFullscreen, fullscreen, goBack]));
+    }, [menusOpen, closeMenus, settings.escExitFullscreen, fullscreen, goBack]));
 
     React.useLayoutEffect(() => {
         if (!routeFocused) {
@@ -1013,8 +1042,8 @@ const Player = () => {
             <HorizontalNavBar
                 className={classnames(styles['layer'], styles['nav-bar-layer'])}
                 title={player.title !== null ? player.title : ''}
-                backButton={true}
-                fullscreenButton={true}
+                backButton={false}
+                fullscreenButton={false}
                 hdrInfo={video.state.hdrInfo}
                 onMouseMove={onBarMouseMove}
                 onMouseOver={onBarMouseMove}
@@ -1044,6 +1073,7 @@ const Player = () => {
                 nextVideo={isEpg ? null : player.nextVideo}
                 stream={player.selected !== null ? player.selected.stream : null}
                 statisticsAvailable={statisticsMenuAvailable}
+                statistics={statistics}
                 onPlayRequested={onPlayRequested}
                 onPauseRequested={onPauseRequested}
                 onNextVideoRequested={onNextVideoRequested}
@@ -1150,4 +1180,4 @@ const PlayerFallback = () => (
     <div className={classnames(styles['player-container'])} />
 );
 
-module.exports = withCoreSuspender(Player, PlayerFallback);
+module.exports = withTvPlayerRoot(withCoreSuspender(Player, PlayerFallback));

@@ -106,7 +106,9 @@ const useKeyboardSeek = ({ time, duration, minimum = 0, onSeek, setSeeking }: Pr
         } else if (Math.sign(holdStepRef.current) === Math.sign(offset)) {
             const duration = durationRef.current;
             if (duration !== null && !isNaN(duration) && duration > 0) {
-                holdStepRef.current = Math.sign(holdStepRef.current) * Math.min(Math.abs(holdStepRef.current) * HOLD_ACCELERATION, (duration - (minimumRef.current ?? 0)) * MAX_HOLD_STEP);
+                // a caller may ramp up the offset itself
+                const step = Math.max(Math.abs(holdStepRef.current) * HOLD_ACCELERATION, Math.abs(offset));
+                holdStepRef.current = Math.sign(holdStepRef.current) * Math.min(step, (duration - (minimumRef.current ?? 0)) * MAX_HOLD_STEP);
             }
         } else {
             return;

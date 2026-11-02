@@ -1,0 +1,194 @@
+// Upstream menus are restyled through [class*='name-'] selectors (CSS module
+// hashes change, the names don't). If upstream renames a class, check here.
+
+.tv-popup {
+    // :not(#id) so it wins over the per-menu backgrounds below
+    [tabindex='0']:focus:not(#tv) {
+        outline: none;
+        color: var(--tv-focus-text);
+        background-color: var(--tv-focus);
+
+        * {
+            color: var(--tv-focus-text);
+        }
+    }
+
+    // over upstream's menu-layer placement (:not(#id) outranks its nested selector)
+    &.centered:not(#tv) {
+        inset: 0;
+        z-index: 2;
+        max-width: none;
+        max-height: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem;
+        overflow: visible;
+        border-radius: 0;
+        background-color: rgba(0, 0, 0, 0.6);
+        box-shadow: none;
+        backdrop-filter: none;
+
+        > * {
+            max-width: 100%;
+            max-height: 100%;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--tv-stroke-strong);
+            background-color: var(--secondary-background-color);
+            box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.6);
+            animation: tv-popup-in 0.2s var(--tv-ease);
+        }
+    }
+
+    // shared look of headers and options
+    [class*='languages-header-'],
+    [class*='variants-header-'],
+    [class*='settings-header-'],
+    [class*='audio-menu-'] [class*='header-'],
+    [class*='speed-menu-container-'] > [class*='title-'] {
+        padding: 0 0.5rem 1.25rem !important;
+        font-size: 1rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-align: left !important;
+        color: var(--tv-text-3) !important;
+    }
+
+    [class*='language-option-'], [class*='variant-option-'], [class*='option-'], [class*='speed-button-'] {
+        border-radius: 0.9rem !important;
+        transition: background-color 120ms ease, color 120ms ease, transform 120ms var(--tv-ease);
+
+        &:global(.selected), &[class*='active-'] {
+            background-color: var(--tv-select);
+        }
+
+        &:focus {
+            transform: scale(1.03);
+        }
+    }
+
+    // selected dot
+    [class*='icon-']:not(svg) {
+        width: 0.6rem !important;
+        height: 0.6rem !important;
+        background-color: var(--tv-text) !important;
+    }
+
+    :focus [class*='icon-']:not(svg) {
+        background-color: var(--tv-focus-text) !important;
+    }
+
+    [class*='language-label-'], [class*='variant-label-'], [class*='lang-'] {
+        font-size: 1.35rem !important;
+        line-height: 1.8rem !important;
+    }
+
+    [class*='variant-origin-'], [class*='audio-menu-'] [class*='label-'] {
+        font-size: 1rem !important;
+        color: var(--tv-text-2);
+    }
+
+    // Speed: the rates as one row of pills, no slider
+    [class*='speed-menu-container-'] {
+        width: auto !important;
+
+        [class*='slider-'] {
+            display: none;
+        }
+
+        [class*='top-container-'] {
+            min-height: 0 !important;
+            padding: 0 0 1.25rem !important;
+        }
+
+        [class*='speed-title-'] {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--tv-text);
+        }
+
+        [class*='main-container-'] {
+            padding-bottom: 0 !important;
+        }
+
+        [class*='options-container-'] {
+            overflow: visible;
+            gap: 0.75rem !important;
+            padding: 0 !important;
+        }
+
+        [class*='speed-button-'] {
+            flex: none !important;
+            min-width: 6rem;
+            padding: 1rem 1.25rem !important;
+            font-size: 1.35rem;
+            font-weight: 600;
+            background-color: var(--tv-fill);
+        }
+    }
+
+    // Subtitles: three columns (language, variant, settings)
+    [class*='subtitles-menu-container-'] {
+        height: min(36rem, 100%) !important;
+        gap: 1.5rem;
+
+        width: 66rem;
+
+        [class*='languages-container-'], [class*='variants-container-'], [class*='subtitles-settings-container-'] {
+            flex: 1 1 0 !important;
+            width: auto !important;
+            min-width: 0;
+        }
+
+        [class*='languages-list-'], [class*='variants-list-'], [class*='settings-list-'] {
+            padding: 0.4rem !important;
+            overflow-y: auto !important;
+        }
+
+        [class*='language-option-'] {
+            height: 4rem !important;
+            padding: 0 1.25rem !important;
+        }
+
+        [class*='variant-option-'] {
+            height: 4.75rem !important;
+            padding: 0 1.25rem !important;
+        }
+
+        [class*='stepper-'] {
+            padding: 0 0.25rem 1.5rem !important;
+        }
+    }
+
+    // Audio: one list
+    [class*='audio-menu-'] {
+        // direct child: every Button also has a button-container- class
+        > [class*='container-'] {
+            width: 26rem !important;
+            max-height: min(36rem, 100%) !important;
+        }
+
+        [class*='list-'] {
+            padding: 0.4rem !important;
+        }
+
+        [class*='option-'] {
+            height: 4.75rem !important;
+            padding: 0 1.25rem !important;
+        }
+    }
+}
+
+@keyframes tv-popup-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}

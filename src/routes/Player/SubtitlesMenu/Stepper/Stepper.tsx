@@ -99,6 +99,15 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
         if (!accelerate || !hasRepeated.current) updateValue(step);
     }, [accelerate, step, updateValue]);
 
+    // Enter on a focused button steps once (a held key repeats)
+    const onDecrementKeyDown = useCallback((event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') updateValue(-step);
+    }, [step, updateValue]);
+
+    const onIncrementKeyDown = useCallback((event: React.KeyboardEvent) => {
+        if (event.key === 'Enter') updateValue(step);
+    }, [step, updateValue]);
+
     useEffect(() => {
         localValue.current = value;
     }, [value]);
@@ -111,6 +120,8 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
             <div className={styles['content']}>
                 <Button
                     className={classNames(styles['button'], { 'disabled': decreaseDisabled })}
+                    disabled={decreaseDisabled}
+                    onKeyDown={onDecrementKeyDown}
                     onMouseDown={onDecrementMouseDown}
                     onMouseUp={onDecrementMouseUp}
                     onMouseLeave={cancel}
@@ -122,6 +133,8 @@ const Stepper = ({ className, label, value, unit, step, min, max, disabled, acce
                 </div>
                 <Button
                     className={classNames(styles['button'], { 'disabled': increaseDisabled })}
+                    disabled={increaseDisabled}
+                    onKeyDown={onIncrementKeyDown}
                     onMouseDown={onIncrementMouseDown}
                     onMouseUp={onIncrementMouseUp}
                     onMouseLeave={cancel}

@@ -1,0 +1,72 @@
+.tv-statistics {
+    position: absolute;
+    z-index: 1;
+    min-width: 22rem;
+    max-width: 30rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 1.25rem;
+    border: 1px solid var(--tv-stroke-strong);
+    background-color: var(--secondary-background-color);
+    box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    animation: tv-statistics-in 0.15s var(--tv-ease);
+
+    .title {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--tv-text-3);
+    }
+
+    .stats {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .stat {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        color: var(--tv-text);
+        white-space: nowrap;
+    }
+
+    .unit {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--tv-text-2);
+    }
+
+    .label {
+        font-size: 0.95rem;
+        color: var(--tv-text-2);
+    }
+
+    .hash {
+        margin-top: 1rem;
+        font-family: monospace;
+        font-size: 0.85rem;
+        color: var(--tv-text-3);
+        word-break: break-all;
+    }
+}
+
+@keyframes tv-statistics-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
