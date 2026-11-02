@@ -8,7 +8,7 @@ const withTvPlayerRoot = <P extends object>(Player: React.ComponentType<P>) => {
         const group = useFocusGroup<HTMLDivElement>({ focusKey: 'player-root', isFocusBoundary: true, saveLastFocusedChild: false });
         return (
             <FocusContext.Provider value={group.focusKey}>
-                <div ref={group.ref} style={{ display: 'contents' }}>
+                <div ref={group.ref} style={{ display: 'contents' }} data-tv-own-focus={true}>
                     <Player {...props} />
                 </div>
             </FocusContext.Provider>

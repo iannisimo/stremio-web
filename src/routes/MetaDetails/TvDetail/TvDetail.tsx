@@ -31,7 +31,7 @@ const TvDetail = ({ meta, metaState, info, panel, onBack }: Props) => {
     const message = MESSAGES[metaState];
 
     return (
-        <div className={styles['tv-detail']}>
+        <div className={styles['tv-detail']} data-tv-own-focus={true}>
             {
                 background ?
                     <Image className={styles['backdrop']} src={background} alt={' '} renderFallback={() => null} />

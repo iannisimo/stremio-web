@@ -58,7 +58,10 @@ listed. Upstream fixes to them have to be ported by hand.
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
 | `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` |
 | `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) |
-| Top bar (`HorizontalNavBar`) on main pages | `Rail` (search; no profile menu) | Kept only on the Search page |
+| `src/routes/Settings/Menu/` | `src/routes/Settings/TvMenu/` (same props; focus picks the section) | Settings |
+| `src/components/Scale/` | `src/components/TvScale/` (same props; left/right step the options) | Settings > Interface zoom |
+| `src/routes/Library/Placeholder/`, `src/routes/Calendar/Placeholder/` (logged out) | `Library/TvPlaceholder/`, `Calendar/TvPlaceholder/` (same texts, `TvNotice`) | Library, Calendar |
+| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown anywhere |
 
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
@@ -75,13 +78,13 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
 | `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale); player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
 | `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider` | "Always fullscreen" setting |
-| `src/routes/Settings/Interface/Interface.tsx` | "Always fullscreen" toggle (localStorage, not core settings) | Same |
+| `src/routes/Settings/Interface/Interface.tsx` | Gamepad toggle hidden (`SHOW_GAMEPAD = false`); "Always fullscreen" toggle (localStorage, not core settings) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
 | `src/components/index.ts` | `MultiselectMenu` export points at `TvSelect` | All dropdowns use the TV picker |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`) | Makes every button remote-reachable |
-| `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar only on Search | TV shell |
+| `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar off (`search` forced to `false`) | TV shell |
 | `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
@@ -104,6 +107,13 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Player/SubtitlesMenu/Stepper/Stepper.tsx` | Enter steps once; buttons at the limit not focusable | Subtitles popup |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
+| `src/routes/Addons/Addons.js` | `SHOW_ADDONS_LIST = false`: `TvAddonsNotice` (use web/mobile, QR to web.stremio.com; log in first when logged out) in place of the list and filters; dialogs kept, so `?addon=` install links still work | Managing addons with a remote is painful |
+| `src/routes/Library/Library.js`, `src/routes/Calendar/Calendar.tsx` | `Placeholder` import points at `TvPlaceholder` | Logged-out notice in the TV style |
+| `src/routes/Search/Search.js`, `styles.less` | `TvSearchField` on top; `TvSearchHistory` in place of the hints; `TvRow` instead of `MetaRow`; row spacing | Search page, like Home |
+| `src/routes/Settings/Player/Player.tsx` | Shift + arrow seek time hidden (`SHOW_SHIFT_SEEK = false`) | A remote has no Shift |
+| `src/routes/Settings/Settings.tsx` | Imports `TvMenu` as `Menu`; the menu selects one section instead of scrolling; only the selected section renders (`Info` with General); `TvPane` around the sections | Two-pane settings |
+| `src/routes/Settings/Settings.less`, `components/Section/Section.less`, `components/Option/Option.less` | Pane padding; wider section, bigger heading; options as full-width rows lit by `:focus-within` | Same |
+| `src/components/index.ts` | `Scale` export points at `TvScale` | Same |
 | `src/services/Navigation/navigation.ts`, `index.ts` | `addKeyInterceptor`; remote Select/Menu keys; `getCurrentFocusKey` export | Screens that claim keys first (player) |
 
 ## Upstream UI we hide
@@ -122,7 +132,12 @@ Never touched by upstream merges.
 - `src/services/Navigation/`: Norigin setup, DOM-focus sync, input mode
   (keyboard vs mouse), `useFocusGroup`, `useLongPressEnter`, `mergeRefs`,
   focus fallback (first arrow lands on the visible control nearest the top
-  left, or inside a `data-tv-start` container), sidebar/content crossing, `useRouteFocusScope` / `useRouteScope`
+  left, or inside a `data-tv-start` container; never on a group; a page with
+  nothing focusable lands on the rail's current tab), page autofocus (a page
+  that comes on top focuses its first control right away, or what it had when
+  coming back; `data-tv-own-focus` opts out (player, detail), `data-tv-wait`
+  holds it while content loads (hero)), sidebar/content crossing (not
+  from dialogs or `data-tv-arrows` controls that use left/right themselves), `useRouteFocusScope` / `useRouteScope`
   (route-prefixed keys).
 - `src/services/KeepFullscreen/`: "Always fullscreen" setting (localStorage
   `keepFullscreen`) and the listener that re-enters fullscreen on any key or
@@ -140,9 +155,18 @@ Never touched by upstream merges.
   `TvEpisodesPanel.less`; check those if upstream renames inner classes.
 - `src/components/TvTextInput/`: text field as a focus stop; the editor
   syncs the page field's value live (callers read `ref.current.value`),
-  calls `onSubmit` after closing, Cancel restores the old value.
+  calls `onSubmit` after closing, Cancel restores the old value. Optional
+  `suggestions` prop: chips between the field and the keyboard, picking one submits it.
   `TvKeyboard`: `react-simple-keyboard` with our layouts and theme (its CSS
   isn't imported); one focus stop, arrows move between keys.
+- `src/routes/Settings/TvMenu/`, `TvPane/`, `src/components/TvScale/`: two-pane
+  settings (section list, right pane focus group) and the zoom stepper.
+- `src/components/TvNotice/`: full-page notice (icon, title, points, actions, side
+  visual), used by `Addons/TvAddonsNotice/` and the `TvPlaceholder`s.
+- `assets/images/web_addons_qr.svg`: QR for `https://web.stremio.com/#/addons`,
+  made with `qrencode -t SVG --svg-path -m 0 -l M`.
+- `src/routes/Search/TvSearchField/`, `TvSearchHistory/`: search field (opens
+  the text editor, with `useLocalSearch` suggestions) and history chips.
 - `src/routes/TvIntro/`: login screen. Code / QR login through link.stremio.com
   (then core's `LoginWithToken`), "Standard login" for email and password.
 - `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.

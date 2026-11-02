@@ -187,7 +187,7 @@ const TvKeyboard = ({ inputRef, focusKey, onDone }: Props) => {
     }, []);
 
     return (
-        <div ref={mergeRefs(containerRef, focusRef)} className={styles['keyboard']} tabIndex={-1} data-text-entry={true} onKeyDown={onKeyDown}>
+        <div ref={mergeRefs(containerRef, focusRef)} className={styles['keyboard']} tabIndex={-1} data-text-entry={true} data-tv-arrows={true} onKeyDown={onKeyDown}>
             <Keyboard
                 theme={'hg-theme-default tv-keyboard'}
                 layout={LAYOUT}

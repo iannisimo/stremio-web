@@ -102,7 +102,11 @@ const Hero = ({ catalogs }: Props) => {
     }, []);
 
     const item = slides[index];
-    if (!item) return null;
+    if (!item) {
+        // while rows load, ask the page's first focus to wait for the hero
+        const loading = catalogs.length === 0 || catalogs.some((catalog) => !catalog.content || catalog.content.type === 'Loading');
+        return loading ? <div data-tv-wait={true} /> : null;
+    }
 
     const href = item.type === 'series' ?
         item.deepLinks?.metaDetailsVideos ?? item.deepLinks?.metaDetailsStreams
@@ -111,7 +115,7 @@ const Hero = ({ catalogs }: Props) => {
 
     return (
         <FocusContext.Provider value={group.focusKey}>
-            <div ref={group.ref} className={styles['hero']} onFocus={onFocus}>
+            <div ref={group.ref} className={styles['hero']} data-tv-start={true} onFocus={onFocus}>
                 {
                     slides.map((slide, slideIndex) => (
                         <div

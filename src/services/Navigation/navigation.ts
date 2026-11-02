@@ -24,7 +24,7 @@ export const addKeyInterceptor = (interceptor: KeyInterceptor) => {
     };
 };
 
-type Entry = { focusKey: string, parentFocusKey: string, node: Element | null, focusable: boolean };
+type Entry = { focusKey: string, parentFocusKey: string, node: Element | null, focusable: boolean, trackChildren: boolean };
 type Registry = Record<string, Entry>;
 const registry = () => (SpatialNavigation as unknown as { focusableComponents: Registry }).focusableComponents;
 
@@ -67,8 +67,10 @@ const sidebarKey = () => Object.values(registry())
 const fallbackKey = ({ skipSidebar = false } = {}) => {
     const components = Object.values(registry()).filter((entry) => entry.focusable && entry.node);
     const parents = new Set(components.map((entry) => entry.parentFocusKey));
+    // groups (useFocusGroup tracks children) are never targets, even when empty:
+    // focusing an empty one leaves nothing focused and the next arrow repeats it
     const candidates = components
-        .filter((entry) => !parents.has(entry.focusKey))
+        .filter((entry) => !parents.has(entry.focusKey) && !entry.trackChildren)
         .filter((entry) => isVisible(entry.node as Element))
         .map((entry) => {
             const rect = (entry.node as Element).getBoundingClientRect();
@@ -76,9 +78,11 @@ const fallbackKey = ({ skipSidebar = false } = {}) => {
         })
         .sort((a, b) => a.distance - b.distance);
     const pick = candidates.find(({ entry }) => (entry.node as Element).closest('[data-tv-start]'))
-        ?? candidates.find(({ entry }) => !inSidebar(entry))
-        ?? (skipSidebar ? undefined : candidates[0]);
-    return pick?.entry.focusKey;
+        ?? candidates.find(({ entry }) => !inSidebar(entry));
+    if (pick) return pick.entry.focusKey;
+    if (skipSidebar) return undefined;
+    // the rail as a whole, so it lands on the current page's tab
+    return sidebarKey() ?? candidates[0]?.entry.focusKey;
 };
 
 // Left or right can find nothing when the target shares no rows with the
@@ -90,6 +94,8 @@ const crossSidebar = (direction: string) => {
         const entry = registry()[before];
         const sidebar = sidebarKey();
         if (getCurrentFocusKey() !== before || !entry || !sidebar) return;
+        // controls that use left/right themselves (`data-tv-arrows`), and dialogs, never cross
+        if ((entry.node as Element | null)?.closest('[data-tv-arrows], .modal-container')) return;
         if (direction === 'ArrowLeft' && !inSidebar(entry)) {
             setFocus(sidebar);
         } else if (direction === 'ArrowRight' && inSidebar(entry)) {
@@ -97,6 +103,42 @@ const crossSidebar = (direction: string) => {
             if (key) setFocus(key);
         }
     }, 80);
+};
+
+// A page that just came on top gets focus without waiting for an arrow:
+// what it had last time, else its first control. Content can arrive a moment
+// later (rows), so look again for a while before settling on the rail.
+// Pages that place focus themselves win: they either already did, or opt out
+// with `data-tv-own-focus` (player, detail page). A `data-tv-wait` element
+// holds the fallback until it goes away (the hero while rows load). The
+// remembered focus only counts when coming back to a page that stayed mounted:
+// every main page reuses the same group keys.
+const AUTOFOCUS_WAIT = 1500;
+const AUTOFOCUS_STEP = 100;
+
+export const focusRoute = (routeKey: string, restore: boolean) => {
+    let timer: number | undefined;
+    const start = Date.now();
+    const tick = () => {
+        if (hasFocus()) return;
+        const route = registry()[routeKey] as (Entry & { lastFocusedChildKey?: string }) | undefined;
+        if (!route?.node || (route.node as Element).querySelector('[data-tv-own-focus]')) return;
+        if (restore && route.lastFocusedChildKey && doesFocusableExist(route.lastFocusedChildKey)) {
+            setFocus(routeKey);
+            if (hasFocus()) return;
+        }
+        const timedOut = Date.now() - start >= AUTOFOCUS_WAIT;
+        const waiting = !timedOut && (route.node as Element).querySelector('[data-tv-wait]');
+        const key = waiting ? undefined : fallbackKey({ skipSidebar: true }) ?? (timedOut ? fallbackKey() : undefined);
+        if (key) {
+            setFocus(key);
+            return;
+        }
+        timer = window.setTimeout(tick, AUTOFOCUS_STEP);
+    };
+    // after the page's own first-frame focus calls
+    timer = window.setTimeout(tick, AUTOFOCUS_STEP);
+    return () => window.clearTimeout(timer);
 };
 
 // First arrow press with nothing focused only lands focus.
