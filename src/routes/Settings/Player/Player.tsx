@@ -4,6 +4,9 @@ import { usePlatform } from 'stremio/common';
 import { Category, Option, Section } from '../components';
 import usePlayerOptions from './usePlayerOptions';
 
+// HTPC fork: a remote has no Shift
+const SHOW_SHIFT_SEEK = false;
+
 type Props = {
     profile: Profile,
 };
@@ -101,12 +104,14 @@ const Player = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) => {
                         {...seekTimeDurationSelect}
                     />
                 </Option>
-                <Option label={'SETTINGS_SEEK_KEY_SHIFT'}>
-                    <MultiselectMenu
-                        className={'multiselect'}
-                        {...seekShortTimeDurationSelect}
-                    />
-                </Option>
+                {
+                    SHOW_SHIFT_SEEK && <Option label={'SETTINGS_SEEK_KEY_SHIFT'}>
+                        <MultiselectMenu
+                            className={'multiselect'}
+                            {...seekShortTimeDurationSelect}
+                        />
+                    </Option>
+                }
                 <Option label={'SETTINGS_PLAY_IN_BACKGROUND'}>
                     <Toggle
                         disabled={true}

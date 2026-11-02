@@ -6,7 +6,8 @@ import throttle from 'lodash.throttle';
 import { usePlatform, useProfile, useStreamingServer, useRouteFocused, withCoreSuspender } from 'stremio/common';
 import { MainNavBars } from 'stremio/components';
 import { SECTIONS } from './constants';
-import Menu from './Menu';
+import TvPane from './TvPane';
+import Menu from './TvMenu'; // HTPC fork: two-pane section list, upstream './Menu'
 import General from './General';
 import Interface from './Interface';
 import Player from './Player';
@@ -62,16 +63,16 @@ const Settings = () => {
         setSelectedSectionId(activeSection.id);
     }, [sections]);
 
-    const onMenuSelect = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    // HTPC fork: one section at a time, the menu switches it
+    const onMenuSelect = useCallback((event: React.SyntheticEvent<HTMLDivElement>) => {
         const section = sections.find((section) => {
             return section.id === event.currentTarget.dataset.section;
         });
 
-        const container = sectionsContainerRef.current;
-        section && container?.scrollTo({
-            top: section.ref.current!.offsetTop - container!.offsetTop,
-            behavior: 'smooth'
-        });
+        if (section) {
+            setSelectedSectionId(section.id);
+            sectionsContainerRef.current?.scrollTo({ top: 0 });
+        }
     }, [sections]);
 
     const onContainerScroll = useCallback(throttle(() => {
@@ -93,29 +94,39 @@ const Settings = () => {
                     onSelect={onMenuSelect}
                 />
 
-                <div ref={sectionsContainerRef} className={styles['sections-container']} onScroll={onContainerScroll}>
-                    <General
-                        ref={generalSectionRef}
-                        profile={profile}
-                    />
-                    <Interface
-                        ref={interfaceSectionRef}
-                        profile={profile}
-                    />
-                    <Player
-                        ref={playerSectionRef}
-                        profile={profile}
-                    />
-                    <Streaming
-                        ref={streamingServerSectionRef}
-                        profile={profile}
-                        streamingServer={streamingServer}
-                    />
+                <TvPane ref={sectionsContainerRef} className={styles['sections-container']} onScroll={onContainerScroll}>
                     {
-                        !platform.isMobile && <Shortcuts ref={shortcutsSectionRef} />
+                        selectedSectionId === SECTIONS.GENERAL && <General
+                            ref={generalSectionRef}
+                            profile={profile}
+                        />
                     }
-                    <Info streamingServer={streamingServer} />
-                </div>
+                    {
+                        selectedSectionId === SECTIONS.INTERFACE && <Interface
+                            ref={interfaceSectionRef}
+                            profile={profile}
+                        />
+                    }
+                    {
+                        selectedSectionId === SECTIONS.PLAYER && <Player
+                            ref={playerSectionRef}
+                            profile={profile}
+                        />
+                    }
+                    {
+                        selectedSectionId === SECTIONS.STREAMING && <Streaming
+                            ref={streamingServerSectionRef}
+                            profile={profile}
+                            streamingServer={streamingServer}
+                        />
+                    }
+                    {
+                        selectedSectionId === SECTIONS.SHORTCUTS && !platform.isMobile && <Shortcuts ref={shortcutsSectionRef} />
+                    }
+                    {
+                        selectedSectionId === SECTIONS.GENERAL && <Info streamingServer={streamingServer} />
+                    }
+                </TvPane>
             </div>
         </MainNavBars>
     );

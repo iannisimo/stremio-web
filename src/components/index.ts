@@ -9,7 +9,7 @@ import Chips from './Chips';
 import ColorInput from './ColorInput';
 import ContextMenu from './ContextMenu';
 import ContinueWatchingItem from './ContinueWatchingItem';
-import Scale from './Scale';
+import Scale from './TvScale'; // HTPC fork: remote-friendly, same props
 import DelayedRenderer from './DelayedRenderer';
 import EventModal from './EventModal';
 import HorizontalScroll from './HorizontalScroll';

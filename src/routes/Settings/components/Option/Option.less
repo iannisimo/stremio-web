@@ -6,8 +6,22 @@
     flex-direction: row;
     align-items: center;
     gap: 2rem;
-    margin-bottom: 2rem;
+    // HTPC fork: full-width rows, lit while their control has focus (was margin-bottom: 2rem)
+    min-height: 4.5rem;
+    margin-bottom: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 1rem;
+    transition: background-color 0.15s ease;
     overflow: visible;
+
+    &:focus-within {
+        background-color: var(--tv-select);
+
+        // the lit row shows the focus
+        [class*="toggle-container"]:focus {
+            outline: none;
+        }
+    }
 
     .heading, .content {
         flex: 1 1 50%;
@@ -28,6 +42,7 @@
         }
 
         .label {
+            font-size: 1.15rem;
             line-height: 1.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
