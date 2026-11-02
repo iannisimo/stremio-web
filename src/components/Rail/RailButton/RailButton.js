@@ -8,11 +8,13 @@ const { Link } = require('react-router-dom');
 const { useFocusable } = require('stremio/services/Navigation');
 
 const RailButton = ({ className, logo, icon, label, href, selected, focusKey, onClick }) => {
-    const { ref } = useFocusable({
-        focusKey,
-        // action tabs have no link to follow
-        onEnterPress: typeof href === 'string' ? undefined : () => onClick?.(),
-    });
+    const { ref } = useFocusable({ focusKey });
+    const onKeyDown = React.useCallback((event) => {
+        if (event.key === 'Enter' && !event.repeat) {
+            event.preventDefault();
+            event.currentTarget.click();
+        }
+    }, []);
     const renderLogoFallback = React.useCallback(() => (
         typeof icon === 'string' && icon.length > 0 ?
             <Icon className={styles['icon']} name={icon} />
@@ -32,7 +34,7 @@ const RailButton = ({ className, logo, icon, label, href, selected, focusKey, on
     const linkProps = typeof href === 'string' ? { to: href } : { role: 'button' };
     const iconName = selected || typeof href !== 'string' ? icon : `${icon}-outline`;
     return (
-        <Element ref={ref} className={classnames(className, styles['rail-button-container'], { 'selected': selected })} title={label} tabIndex={-1} {...linkProps} onClick={onClick} onDoubleClick={onDoubleClick}>
+        <Element ref={ref} className={classnames(className, styles['rail-button-container'], { 'selected': selected })} title={label} tabIndex={-1} {...linkProps} onClick={onClick} onKeyDown={onKeyDown} onDoubleClick={onDoubleClick}>
             {
                 typeof logo === 'string' && logo.length > 0 ?
                     <Image

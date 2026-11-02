@@ -4,14 +4,16 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const { ModalsContainerProvider } = require('../ModalsContainerContext');
 const { RouteFocusedProvider } = require('stremio/common/useRouteFocused');
+const { useRouteFocusScope } = require('stremio/services/Navigation');
 
-const Route = ({ component, focused }) => {
+const Route = ({ component, focused, view }) => {
+    const scope = useRouteFocusScope(view, focused);
     return (
-        <div className={'route-container'}>
+        <div ref={scope.ref} className={'route-container'}>
             <RouteFocusedProvider value={focused}>
                 <ModalsContainerProvider>
                     <div className={'route-content'}>
-                        {component}
+                        <scope.Provider>{component}</scope.Provider>
                     </div>
                 </ModalsContainerProvider>
             </RouteFocusedProvider>
@@ -22,6 +24,7 @@ const Route = ({ component, focused }) => {
 Route.propTypes = {
     component: PropTypes.node,
     focused: PropTypes.bool,
+    view: PropTypes.number,
 };
 
 module.exports = Route;

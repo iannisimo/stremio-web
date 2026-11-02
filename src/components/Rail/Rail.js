@@ -2,16 +2,17 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
-const { FocusContext, useFocusGroup, mergeRefs } = require('stremio/services/Navigation');
+const { FocusContext, SIDEBAR_KEY, useFocusGroup, useRouteScope, mergeRefs } = require('stremio/services/Navigation');
 const RailButton = require('./RailButton/RailButton');
 const styles = require('./styles');
 
 const Rail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) => {
     const { t } = useTranslation();
+    const key = `${useRouteScope()}:${SIDEBAR_KEY}`;
     const group = useFocusGroup({
-        focusKey: 'sidebar',
+        focusKey: key,
         saveLastFocusedChild: false,
-        preferredChildFocusKey: selected ? `sidebar-${selected}` : undefined,
+        preferredChildFocusKey: selected ? `${key}-${selected}` : undefined,
     });
     const setRef = React.useMemo(() => mergeRefs(group.ref, ref), [ref]);
     const renderTab = (tab) => (
@@ -23,7 +24,7 @@ const Rail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) =>
             logo={tab.logo}
             icon={tab.icon}
             label={t(tab.label)}
-            focusKey={`sidebar-${tab.id}`}
+            focusKey={`${key}-${tab.id}`}
             onClick={tab.onClick}
         />
     );

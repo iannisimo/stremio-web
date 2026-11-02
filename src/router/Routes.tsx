@@ -79,7 +79,10 @@ const Routes = () => {
             typeof document.startViewTransition === 'function' &&
             !window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ) {
-            document.startViewTransition(() => flushSync(updateViews));
+            const transition = document.startViewTransition(() => flushSync(updateViews));
+            // a push that lands while another transition runs skips it, and
+            // the skipped one rejects `ready`
+            transition.ready.catch(() => undefined);
         } else {
             updateViews();
         }
@@ -94,7 +97,7 @@ const Routes = () => {
                     <RRoutes key={view.key} location={view.location}>
                         <RRoute
                             path={view.route.path}
-                            element={<Route component={view.route.element} focused={index === visibleViews.length - 1} />}
+                            element={<Route component={view.route.element} focused={index === visibleViews.length - 1} view={view.route.view} />}
                         />
                     </RRoutes>
                 ))

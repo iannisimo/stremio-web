@@ -94,15 +94,21 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `isMobile` forced to `false`; `data-tv-start` on the card grid | Discover; no bottom-sheet preview/filters on narrow or tall screens |
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/routes/MetaDetails/LiveTvDetails/LiveTvDetails.tsx`, `src/components/ColorInput/ColorInput.tsx` | Phone-layout media query replaced by `false` (and its imports dropped) | No bottom sheets on narrow or tall screens |
+| `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
+| `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
+| `src/services/Navigation/navigation.ts`, `index.ts` | `addKeyInterceptor`; remote Select/Menu keys; `getCurrentFocusKey` export | Screens that claim keys first (player) |
 
 ## Our own files
 
 Never touched by upstream merges.
 
 - `src/services/Navigation/`: Norigin setup, DOM-focus sync, input mode
-  (keyboard vs mouse), `useFocusGroup`, `useLongPressEnter`, `mergeRefs`.
+  (keyboard vs mouse), `useFocusGroup`, `useLongPressEnter`, `mergeRefs`,
+  focus fallback (first arrow lands on the visible control nearest the top
+  left, or inside a `data-tv-start` container), sidebar/content crossing, `useRouteFocusScope` / `useRouteScope`
+  (route-prefixed keys).
 - `src/services/KeepFullscreen/`: "Always fullscreen" setting (localStorage
   `keepFullscreen`) and the listener that re-enters fullscreen on any key or
   click, through upstream `useFullscreen` (works in the shell too).
