@@ -1,0 +1,93 @@
+.tv-select {
+    position: relative;
+    min-width: 8.5rem;
+    overflow: visible;
+    border-radius: 2.75rem;
+}
+
+.tv-select-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    animation: tv-select-fade 0.2s ease-out;
+
+    .list {
+        display: flex;
+        flex-direction: column;
+        width: 30rem;
+        max-width: 100%;
+        max-height: 100%;
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+        border: 1px solid var(--tv-stroke-strong);
+        background-color: var(--secondary-background-color);
+        box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.6);
+        animation: tv-select-in 0.2s var(--tv-ease);
+    }
+
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-height: 0;
+        padding: 0.25rem;
+        margin: -0.25rem;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .option {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.9rem 1rem;
+        border-radius: 0.9rem;
+        font-size: 1.25rem;
+        color: var(--tv-text-2);
+
+        .label {
+            flex: 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .check {
+            flex: none;
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            background-color: currentColor;
+        }
+
+        &.selected {
+            font-weight: 600;
+            color: var(--tv-text);
+        }
+
+        &:hover {
+            background-color: var(--tv-fill-hover);
+        }
+
+        &:focus {
+            outline: none;
+            color: var(--tv-focus-text);
+            background-color: var(--tv-focus);
+        }
+    }
+}
+
+@keyframes tv-select-fade {
+    from { opacity: 0; }
+}
+
+@keyframes tv-select-in {
+    from { opacity: 0; transform: scale(0.96); }
+}

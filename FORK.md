@@ -32,7 +32,8 @@ Then:
        src/routes/Board/StreamingServerWarning \
        src/routes/MetaDetails/StreamsList \
        src/routes/MetaDetails/VideosList \
-       src/components/MetaPreview
+       src/components/MetaPreview \
+       src/components/MultiselectMenu
    ```
 
    Port anything worth keeping (bug fixes, new options) into our versions.
@@ -53,6 +54,7 @@ listed. Upstream fixes to them have to be ported by hand.
 | `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) |
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home |
+| `src/components/MultiselectMenu/` (menu + `Dropdown`, `Option`; `Label` still used) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label) | Every dropdown: swapped in `src/components/index.ts` |
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
 | `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` |
 | `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) |
@@ -77,6 +79,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
+| `src/components/index.ts` | `MultiselectMenu` export points at `TvSelect` | All dropdowns use the TV picker |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`) | Makes every button remote-reachable |
 | `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar only on Search | TV shell |
 | `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
@@ -107,7 +110,7 @@ Never touched by upstream merges.
 - `src/components/MetaItem/MetaItemActions.js`: card actions dialog.
 - `src/components/PlayUrlDialog/`: "Play URL / magnet" from the rail (uses
   upstream's `usePlayUrl`, replaces the profile menu's clipboard item).
-- `src/components/Rail/`, `TvRow/`, `TvEventModal/`.
+- `src/components/Rail/`, `TvRow/`, `TvEventModal/`, `TvSelect/`.
 - `src/routes/MetaDetails/TvDetail/`: detail page (layout, info block, episodes and
   streams panels, season switcher, long-press row actions, `detailLogic.js` with
   tests in `tests/tvDetail.spec.js`). Rows are upstream's `Stream` / `Video`,

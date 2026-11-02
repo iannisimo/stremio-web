@@ -22,7 +22,7 @@ import MetaPreview from './MetaPreview';
 import MetaRow from './MetaRow';
 import ModalDialog from './ModalDialog';
 import Multiselect from './Multiselect';
-import MultiselectMenu from './MultiselectMenu';
+import MultiselectMenu from './TvSelect'; // HTPC fork: TV picker, same props
 import { HorizontalNavBar, VerticalNavBar } from './NavBar';
 import NumberInput from './NumberInput';
 import Popup from './Popup';
