@@ -54,6 +54,7 @@ listed. Upstream fixes to them have to be ported by hand.
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home |
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
+| `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) |
 | Top bar (`HorizontalNavBar`) on main pages | `Rail` (search; no profile menu) | Kept only on the Search page |
 
 Still upstream's and reused by our versions, so their changes reach us:
@@ -68,6 +69,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | File | What we changed | Why |
 |---|---|---|
 | `package.json`, `pnpm-lock.yaml` | `@noriginmedia/norigin-spatial-navigation` | Remote navigation engine |
+| `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
 | `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider` | "Always fullscreen" setting |
 | `src/routes/Settings/Interface/Interface.tsx` | "Always fullscreen" toggle (localStorage, not core settings) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
@@ -86,6 +88,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards | Discover |
+| `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 
 ## Our own files
 
@@ -107,6 +110,11 @@ Never touched by upstream merges.
   tests in `tests/tvDetail.spec.js`). Rows are upstream's `Stream` / `Video`,
   restyled with `[class*="name-"]` selectors from `TvStreamsPanel.less` /
   `TvEpisodesPanel.less`; check those if upstream renames inner classes.
+- `src/components/TvTextInput/`: text field as a focus stop; the editor
+  syncs the page field's value live (callers read `ref.current.value`),
+  calls `onSubmit` after closing, Cancel restores the old value.
+  `TvKeyboard`: `react-simple-keyboard` with our layouts and theme (its CSS
+  isn't imported); one focus stop, arrows move between keys.
 - `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.
 - `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
 

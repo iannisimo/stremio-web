@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import usePlayUrl from 'stremio/common/usePlayUrl';
 import FullscreenDialog from 'stremio/components/FullscreenDialog';
-import TextInput from 'stremio/components/TextInput';
+// already a dialog, so the plain input
+import TextInput from 'stremio/components/TextInput/TextInput';
 import { useFocusable, setFocus } from 'stremio/services/Navigation';
 import styles from './PlayUrlDialog.less';
 

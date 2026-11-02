@@ -52,7 +52,7 @@ const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, 
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key !== 'Escape' && event.key !== 'Backspace' && event.key !== 'BrowserBack') return;
             // Backspace edits text fields
-            if (event.key === 'Backspace' && event.target instanceof HTMLElement && event.target.matches('input, textarea')) return;
+            if (event.key === 'Backspace' && event.target instanceof HTMLElement && event.target.matches('input, textarea, [data-text-entry]')) return;
             // only the top-most dialog reacts
             const modals = Array.from(modalsContainer?.querySelectorAll(':scope > .modal-container') ?? []);
             if (modals[modals.length - 1] !== containerRef.current) return;

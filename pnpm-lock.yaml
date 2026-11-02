@@ -98,6 +98,9 @@ importers:
       react-router-dom:
         specifier: 6.30.0
         version: 6.30.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-simple-keyboard:
+        specifier: 3.8.282
+        version: 3.8.282(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       spatial-navigation-polyfill:
         specifier: github:Stremio/spatial-navigation#64871b1422466f5f45d24ebc8bbd315b2ebab6a6
         version: https://codeload.github.com/Stremio/spatial-navigation/tar.gz/64871b1422466f5f45d24ebc8bbd315b2ebab6a6
@@ -4208,6 +4211,12 @@ packages:
     engines: {node: '>=14.0.0'}
     peerDependencies:
       react: '>=16.8'
+
+  react-simple-keyboard@3.8.282:
+    resolution: {integrity: sha512-Eoehs2z8xCf/AAwu7q1oPYwF8Y85ff5T/6dbszDm5QBKOu2Bx+h2tCIEPvh/h+mE2Lr6NRnG2nqMrfeyQmpidw==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-stately@3.50.0:
     resolution: {integrity: sha512-TnckvpDQGU0672wEaLZqdzvhuSeXWjgW6vijMWxiKOxc8CosQUfPGISdcZyfHqjX3XMjEtRxj4w9HumvX4h4mw==}
@@ -9816,6 +9825,11 @@ snapshots:
     dependencies:
       '@remix-run/router': 1.23.0
       react: 18.3.1
+
+  react-simple-keyboard@3.8.282(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-stately@3.50.0(react@18.3.1):
     dependencies:

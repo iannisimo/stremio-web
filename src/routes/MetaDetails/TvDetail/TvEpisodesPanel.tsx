@@ -8,7 +8,7 @@ import Button from 'stremio/components/Button';
 import Image from 'stremio/components/Image';
 import TextInput from 'stremio/components/TextInput';
 import VideoRow from 'stremio/components/Video';
-import { setFocus, useFocusable, useLongPressEnter } from 'stremio/services/Navigation';
+import { setFocus, useLongPressEnter } from 'stremio/services/Navigation';
 import EpisodePicker from '../EpisodePicker';
 import { seasonsOf, pickSeason, videosForSeason, pickInitialVideoId } from './detailLogic';
 import { EpisodeActions } from './RowActions';
@@ -87,11 +87,6 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
     }, []);
     const menuVideo = menuVideoId === null ? null : seasonVideos.find((video) => video.id === menuVideoId);
 
-    // Left/right move the caret; up/down leave the field.
-    const { ref: searchRef } = useFocusable<object, HTMLInputElement>({
-        focusKey: SEARCH_KEY,
-        onArrowPress: (direction) => direction === 'up' || direction === 'down',
-    });
     const onSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setSearch(event.target.value), []);
 
     // First focus once per title: the episode being watched, else the first.
@@ -160,7 +155,7 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
                         null
                 }
                 <TextInput
-                    ref={searchRef}
+                    focusKey={SEARCH_KEY}
                     className={styles['search']}
                     value={search}
                     placeholder={t('SEARCH_VIDEOS')}
