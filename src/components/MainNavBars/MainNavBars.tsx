@@ -34,7 +34,8 @@ const MainNavBars = memo(({ className, route, query, children }: Props) => {
     useContentGamepadNavigation(contentRef, navRoute);
     useVerticalNavGamepadNavigation(navRef, navRoute);
 
-    const search = route === 'search';
+    // HTPC fork: TvSearch has its own field, no page gets the top bar (was route === 'search')
+    const search = false;
 
     const [playUrlOpen, setPlayUrlOpen] = useState(false);
     const closePlayUrl = useCallback(() => setPlayUrlOpen(false), []);

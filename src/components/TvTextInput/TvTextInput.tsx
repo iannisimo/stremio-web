@@ -4,18 +4,22 @@ import { useTranslation } from 'react-i18next';
 import classnames from 'classnames';
 import FullscreenDialog from 'stremio/components/FullscreenDialog';
 import TextInput from 'stremio/components/TextInput/TextInput';
-import { useFocusable, setFocus, mergeRefs } from 'stremio/services/Navigation';
+import Button from 'stremio/components/Button';
+import { FocusContext, useFocusable, useFocusGroup, setFocus, mergeRefs } from 'stremio/services/Navigation';
 import TvKeyboard from './TvKeyboard';
 import styles from './TvTextInput.less';
 
 type Props = ComponentProps<typeof TextInput> & {
     focusKey?: string,
+    // shown in the editor, picking one submits it
+    suggestions?: string[],
 };
 
 type EditorProps = {
     title: string,
     field: HTMLInputElement,
     inputProps: ComponentProps<typeof TextInput>,
+    suggestions?: string[],
     onClose: (after?: () => void) => void,
 };
 
@@ -31,15 +35,45 @@ const submitEvent = (input: HTMLInputElement) => ({
     stopPropagation: () => null,
 }) as unknown as KeyboardEvent<HTMLInputElement>;
 
-const Editor = ({ title, field, inputProps, onClose }: EditorProps) => {
+// Registers with the navigation from inside the dialog's focus group.
+// Left/right move the caret; up/down leave the field.
+const EditorInput = forwardRef<HTMLInputElement, ComponentProps<typeof TextInput> & { focusKey: string }>(({ focusKey, ...props }, ref) => {
+    const { ref: focusRef } = useFocusable<object, HTMLInputElement>({
+        focusKey,
+        onArrowPress: (direction) => direction === 'up' || direction === 'down',
+    });
+    return <TextInput {...props} ref={mergeRefs(ref, focusRef)} />;
+});
+
+EditorInput.displayName = 'EditorInput';
+
+const SUGGESTION_COUNT = 10;
+const SUGGESTION_LENGTH = 22;
+
+const shorten = (text: string) => text.length > SUGGESTION_LENGTH ? `${text.slice(0, SUGGESTION_LENGTH - 1).trimEnd()}…` : text;
+
+const Suggestions = ({ focusKey, items, onPick }: { focusKey: string, items: string[], onPick: (text: string) => void }) => {
+    const group = useFocusGroup<HTMLDivElement>({ focusKey, preferredChildFocusKey: `${focusKey}-0`, saveLastFocusedChild: false });
+
+    return (
+        <FocusContext.Provider value={group.focusKey}>
+            <div ref={group.ref} className={styles['suggestions']}>
+                {
+                    items.map((item, index) => (
+                        <Button key={item} className={styles['suggestion']} focusKey={`${focusKey}-${index}`} title={item} onClick={() => onPick(item)}>
+                            <span className={styles['suggestion-label']}>{shorten(item)}</span>
+                        </Button>
+                    ))
+                }
+            </div>
+        </FocusContext.Provider>
+    );
+};
+
+const Editor = ({ title, field, inputProps, suggestions, onClose }: EditorProps) => {
     const { t } = useTranslation();
     const inputRef = useRef<HTMLInputElement | null>(null);
     const editKey = useRef(`${EDIT_KEY_PREFIX}${nextId++}`).current;
-    // Left/right move the caret; up/down leave the field.
-    const { ref: focusRef } = useFocusable<object, HTMLInputElement>({
-        focusKey: editKey,
-        onArrowPress: (direction) => direction === 'up' || direction === 'down',
-    });
 
     // the page field's classes and styles don't fit the editor
     const { onChange, onSubmit, className: _className, style: _style, ...rest } = inputProps;
@@ -58,6 +92,15 @@ const Editor = ({ title, field, inputProps, onClose }: EditorProps) => {
             if (input) onSubmit?.(submitEvent(input));
         });
     }, [onSubmit, onClose]);
+
+    const pick = useCallback((text: string) => {
+        const input = inputRef.current;
+        if (!input) return;
+        input.value = text;
+        field.value = text;
+        onChange?.({ target: input, currentTarget: input } as React.ChangeEvent<HTMLInputElement>);
+        submit();
+    }, [field, onChange, submit]);
 
     // Changes go out live (search suggestions), so cancel puts the old value back.
     const initialValue = useRef(field.value).current;
@@ -78,15 +121,22 @@ const Editor = ({ title, field, inputProps, onClose }: EditorProps) => {
             initialFocusKey={`${editKey}-keyboard`}
             onClose={cancel}
         >
-            <TextInput
+            <EditorInput
                 {...rest}
-                ref={mergeRefs(inputRef, focusRef)}
+                ref={inputRef}
+                focusKey={editKey}
                 className={styles['editor-input']}
                 defaultValue={field.value}
                 value={undefined}
                 onChange={change}
                 onSubmit={submit}
             />
+            {
+                suggestions ?
+                    <Suggestions focusKey={`${editKey}-suggestions`} items={suggestions.slice(0, SUGGESTION_COUNT)} onPick={pick} />
+                    :
+                    null
+            }
             <TvKeyboard inputRef={inputRef} focusKey={`${editKey}-keyboard`} onDone={submit} />
         </FullscreenDialog>
     );
@@ -94,7 +144,7 @@ const Editor = ({ title, field, inputProps, onClose }: EditorProps) => {
 
 // Text fields open a full-screen editor instead of taking keys in place,
 // so the remote can move over them.
-const TvTextInput = forwardRef<HTMLInputElement, Props>(({ focusKey, ...props }, ref) => {
+const TvTextInput = forwardRef<HTMLInputElement, Props>(({ focusKey, suggestions, ...props }, ref) => {
     const fieldRef = useRef<HTMLInputElement | null>(null);
     const ownKey = useRef(`text-input-${nextId++}`).current;
     const key = focusKey ?? ownKey;
@@ -155,6 +205,7 @@ const TvTextInput = forwardRef<HTMLInputElement, Props>(({ focusKey, ...props },
                         title={placeholder || title || ''}
                         field={fieldRef.current}
                         inputProps={props}
+                        suggestions={suggestions}
                         onClose={close}
                     />
                     :

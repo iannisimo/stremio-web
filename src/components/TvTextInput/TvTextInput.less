@@ -26,3 +26,50 @@
         background-color: var(--tv-fill-hover);
     }
 }
+
+// One scrolling row with a fixed height, so the keyboard doesn't jump as
+// suggestions come and go. The padding leaves room for the focus scale.
+.suggestions {
+    display: flex;
+    gap: 0.75rem;
+    width: 56rem;
+    max-width: calc(100vw - 16rem);
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.25rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-padding: 0 2rem;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.suggestion {
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: 3.2rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--tv-text);
+    background-color: var(--tv-fill);
+    transition: transform 0.18s var(--tv-ease), background-color 0.15s ease, color 0.15s ease;
+
+    &:focus {
+        color: var(--tv-focus-text);
+        background-color: var(--tv-focus);
+        transform: scale(1.06);
+    }
+}
+
+.suggestion-label {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

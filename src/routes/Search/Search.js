@@ -4,9 +4,11 @@ const React = require('react');
 const classnames = require('classnames');
 const useTranslate = require('stremio/common/useTranslate');
 const { default: useVisibleCatalogs } = require('stremio/common/useVisibleCatalogs');
-const { default: Icon } = require('@stremio/stremio-icons/react');
 const { withCoreSuspender } = require('stremio/common');
-const { Image, MainNavBars, MetaItem, MetaRow } = require('stremio/components');
+const { Image, MainNavBars, MetaItem } = require('stremio/components');
+const TvRow = require('stremio/components/TvRow');
+const { default: TvSearchField } = require('./TvSearchField');
+const { default: TvSearchHistory } = require('./TvSearchHistory');
 const useSearch = require('./useSearch');
 const styles = require('./styles');
 const { useSearchParams } = require('react-router-dom');
@@ -34,31 +36,10 @@ const Search = () => {
     return (
         <MainNavBars className={styles['search-container']} route={'search'} query={query}>
             <div ref={scrollContainerRef} className={styles['search-content']} onScroll={onScroll}>
+                <TvSearchField query={query} />
                 {
                     query === null ?
-                        <div className={classnames(styles['search-hints-wrapper'])}>
-                            <div className={classnames(styles['search-hints-title-container'], 'animation-fade-in')}>
-                                <div className={styles['search-hints-title']}>{t.string('SEARCH_ANYTHING')}</div>
-                            </div>
-                            <div className={classnames(styles['search-hints-container'], 'animation-fade-in')}>
-                                <div className={styles['search-hint-container']}>
-                                    <Icon className={styles['icon']} name={'trailer'} />
-                                    <div className={styles['label']}>{t.string('SEARCH_CATEGORIES')}</div>
-                                </div>
-                                <div className={styles['search-hint-container']}>
-                                    <Icon className={styles['icon']} name={'actors'} />
-                                    <div className={styles['label']}>{t.string('SEARCH_PERSONS')}</div>
-                                </div>
-                                <div className={styles['search-hint-container']}>
-                                    <Icon className={styles['icon']} name={'link'} />
-                                    <div className={styles['label']}>{t.string('SEARCH_PROTOCOLS')}</div>
-                                </div>
-                                <div className={styles['search-hint-container']}>
-                                    <Icon className={styles['icon']} name={'imdb-outline'} />
-                                    <div className={styles['label']}>{t.string('SEARCH_TYPES')}</div>
-                                </div>
-                            </div>
-                        </div>
+                        <TvSearchHistory />
                         :
                         search.catalogs.length === 0 ?
                             <div className={styles['message-container']}>
@@ -74,7 +55,7 @@ const Search = () => {
                                 switch (catalog.content?.type) {
                                     case 'Ready': {
                                         return (
-                                            <MetaRow
+                                            <TvRow
                                                 key={index}
                                                 className={classnames(styles['search-row'], styles[`search-row-${catalog.content.content[0].posterShape}`], 'animation-fade-in')}
                                                 catalog={catalog}
@@ -85,7 +66,7 @@ const Search = () => {
                                     case 'Err': {
                                         if (catalog.content.content !== 'EmptyContent') {
                                             return (
-                                                <MetaRow
+                                                <TvRow
                                                     key={index}
                                                     className={classnames(styles['search-row'], 'animation-fade-in')}
                                                     catalog={catalog}
@@ -97,7 +78,7 @@ const Search = () => {
                                     }
                                     default: {
                                         return (
-                                            <MetaRow.Placeholder
+                                            <TvRow.Placeholder
                                                 key={index}
                                                 className={classnames(styles['search-row'], styles['search-row-poster'], 'animation-fade-in')}
                                                 catalog={catalog}

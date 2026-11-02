@@ -1,0 +1,74 @@
+// same gutter as TvRow
+@gutter: 4rem;
+
+.tv-search-field {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem @gutter 2rem;
+    overflow: visible;
+}
+
+.field-container {
+    position: relative;
+    flex: 1;
+    max-width: 60rem;
+    overflow: visible;
+}
+
+.field-icon {
+    position: absolute;
+    top: 50%;
+    left: 1.5rem;
+    width: 1.6rem;
+    height: 1.6rem;
+    transform: translateY(-50%);
+    color: var(--tv-text-2);
+    pointer-events: none;
+}
+
+.field {
+    width: 100%;
+    height: 4.5rem;
+    padding: 0 1.5rem 0 4rem;
+    border: 2px solid var(--tv-stroke-strong);
+    border-radius: 999px;
+    font-size: 1.4rem;
+    color: var(--tv-text);
+    background-color: var(--tv-fill);
+    transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.18s var(--tv-ease);
+
+    &::placeholder {
+        color: var(--tv-text-3);
+    }
+
+    &:focus {
+        border-color: var(--tv-focus);
+        background-color: var(--tv-fill-hover);
+    }
+}
+
+.clear-button {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    color: var(--tv-text);
+    background-color: var(--tv-fill);
+    transition: transform 0.18s var(--tv-ease), background-color 0.15s ease, color 0.15s ease;
+
+    &:focus {
+        color: var(--tv-focus-text);
+        background-color: var(--tv-focus);
+        transform: scale(1.08);
+    }
+
+    .clear-icon {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+}
