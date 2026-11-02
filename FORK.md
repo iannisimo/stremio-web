@@ -54,6 +54,7 @@ listed. Upstream fixes to them have to be ported by hand.
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home |
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
+| `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` |
 | `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) |
 | Top bar (`HorizontalNavBar`) on main pages | `Rail` (search; no profile menu) | Kept only on the Search page |
 
@@ -89,6 +90,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards | Discover |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
+| `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
 
 ## Our own files
 
@@ -115,6 +117,8 @@ Never touched by upstream merges.
   calls `onSubmit` after closing, Cancel restores the old value.
   `TvKeyboard`: `react-simple-keyboard` with our layouts and theme (its CSS
   isn't imported); one focus stop, arrows move between keys.
+- `src/routes/TvIntro/`: login screen. Code / QR login through link.stremio.com
+  (then core's `LoginWithToken`), "Standard login" for email and password.
 - `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.
 - `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
 

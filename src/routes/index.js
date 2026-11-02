@@ -10,7 +10,7 @@ const NotFound = require('./NotFound');
 const Search = require('./Search');
 const { default: Settings } = require('./Settings');
 const Player = require('./Player');
-const Intro = require('./Intro');
+const Intro = require('./TvIntro').default; // upstream: require('./Intro')
 
 module.exports = {
     Addons,
