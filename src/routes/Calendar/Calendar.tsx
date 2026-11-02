@@ -8,7 +8,7 @@ import Selector from './Selector';
 import Table from './Table';
 import List from './List';
 import Details from './Details';
-import Placeholder from './Placeholder';
+import Placeholder from './TvPlaceholder'; // HTPC fork: upstream './Placeholder'
 import useCalendar from './useCalendar';
 import useCalendarDate from './useCalendarDate';
 import styles from './Calendar.less';

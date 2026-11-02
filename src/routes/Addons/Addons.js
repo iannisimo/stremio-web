@@ -18,6 +18,11 @@ const useAddonDetailsTransportUrl = require('./useAddonDetailsTransportUrl');
 const useSelectableInputs = require('./useSelectableInputs');
 const styles = require('./styles');
 const { AddonPlaceholder } = require('./AddonPlaceholder');
+const { default: TvAddonsNotice } = require('./TvAddonsNotice');
+
+// HTPC fork: a notice to use web/mobile instead of the list; install links
+// (`?addon=`) still open the details dialog below
+const SHOW_ADDONS_LIST = false;
 
 const Addons = () => {
     const { type, transportUrl, catalogId } = useParams();
@@ -129,6 +134,8 @@ const Addons = () => {
     }, [urlParams, queryParams]);
     return (
         <MainNavBars className={styles['addons-container']} route={'addons'}>
+            {!SHOW_ADDONS_LIST && <TvAddonsNotice />}
+            {SHOW_ADDONS_LIST &&
             <div className={styles['addons-content']}>
                 <div className={styles['selectable-inputs-container']}>
                     {selectInputs.map((selectInput, index) => (
@@ -239,6 +246,7 @@ const Addons = () => {
                             </div>
                 }
             </div>
+            }
             {
                 filtersModalOpen ?
                     <ModalDialog title={t('ADDONS_FILTERS')} className={styles['filters-modal']} onCloseRequest={closeFiltersModal}>
