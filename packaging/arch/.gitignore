@@ -1,0 +1,6 @@
+/src/
+/pkg/
+/stremio-web/
+/stremio-linux-shell/
+*.pkg.tar.*
+*.log

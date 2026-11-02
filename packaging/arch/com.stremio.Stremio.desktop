@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Stremio HTPC
+Comment=Stremio for the TV, controlled with a remote
+Icon=com.stremio.Stremio
+Categories=AudioVideo;Video;Player;
+Keywords=Stremio;Media;Play;TV;HTPC;
+Type=Application
+Exec=stremio-htpc %u
+MimeType=x-scheme-handler/stremio;
+Terminal=false
+StartupNotify=true
+StartupWMClass=com.stremio.Stremio
