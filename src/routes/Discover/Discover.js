@@ -58,7 +58,8 @@ const Discover = () => {
     const [addonModalOpen, openAddonModal, closeAddonModal] = useBinaryState(false);
     const [mobilePreviewOpen, openMobilePreview, closeMobilePreview] = useBinaryState(false);
     const [selectedMetaItemIndex, setSelectedMetaItemIndex] = React.useState(0);
-    const isMobile = useMediaQuery(`(max-width: ${screenSizes.xsmall})`);
+    // HTPC fork: never the phone layout (bottom-sheet preview and filters)
+    const isMobile = false;
 
     const compactEpgDate = useMediaQuery(`(max-width: ${screenSizes.xsmall}) and (max-height: ${screenSizes['phone-landscape-size']}) and (orientation: landscape)`);
 
@@ -238,7 +239,7 @@ const Discover = () => {
         }
 
         return (
-            <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
+            <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} data-tv-start={true} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
                 {discover.catalog.content.content.map((metaItem, index) => (
                     <MetaItem
                         key={index}

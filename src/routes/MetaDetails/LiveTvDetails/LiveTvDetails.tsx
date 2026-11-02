@@ -4,8 +4,6 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import Image from 'stremio/components/Image';
 import { useRouteActive } from 'stremio/common/useRouteFocused';
-import useMediaQuery from 'stremio/common/useMediaQuery';
-import screenSizes from 'stremio/common/screen-sizes.less';
 import { EPGChannel, EPGProgram, toEpgProgram, useLiveRefresh } from 'stremio/common/EPG';
 import Hero from './Hero';
 import Schedule from './Schedule';
@@ -27,7 +25,8 @@ const programKey = (program: EPGProgram) => program.id ?? `${program.channelId}:
 
 const LiveTvDetails = ({ className, contentRef, children, meta, addonName, streams, onToggleLibrary }: Props) => {
     const active = useRouteActive();
-    const isMobile = useMediaQuery(`(max-width: ${screenSizes.xsmall})`);
+    // HTPC fork: never the phone layout (streams in a bottom sheet)
+    const isMobile = false;
     const now = useLiveRefresh('MetaDetails', 'meta_details', active);
     const [selectedKey, setSelectedKey] = useState<string | null>(null);
     const channel = useMemo<EPGChannel>(() => ({

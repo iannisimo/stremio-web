@@ -2,8 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router';
-import { useMediaQuery, useProfile, withCoreSuspender } from 'stremio/common';
-import screenSizes from 'stremio/common/screen-sizes.less';
+import { useProfile, withCoreSuspender } from 'stremio/common';
 import { MainNavBars, BottomSheet } from 'stremio/components';
 import Selector from './Selector';
 import Table from './Table';
@@ -27,7 +26,8 @@ const Calendar = () => {
     const { toDayMonth } = useCalendarDate(profile);
 
     const [selected, setSelected] = useState<CalendarDate | null>(null);
-    const detailsInSheet = useMediaQuery(`(max-width: ${screenSizes.small}) and (orientation: portrait), (max-width: ${screenSizes.xsmall}) and (orientation: landscape)`);
+    // HTPC fork: never the phone layout (details in a bottom sheet)
+    const detailsInSheet = false;
 
     const detailsTitle = useMemo(() => toDayMonth(selected), [selected, toDayMonth]);
 

@@ -92,7 +92,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
 | `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
-| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards | Discover |
+| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `isMobile` forced to `false`; `data-tv-start` on the card grid | Discover; no bottom-sheet preview/filters on narrow or tall screens |
+| `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/routes/MetaDetails/LiveTvDetails/LiveTvDetails.tsx`, `src/components/ColorInput/ColorInput.tsx` | Phone-layout media query replaced by `false` (and its imports dropped) | No bottom sheets on narrow or tall screens |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
 

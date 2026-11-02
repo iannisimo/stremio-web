@@ -8,8 +8,6 @@ import { Button } from 'stremio/components';
 import BottomSheet from 'stremio/components/BottomSheet';
 import ModalDialog from 'stremio/components/ModalDialog';
 import useBinaryState from 'stremio/common/useBinaryState';
-import useMediaQuery from 'stremio/common/useMediaQuery';
-import screenSizes from 'stremio/common/screen-sizes.less';
 import styles from './ColorInput.less';
 
 type Props = {
@@ -21,7 +19,8 @@ type Props = {
 
 const ColorInput = ({ className, value, onChange, onClick, ...props }: Props) => {
     const { t } = useTranslation();
-    const isMobile = useMediaQuery(`(max-width: ${screenSizes.xsmall})`);
+    // HTPC fork: never the phone layout (color picker in a bottom sheet)
+    const isMobile = false;
     const [modalOpen, openModal, closeModal] = useBinaryState(false);
     const [tempValue, setTempValue] = useState(value);
 
