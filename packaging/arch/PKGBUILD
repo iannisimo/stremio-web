@@ -5,7 +5,7 @@
 # Only committed changes are built.
 
 pkgname=stremio-htpc-git
-pkgver=5.0.0.beta.43.r30.g345b67179
+pkgver=5.0.0.beta.43.r7225.g4fed0669
 pkgrel=1
 pkgdesc="Stremio for the TV: stremio-linux-shell with a remote-first web UI"
 arch=('x86_64')
@@ -32,7 +32,9 @@ conflicts=('stremio-linux-shell' 'stremio-linux-shell-git')
 options=(!lto !debug)
 
 _webrepo=${STREMIO_HTPC_WEB_REPO:-https://github.com/iannisimo/stremio-web.git}
-[[ $_webrepo == /* ]] && _webrepo=file://$_webrepo
+_websrc=stremio-web
+# Local clones get their own mirror, makepkg won't reuse one across URLs.
+[[ $_webrepo == /* ]] && _webrepo=file://$_webrepo _websrc=stremio-web-local
 _webbranch=${STREMIO_HTPC_WEB_BRANCH:-htpc}
 # Shell main after v1.2.2 (hardware decoding, playback CPU fixes, mpv config).
 # When bumping, check that its server.js still answers CORS for any origin
@@ -41,7 +43,7 @@ _shellcommit=97078df902462e613757571d307a9ac16843147a
 _pnpm=pnpm@11.8.0
 
 source=(
-    "stremio-web::git+${_webrepo}#branch=${_webbranch}"
+    "${_websrc}::git+${_webrepo}#branch=${_webbranch}"
     "stremio-linux-shell::git+https://github.com/Stremio/stremio-linux-shell.git#commit=${_shellcommit}"
     'stremio-htpc.sh'
     'stremio-htpc-web.js'
@@ -54,15 +56,17 @@ sha256sums=('SKIP'
             'SKIP')
 
 pkgver() {
-    cd stremio-web
-    git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+    cd "$_websrc"
+    # The fork has no tags: package.json version + commit count.
+    printf '%s.r%s.g%s' "$(sed -n 's/^ *"version": "\(.*\)",/\1/p' package.json | tr - .)" \
+        "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 }
 
 prepare() {
     cd "$srcdir/stremio-linux-shell"
     cargo fetch --locked --target "$(rustc --print host-tuple)"
 
-    cd "$srcdir/stremio-web"
+    cd "$srcdir/$_websrc"
     npx --yes "$_pnpm" install --frozen-lockfile
 }
 
@@ -71,7 +75,7 @@ build() {
     CARGO_TARGET_DIR=target STREMIO_LOCALEDIR=/usr/share/locale \
         cargo build --release --frozen
 
-    cd "$srcdir/stremio-web"
+    cd "$srcdir/$_websrc"
     # The UI is updated by pacman, not by a service worker.
     SERVICE_WORKER_DISABLED=true npx --yes "$_pnpm" run build
 }
@@ -81,7 +85,7 @@ package() {
     install -Dm644 stremio-htpc-web.js "$pkgdir/usr/lib/stremio-htpc/stremio-htpc-web.js"
     install -Dm644 com.stremio.Stremio.desktop "$pkgdir/usr/share/applications/com.stremio.Stremio.desktop"
 
-    cd "$srcdir/stremio-web"
+    cd "$srcdir/$_websrc"
     install -d "$pkgdir/usr/share/stremio-htpc/web"
     cp -r --no-preserve=ownership build/. "$pkgdir/usr/share/stremio-htpc/web/"
     find "$pkgdir/usr/share/stremio-htpc/web" -name '*.map' -delete

@@ -4,3 +4,4 @@
 /stremio-linux-shell/
 *.pkg.tar.*
 *.log
+/stremio-web-local/
