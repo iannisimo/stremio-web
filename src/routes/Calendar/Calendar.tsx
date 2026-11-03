@@ -1,6 +1,9 @@
 // Copyright (C) 2017-2024 Smart code 203358507
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { doesFocusableExist } from '@noriginmedia/norigin-spatial-navigation';
+import { setFocus } from 'stremio/services/Navigation';
+import calendarDayFocusKey from './calendarDayFocusKey';
 import { useParams } from 'react-router';
 import { useProfile, withCoreSuspender } from 'stremio/common';
 import { MainNavBars } from 'stremio/components';
@@ -24,6 +27,14 @@ const Calendar = () => {
     const [selected, setSelected] = useState<CalendarDate | null>(null);
     const loading = calendar.metaItems.some(({ type }) => type === 'Loading');
 
+    // HTPC fork: the posters inside a day aren't reachable, so Enter on a day
+    // moves to its first episode in the list
+    const onDaySelect = useCallback((date: CalendarDate) => {
+        setSelected(date);
+        const key = calendarDayFocusKey(date);
+        if (doesFocusableExist(key)) setFocus(key);
+    }, []);
+
     return (
         <MainNavBars className={styles['calendar']} route={'calendar'}>
             {
@@ -39,7 +50,7 @@ const Calendar = () => {
                                 items={calendar.items}
                                 selected={selected}
                                 monthInfo={calendar.monthInfo}
-                                onChange={setSelected}
+                                onChange={onDaySelect}
                             />
                         </div>
                         <List

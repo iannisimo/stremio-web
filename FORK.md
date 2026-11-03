@@ -149,6 +149,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
 | `src/routes/Addons/Addons.js` | `SHOW_ADDONS_LIST = false`: `TvAddonsNotice` (use web/mobile, QR to web.stremio.com; log in first when logged out) in place of the list and filters; dialogs kept, so `?addon=` install links still work | Managing addons with a remote is painful |
 | `src/routes/Library/Library.js`, `src/routes/Calendar/Calendar.tsx` | `Placeholder` import points at `TvPlaceholder` | Logged-out notice in the TV style |
+| `src/routes/Calendar/Calendar.tsx`, `List/Item/Item.tsx`, `Episode/Episode.tsx` | Enter on a day focuses its first episode in the list (`calendarDayFocusKey.ts`, ours); `Episode` forwards `focusKey` | Posters inside a day cell aren't reachable by remote |
 | `src/routes/Search/Search.js`, `styles.less` | `TvSearchField` on top; `TvSearchHistory` in place of the hints; `TvRow` instead of `MetaRow`; row spacing | Search page, like Home |
 | `src/routes/Settings/Player/Player.tsx` | Shift + arrow seek time hidden (`SHOW_SHIFT_SEEK = false`); play in background, external player and pause-on-minimize hidden (`SHOW_DESKTOP_PLAYBACK = false`) | A remote has no Shift; the shell's mpv is the player |
 | `src/routes/Settings/Settings.tsx` | Imports `TvMenu` as `Menu`; the menu selects one section instead of scrolling; only the selected section renders (`Info` with General); `TvPane` around the sections; no Shortcuts section | Two-pane settings |

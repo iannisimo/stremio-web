@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { useNavigateWithOrigin } from 'stremio-router';
 import Episode from '../../Episode';
 import useCalendarDate from '../../useCalendarDate';
+import calendarDayFocusKey from '../../calendarDayFocusKey';
 import styles from './Item.less';
 
 type Props = {
@@ -55,10 +56,11 @@ const Item = ({ selected, monthInfo, date, items, profile, onClick }: Props) => 
             </div>
             <div className={styles['body']}>
                 {
-                    items.map((video) => (
+                    items.map((video, index) => (
                         <Episode
                             key={video.id}
                             {...video}
+                            focusKey={index === 0 ? calendarDayFocusKey(date) : undefined}
                             hideSpoilers={profile.settings.hideSpoilers}
                             onClick={onVideoClick}
                         />

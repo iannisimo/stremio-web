@@ -8,6 +8,7 @@ import styles from './Episode.less';
 
 type Props = CalendarContentItem & {
     hideSpoilers: boolean,
+    focusKey?: string,
     onClick?: (event: React.MouseEvent<HTMLDivElement>, target: string) => void,
 };
 
@@ -15,7 +16,7 @@ const renderPlaceholder = () => (
     <Icon className={styles['placeholder']} name={'symbol'} />
 );
 
-const Episode = ({ name, title, season, episode, poster, background, thumbnail, deepLinks, hideSpoilers, onClick }: Props) => {
+const Episode = ({ name, title, season, episode, poster, background, thumbnail, deepLinks, hideSpoilers, focusKey, onClick }: Props) => {
     const onEpisodeClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         onClick && onClick(event, deepLinks.metaDetailsStreams);
     }, [onClick, deepLinks.metaDetailsStreams]);
@@ -29,7 +30,7 @@ const Episode = ({ name, title, season, episode, poster, background, thumbnail, 
     ), [background, renderPoster]);
 
     return (
-        <Button className={styles['episode']} href={deepLinks.metaDetailsStreams} onClick={onEpisodeClick}>
+        <Button className={styles['episode']} focusKey={focusKey} href={deepLinks.metaDetailsStreams} onClick={onEpisodeClick}>
             <div className={styles['artwork-container']}>
                 <Image
                     className={classNames(styles['artwork'], { [styles['blurred']]: hideSpoilers })}
