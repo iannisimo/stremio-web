@@ -8,8 +8,7 @@ const debounce = require('lodash.debounce');
 const { useTranslation } = require('react-i18next');
 const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const { useCore } = require('stremio/core');
-const { useServices, useGamepad } = require('stremio/services');
-const { useContentGamepadNavigation } = require('stremio/services/GamepadNavigation');
+const { useServices } = require('stremio/services');
 const { useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStreamingServer, withCoreSuspender, usePlatform, useShortcut, getKeyboardShortcutKey, getKeyboardShortcutKeys, useDiscord, EMPTY_DISCORD_TIMESTAMPS, getPlaybackDiscordActivity } = require('stremio/common');
 const { EPG_PLAYER_NOW_REFRESH_INTERVAL, getEpgTimeRange, useLiveRefresh } = require('stremio/common/EPG');
 const { default: toPath } = require('stremio-router/toPath');
@@ -45,7 +44,6 @@ const Video = require('./Video');
 const { default: Indicator } = require('./Indicator/Indicator');
 const { default: useMediaSession } = require('./useMediaSession');
 
-const GAMEPAD_HANDLER_ID = 'player';
 
 const CAST_DEVICES_REFRESH_INTERVAL = 5000;
 
@@ -65,7 +63,6 @@ const Player = () => {
     const { t } = useTranslation();
     const services = useServices();
     const core = useCore();
-    const gamepad = useGamepad();
     const forceTranscoding = React.useMemo(() => {
         return queryParams.has('forceTranscoding');
     }, [queryParams]);
@@ -475,79 +472,6 @@ const Player = () => {
     const onBarMouseMove = React.useCallback((event) => {
         event.nativeEvent.immersePrevented = true;
     }, []);
-
-    const onPlayPause = React.useCallback(() => {
-        if (!menusOpen && !nextVideoPopupOpen && video.state.paused !== null) {
-            if (video.state.paused) {
-                onPlayRequested();
-                setSeeking(false);
-            } else {
-                onPauseRequested();
-            }
-        }
-    }, [menusOpen, nextVideoPopupOpen, video.state.paused]);
-
-    const onSeekPrev = React.useCallback((event) => {
-        if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
-            const seekDuration = event?.shiftKey ? settings.seekShortTimeDuration : settings.seekTimeDuration;
-            const seekTime = video.state.time - seekDuration;
-            setSeeking(true);
-            onSeekRequested(Math.max(seekTime, 0));
-        }
-    }, [canSeek, menusOpen, nextVideoPopupOpen, video.state.time]);
-
-    const onSeekNext = React.useCallback((event) => {
-        if (canSeek && !menusOpen && !nextVideoPopupOpen && video.state.time !== null) {
-            const seekDuration = event?.shiftKey ? settings.seekShortTimeDuration : settings.seekTimeDuration;
-            setSeeking(true);
-            onSeekRequested(video.state.time + seekDuration);
-        }
-    }, [canSeek, menusOpen, nextVideoPopupOpen, video.state.time]);
-
-    const onVolumeUp = React.useCallback(() => {
-        if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
-            onVolumeChangeRequested(Math.min(video.state.volume + 5, 200));
-        }
-    }, [menusOpen, nextVideoPopupOpen, video.state.volume]);
-
-    const onVolumeDown = React.useCallback(() => {
-        if (!menusOpen && !nextVideoPopupOpen && video.state.volume !== null) {
-            onVolumeChangeRequested(Math.max(video.state.volume - 5, 0));
-        }
-    }, [menusOpen, nextVideoPopupOpen, video.state.volume]);
-
-    const onGamepadSeekAndVol = React.useCallback((axis) => {
-        switch(axis) {
-            case 'left': {
-                onSeekPrev();
-                break;
-            }
-            case 'right': {
-                onSeekNext();
-                break;
-            }
-            case 'up': {
-                onVolumeUp();
-                break;
-            }
-            case 'down': {
-                onVolumeDown();
-                break;
-            }
-        }
-    }, [onSeekPrev, onSeekNext, onVolumeUp, onVolumeDown]);
-
-    useContentGamepadNavigation(playerRef, GAMEPAD_HANDLER_ID);
-
-    React.useEffect(() => {
-        gamepad?.on('buttonX', GAMEPAD_HANDLER_ID, onPlayPause);
-        gamepad?.on('analogRight', GAMEPAD_HANDLER_ID, onGamepadSeekAndVol);
-
-        return () => {
-            gamepad?.off('buttonX', GAMEPAD_HANDLER_ID);
-            gamepad?.off('analogRight', GAMEPAD_HANDLER_ID);
-        };
-    }, [onPlayPause, onGamepadSeekAndVol]);
 
     React.useEffect(() => {
         setError(null);

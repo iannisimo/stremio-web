@@ -6,9 +6,6 @@ import useFullscreen from 'stremio/common/Fullscreen/useFullscreen';
 import { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from 'stremio/services/KeepFullscreen';
 import useInterfaceOptions from './useInterfaceOptions';
 
-// HTPC fork: the remote navigation replaces gamepad support
-const SHOW_GAMEPAD = false;
-
 type Props = {
     profile: Profile,
 };
@@ -22,7 +19,6 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
         quitOnCloseToggle,
         escExitFullscreenToggle,
         hideSpoilersToggle,
-        gamepadSupportToggle,
     } = useInterfaceOptions(profile);
 
     const [keepFullscreen, setKeepFullscreen] = useKeepFullscreenSetting();
@@ -79,14 +75,6 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                     {...hideSpoilersToggle}
                 />
             </Option>
-            {
-                SHOW_GAMEPAD && <Option label={'SETTINGS_GAMEPAD'}>
-                    <Toggle
-                        tabIndex={-1}
-                        {...gamepadSupportToggle}
-                    />
-                </Option>
-            }
         </Section>
     );
 });

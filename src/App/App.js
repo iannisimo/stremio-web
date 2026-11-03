@@ -5,16 +5,14 @@ const { useTranslation } = require('react-i18next');
 const { createPath, useLocation, useNavigate } = require('react-router');
 const { useCore } = require('stremio/core');
 const { Routes, useGoBack } = require('stremio-router');
-const { Chromecast, ServicesProvider, GamepadProvider } = require('stremio/services');
-const { FullscreenProvider, ToastProvider, TooltipProvider, ShortcutsProvider, DiscordProvider, CONSTANTS, useBinaryState, useProfile, withCoreSuspender, usePlatform } = require('stremio/common');
+const { Chromecast, ServicesProvider } = require('stremio/services');
+const { FullscreenProvider, ToastProvider, TooltipProvider, ShortcutsProvider, DiscordProvider, CONSTANTS, useProfile, withCoreSuspender, usePlatform } = require('stremio/common');
 const ServicesToaster = require('./ServicesToaster');
 const SearchParamsHandler = require('./SearchParamsHandler');
 const DeepLinkHandler = require('./DeepLinkHandler');
 const { default: KeepFullscreen } = require('stremio/services/KeepFullscreen');
 const { default: ShellOpenHandler } = require('./ShellOpenHandler');
 const { default: UpdaterBanner } = require('./UpdaterBanner');
-const { default: ShortcutsModal } = require('./ShortcutsModal');
-const { default: GamepadModal } = require('./GamepadModal');
 const { default: useInterfaceScale } = require('./useInterfaceScale');
 const styles = require('./styles');
 
@@ -32,25 +30,16 @@ const App = () => {
     const goBack = useGoBack();
     const locationPath = createPath(location);
     const previousPathRef = React.useRef(locationPath);
-    const [gamepadSupportEnabled, setGamepadSupportEnabled] = React.useState(false);
     const services = React.useMemo(() => {
         return {
             chromecast: new Chromecast(),
         };
     }, []);
-    const [shortcutModalOpen,, closeShortcutsModal, toggleShortcutModal] = useBinaryState(false);
-    const [gamepadModalOpen,, closeGamepadModal, toggleGamepadModal] = useBinaryState(false);
 
     const onShortcut = React.useCallback((name, combo, key) => {
         switch (name) {
             case 'interfaceScale':
                 changeInterfaceScale(['decrease', 'increase', 'reset'][combo]);
-                break;
-            case 'shortcuts':
-                toggleShortcutModal();
-                break;
-            case 'gamepadGuide':
-                toggleGamepadModal();
                 break;
             case 'navigateSearch':
                 navigate('/search');
@@ -69,7 +58,7 @@ const App = () => {
                 }
                 break;
         }
-    }, [toggleShortcutModal, toggleGamepadModal, changeInterfaceScale, navigate, goBack]);
+    }, [changeInterfaceScale, navigate, goBack]);
 
     React.useEffect(() => {
         const prevPath = previousPathRef.current;
@@ -107,10 +96,6 @@ const App = () => {
     React.useEffect(() => {
         if (typeof profile.settings?.interfaceLanguage === 'string') {
             i18n.changeLanguage(profile.settings.interfaceLanguage);
-        }
-
-        if (typeof profile.settings?.gamepadSupport === 'boolean') {
-            setGamepadSupportEnabled(profile.settings.gamepadSupport);
         }
 
         if (profile.settings?.quitOnClose && shell.state.windowClosed) {
@@ -159,27 +144,19 @@ const App = () => {
         <ServicesProvider services={services}>
             <ToastProvider className={styles['toasts-container']}>
                 <TooltipProvider className={styles['tooltip-container']}>
-                    <GamepadProvider enabled={gamepadSupportEnabled} onGuide={toggleGamepadModal}>
-                        <ShortcutsProvider onShortcut={onShortcut}>
-                            <FullscreenProvider>
-                                <DiscordProvider>
-                                    {
-                                        shortcutModalOpen && <ShortcutsModal onClose={closeShortcutsModal}/>
-                                    }
-                                    {
-                                        gamepadModalOpen && <GamepadModal onClose={closeGamepadModal}/>
-                                    }
-                                    <ServicesToaster />
-                                    <SearchParamsHandler />
-                                    <DeepLinkHandler />
-                                    <ShellOpenHandler />
-                                    <KeepFullscreen />
-                                    <UpdaterBanner className={styles['updater-banner-container']} />
-                                    <ProtectedRoutes />
-                                </DiscordProvider>
-                            </FullscreenProvider>
-                        </ShortcutsProvider>
-                    </GamepadProvider>
+                    <ShortcutsProvider onShortcut={onShortcut}>
+                        <FullscreenProvider>
+                            <DiscordProvider>
+                                <ServicesToaster />
+                                <SearchParamsHandler />
+                                <DeepLinkHandler />
+                                <ShellOpenHandler />
+                                <KeepFullscreen />
+                                <UpdaterBanner className={styles['updater-banner-container']} />
+                                <ProtectedRoutes />
+                            </DiscordProvider>
+                        </FullscreenProvider>
+                    </ShortcutsProvider>
                 </TooltipProvider>
             </ToastProvider>
         </ServicesProvider>

@@ -3,7 +3,7 @@
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import throttle from 'lodash.throttle';
-import { usePlatform, useProfile, useStreamingServer, useRouteFocused, withCoreSuspender } from 'stremio/common';
+import { useProfile, useStreamingServer, useRouteFocused, withCoreSuspender } from 'stremio/common';
 import { MainNavBars } from 'stremio/components';
 import { SECTIONS } from './constants';
 import TvPane from './TvPane';
@@ -12,14 +12,12 @@ import General from './General';
 import Interface from './Interface';
 import Player from './Player';
 import Streaming from './Streaming';
-import Shortcuts from './Shortcuts';
 import Info from './Info';
 import styles from './Settings.less';
 
 const Settings = () => {
     const routeFocused = useRouteFocused();
     const profile = useProfile();
-    const platform = usePlatform();
     const streamingServer = useStreamingServer();
 
     const sectionsContainerRef = useRef<HTMLDivElement>(null);
@@ -27,14 +25,12 @@ const Settings = () => {
     const interfaceSectionRef = useRef<HTMLDivElement>(null);
     const playerSectionRef = useRef<HTMLDivElement>(null);
     const streamingServerSectionRef = useRef<HTMLDivElement>(null);
-    const shortcutsSectionRef = useRef<HTMLDivElement>(null);
 
     const sections = useMemo(() => ([
         { ref: generalSectionRef, id: SECTIONS.GENERAL },
         { ref: interfaceSectionRef, id: SECTIONS.INTERFACE },
         { ref: playerSectionRef, id: SECTIONS.PLAYER },
         { ref: streamingServerSectionRef, id: SECTIONS.STREAMING },
-        { ref: shortcutsSectionRef, id: SECTIONS.SHORTCUTS },
     ]), []);
 
     const [selectedSectionId, setSelectedSectionId] = useState(SECTIONS.GENERAL);
@@ -119,9 +115,6 @@ const Settings = () => {
                             profile={profile}
                             streamingServer={streamingServer}
                         />
-                    }
-                    {
-                        selectedSectionId === SECTIONS.SHORTCUTS && !platform.isMobile && <Shortcuts ref={shortcutsSectionRef} />
                     }
                     {
                         selectedSectionId === SECTIONS.GENERAL && <Info streamingServer={streamingServer} />

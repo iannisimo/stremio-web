@@ -7,7 +7,6 @@ const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { Button, Image } = require('stremio/components');
 const { useFullscreen } = require('stremio/common/Fullscreen');
-const { useHorizontalNavGamepadNavigation } = require('stremio/services/GamepadNavigation');
 const SearchBar = require('./SearchBar');
 const NavMenu = require('./NavMenu');
 const styles = require('./styles');
@@ -22,7 +21,6 @@ const HorizontalNavBar = React.memo(({ className, route, query, title, backButto
             {children}
         </Button>
     ), []);
-    useHorizontalNavGamepadNavigation(route || className, backButton ? backButtonOnClick : undefined);
     return (
         <nav {...props} className={classnames(className, styles['horizontal-nav-bar-container'])}>
             {

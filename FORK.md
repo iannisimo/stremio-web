@@ -81,7 +81,11 @@ Deleted with nothing replacing them (unused in HTPC mode): `components/ActionMen
 channels open in `TvDetail`, which hides "Mark as watched" for `tv` items),
 `routes/MetaDetails/styles.less`, and the phone layouts: `components/BottomSheet`,
 `components/MetaPreviewSheet`, `routes/Discover/FiltersSheet`,
-`routes/Calendar/Details`.
+`routes/Calendar/Details`; gamepad support: `services/GamepadContext`,
+`services/GamepadNavigation`, `App/GamepadModal` (and its calls in `App.js`,
+`MainNavBars`, `HorizontalNavBar`, `Player.js`, `services/index.js`); shortcut
+screens: `App/ShortcutsModal`, `routes/Settings/Shortcuts`,
+`components/ShortcutsGroup`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -95,14 +99,14 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `package.json`, `pnpm-lock.yaml` | `@noriginmedia/norigin-spatial-navigation` | Remote navigation engine |
 | `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
 | `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale); player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
-| `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider` | "Always fullscreen" setting |
-| `src/routes/Settings/Interface/Interface.tsx` | Gamepad toggle hidden (`SHOW_GAMEPAD = false`); "Always fullscreen" toggle (localStorage, not core settings) | Same |
+| `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider`; no `GamepadProvider`, gamepad guide or shortcuts dialog (and their shortcut cases) | "Always fullscreen" setting; gamepad support and shortcut screens dropped |
+| `src/routes/Settings/Interface/Interface.tsx` | Gamepad option removed; "Always fullscreen" toggle (localStorage, not core settings) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
 | `src/components/index.ts` | `MultiselectMenu` export points at `TvSelect` | All dropdowns use the TV picker |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`) | Makes every button remote-reachable |
-| `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar off (`search` forced to `false`) | TV shell |
+| `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar off (`search` forced to `false`); no gamepad hooks | TV shell |
 | `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
@@ -131,7 +135,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Library/Library.js`, `src/routes/Calendar/Calendar.tsx` | `Placeholder` import points at `TvPlaceholder` | Logged-out notice in the TV style |
 | `src/routes/Search/Search.js`, `styles.less` | `TvSearchField` on top; `TvSearchHistory` in place of the hints; `TvRow` instead of `MetaRow`; row spacing | Search page, like Home |
 | `src/routes/Settings/Player/Player.tsx` | Shift + arrow seek time hidden (`SHOW_SHIFT_SEEK = false`) | A remote has no Shift |
-| `src/routes/Settings/Settings.tsx` | Imports `TvMenu` as `Menu`; the menu selects one section instead of scrolling; only the selected section renders (`Info` with General); `TvPane` around the sections | Two-pane settings |
+| `src/routes/Settings/Settings.tsx` | Imports `TvMenu` as `Menu`; the menu selects one section instead of scrolling; only the selected section renders (`Info` with General); `TvPane` around the sections; no Shortcuts section | Two-pane settings |
 | `src/routes/Settings/Settings.less`, `components/Section/Section.less`, `components/Option/Option.less` | Pane padding; wider section, bigger heading; options as full-width rows lit by `:focus-within` | Same |
 | `src/components/index.ts` | `Scale` export points at `TvScale` | Same |
 | `src/services/Navigation/navigation.ts`, `index.ts` | `addKeyInterceptor`; remote Select/Menu keys; `getCurrentFocusKey` export | Screens that claim keys first (player) |

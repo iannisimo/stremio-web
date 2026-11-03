@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
-import { usePlatform } from 'stremio/common';
 import { Button } from 'stremio/components';
 import { FocusContext, useFocusGroup, useRouteScope } from 'stremio/services/Navigation';
 import { SECTIONS } from '../constants';
@@ -18,7 +17,6 @@ type Props = {
 // Focus picks the section, so moving down the list switches the right pane.
 const TvMenu = ({ selected, onSelect }: Props) => {
     const { t } = useTranslation();
-    const platform = usePlatform();
     const scope = useRouteScope();
     const keyOf = (id: string) => `${scope}-settings-${id}`;
 
@@ -27,8 +25,7 @@ const TvMenu = ({ selected, onSelect }: Props) => {
         { id: SECTIONS.INTERFACE, label: t('INTERFACE'), icon: 'tv-outline' },
         { id: SECTIONS.PLAYER, label: t('SETTINGS_NAV_PLAYER'), icon: 'play-outline' },
         { id: SECTIONS.STREAMING, label: t('SETTINGS_NAV_STREAMING'), icon: 'network' },
-        ...(!platform.isMobile ? [{ id: SECTIONS.SHORTCUTS, label: t('SETTINGS_NAV_SHORTCUTS'), icon: 'remote' }] : []),
-    ], [t, platform.isMobile]);
+    ], [t]);
 
     // Button takes no onFocus; catch it here and hand over the focused item.
     const onFocusCapture = useCallback((event: React.FocusEvent<HTMLDivElement>) => {

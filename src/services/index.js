@@ -2,12 +2,9 @@
 
 const Chromecast = require('./Chromecast');
 const { ServicesProvider, useServices } = require('./ServicesContext');
-const { GamepadProvider, useGamepad } = require('./GamepadContext');
 
 module.exports = {
     Chromecast,
     ServicesProvider,
     useServices,
-    GamepadProvider,
-    useGamepad,
 };

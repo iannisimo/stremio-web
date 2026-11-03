@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import { HorizontalNavBar } from 'stremio/components/NavBar';
 import Rail from 'stremio/components/Rail';
 import PlayUrlDialog from 'stremio/components/PlayUrlDialog';
-import { useContentGamepadNavigation, useVerticalNavGamepadNavigation } from 'stremio/services/GamepadNavigation';
 import styles from './MainNavBars.less';
 
 const TABS = [
@@ -29,10 +28,6 @@ type Props = {
 const MainNavBars = memo(({ className, route, query, children }: Props) => {
     const navRef = React.useRef(null);
     const contentRef = React.useRef(null);
-
-    const navRoute = route === 'continue_watching' ? 'library' : (route ?? '');
-    useContentGamepadNavigation(contentRef, navRoute);
-    useVerticalNavGamepadNavigation(navRef, navRoute);
 
     // HTPC fork: TvSearch has its own field, no page gets the top bar (was route === 'search')
     const search = false;
