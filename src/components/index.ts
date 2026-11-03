@@ -1,7 +1,6 @@
 // Copyright (C) 2017-2026 Smart code 203358507
 
 import AddonDetailsModal from './AddonDetailsModal';
-import ActionMenu from './ActionMenu';
 import BottomSheet from './BottomSheet';
 import Button from './Button';
 import Checkbox from './Checkbox';
@@ -9,9 +8,8 @@ import Chips from './Chips';
 import ColorInput from './ColorInput';
 import ContextMenu from './ContextMenu';
 import ContinueWatchingItem from './ContinueWatchingItem';
-import Scale from './TvScale'; // HTPC fork: remote-friendly, same props
+import Scale from './TvScale';
 import DelayedRenderer from './DelayedRenderer';
-import EventModal from './EventModal';
 import HorizontalScroll from './HorizontalScroll';
 import Image from './Image';
 import LibItem from './LibItem';
@@ -19,9 +17,7 @@ import LiveTvContinueWatchingItem from './LiveTvContinueWatchingItem';
 import MainNavBars from './MainNavBars';
 import MetaItem from './MetaItem';
 import MetaPreview from './MetaPreview';
-import MetaRow from './MetaRow';
 import ModalDialog from './ModalDialog';
-import Multiselect from './Multiselect';
 import MultiselectMenu from './TvSelect'; // HTPC fork: TV picker, same props
 import { HorizontalNavBar, VerticalNavBar } from './NavBar';
 import NumberInput from './NumberInput';
@@ -40,7 +36,6 @@ import ActionsGroup from './ActionsGroup';
 
 export {
     AddonDetailsModal,
-    ActionMenu,
     BottomSheet,
     Button,
     Checkbox,
@@ -50,7 +45,6 @@ export {
     ContinueWatchingItem,
     Scale,
     DelayedRenderer,
-    EventModal,
     HorizontalScroll,
     Image,
     LibItem,
@@ -58,9 +52,7 @@ export {
     MainNavBars,
     MetaItem,
     MetaPreview,
-    MetaRow,
     ModalDialog,
-    Multiselect,
     MultiselectMenu,
     HorizontalNavBar,
     VerticalNavBar,

@@ -5,9 +5,11 @@ upstream (`Stremio/stremio-web`, branch `development`) cheap, new behaviour
 lives in new files wherever possible, and upstream files are only touched
 where there is no other hook.
 
-The catch: a clean merge doesn't mean nothing changed for us. If upstream
-changes a component we replaced, git reports no conflict, but we don't get the
-change either. The lists below say where to look.
+Upstream files we replaced or don't need are deleted (see `HTPC-AUDIT.md`).
+When upstream changes one of them, the merge stops with a modify/delete
+conflict: read the change, port what's worth keeping into our version, then
+`git rm` the file again. Replaced files that are still in the tree merge
+cleanly without reaching us; the lists below say where to look.
 
 ## Merging upstream
 
@@ -33,7 +35,12 @@ Then:
        src/routes/MetaDetails/StreamsList \
        src/routes/MetaDetails/VideosList \
        src/components/MetaPreview \
-       src/components/MultiselectMenu
+       src/components/MultiselectMenu \
+       src/routes/Intro \
+       src/routes/Settings/Menu \
+       src/components/Scale \
+       src/routes/Library/Placeholder \
+       src/routes/Calendar/Placeholder
    ```
 
    Port anything worth keeping (bug fixes, new options) into our versions.
@@ -45,28 +52,34 @@ Then:
 
 ## Upstream components we replaced
 
-These upstream files are left untouched, but no longer used by the screens
-listed. Upstream fixes to them have to be ported by hand.
+Upstream fixes to these have to be ported by hand. "Deleted" ones come back as
+modify/delete conflicts; the others are still in the tree but unused.
 
-| Upstream file(s) | Replaced by | Used in |
-|---|---|---|
-| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/Rail/` | `MainNavBars` (every main page) |
-| `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) |
-| `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home |
-| `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home |
-| `src/components/MultiselectMenu/` (menu + `Dropdown`, `Option`; `Label` still used) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label) | Every dropdown: swapped in `src/components/index.ts` |
-| `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) |
-| `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` |
-| `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) |
-| `src/routes/Settings/Menu/` | `src/routes/Settings/TvMenu/` (same props; focus picks the section) | Settings |
-| `src/components/Scale/` | `src/components/TvScale/` (same props; left/right step the options) | Settings > Interface zoom |
-| `src/routes/Library/Placeholder/`, `src/routes/Calendar/Placeholder/` (logged out) | `Library/TvPlaceholder/`, `Calendar/TvPlaceholder/` (same texts, `TvNotice`) | Library, Calendar |
-| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown anywhere |
+| Upstream file(s) | Replaced by | Used in | In tree |
+|---|---|---|---|
+| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/Rail/` | `MainNavBars` (every main page) | yes |
+| `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) | deleted |
+| `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home | deleted (`useEvents.js` kept) |
+| `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home | deleted |
+| `src/components/MultiselectMenu/` (menu + `Dropdown`, `Option`; `Label` still used) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label) | Every dropdown: swapped in `src/components/index.ts` | yes |
+| `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) | `StreamsList.js`, `VideosList.js` deleted; `MetaPreview`, `SeasonsBar` (player side drawer) kept |
+| `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` | deleted |
+| `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) | yes (used inside our editor) |
+| `src/routes/Settings/Menu/` | `src/routes/Settings/TvMenu/` (same props; focus picks the section) | Settings | deleted |
+| `src/components/Scale/` | `src/components/TvScale/` (same props; left/right step the options) | Settings > Interface zoom | deleted |
+| `src/routes/Library/Placeholder/`, `src/routes/Calendar/Placeholder/` (logged out) | `Library/TvPlaceholder/`, `Calendar/TvPlaceholder/` (same texts, `TvNotice`) | Library, Calendar | deleted |
+| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown anywhere | yes |
 
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
 `SharePrompt`, `MetaPreview/Ratings/useRating`, `EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
 models, `NavMenu`, `MetaItem`, `Button`.
+
+Deleted with nothing replacing them (unused in HTPC mode): `components/ActionMenu`
+(card three-dots menu), `components/Multiselect`, `routes/Player/VideosMenu`.
+Their style rules in `Board/styles.less`, `Search/styles.less` and
+`MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
+classes) went with them.
 
 ## Upstream files we edit
 

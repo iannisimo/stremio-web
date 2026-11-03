@@ -2,15 +2,6 @@
 
 @import (reference) '~@stremio/stremio-colors/less/stremio-colors.less';
 @import (reference) '~stremio/common/screen-sizes.less';
-@import (reference) '~stremio/components/MetaRow/styles.less';
-
-:import('~stremio/components/MetaRow/styles.less') {
-    meta-item: meta-item;
-}
-
-:import('~stremio/components/MetaRow/MetaRowPlaceholder/styles.less') {
-    meta-item-placeholder: meta-item;
-}
 
 .search-container {
     .search-content {
@@ -118,12 +109,6 @@
     }
 }
 
-.search-container {
-    .search-content {
-        .visible-items(~".search-row-poster, .search-row-square", ~".search-row-landscape");
-    }
-}
-
 @media only screen and (max-width: @medium) {
     .search-container {
         .search-content {
@@ -168,22 +153,6 @@
         .search-content {
             .search-row {
                 margin-bottom: 1.5rem;
-            }
-
-            .search-row-poster, .search-row-square, .search-row-landscape {
-                .meta-item {
-                    &:not(:empty) {
-                        display: block;
-                    }
-                }
-            }
-
-            .search-row-poster, .search-row-square {
-                .meta-item-placeholder {
-                    &:nth-child(n+4) {
-                        display: none;
-                    }
-                }
             }
 
             .search-hints-wrapper {

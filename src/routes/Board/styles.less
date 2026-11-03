@@ -2,15 +2,6 @@
 
 @import (reference) '~@stremio/stremio-colors/less/stremio-colors.less';
 @import (reference) '~stremio/common/screen-sizes.less';
-@import (reference) '~stremio/components/MetaRow/styles.less';
-
-:import('~stremio/components/MetaRow/styles.less') {
-    meta-item: meta-item;
-}
-
-:import('~stremio/components/MetaRow/MetaRowPlaceholder/styles.less') {
-    meta-item-placeholder: meta-item;
-}
 
 .board-container {
     width: 100%;
@@ -59,30 +50,6 @@
             .board-content {
                 .board-row {
                     margin-bottom: 1.5rem;
-                }
-
-                .board-row-poster, .board-row-square, .continue-watching-row, .board-row-landscape {
-                    .meta-item {
-                        &:not(:empty) {
-                            display: block;
-                        }
-                    }
-                }
-
-                .board-row-poster, .board-row-square, .continue-watching-row {
-                    .meta-item-placeholder {
-                        &:nth-child(n+4) {
-                            display: none;
-                        }
-                    }
-                }
-
-                .board-row-landscape {
-                    .meta-item-placeholder {
-                        &:nth-child(n+3) {
-                            display: none;
-                        }
-                    }
                 }
             }
         }

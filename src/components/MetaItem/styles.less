@@ -7,12 +7,6 @@
     popup-menu-container: menu-container;
 }
 
-:import('~stremio/components/Multiselect/styles.less') {
-    multiselect-menu-container: menu-container;
-    multiselect-option-container: option-container;
-    multiselect-option-label: label;
-}
-
 @play-icon-size: 4rem;
 
 .meta-item-container {
@@ -407,26 +401,6 @@
 
         .popup-menu-container {
             width: auto;
-
-            .multiselect-menu-container {
-                min-width: 9rem;
-                max-width: 14rem;
-
-                .multiselect-option-container {
-                    padding: 1rem 1.5rem;
-
-                    &:hover, &:focus {
-                        outline: none;
-                        background-color: var(--overlay-color);
-                    }
-
-                    .multiselect-option-label {
-                        font-weight: 500;
-                        color: var(--primary-foreground-color);
-                        opacity: 0.8;
-                    }
-                }
-            }
         }
     }
 }
