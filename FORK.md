@@ -87,7 +87,10 @@ channels open in `TvDetail`, which hides "Mark as watched" for `tv` items),
 screens: `App/ShortcutsModal`, `routes/Settings/Shortcuts`,
 `components/ShortcutsGroup`; update banners (the package builds with
 `SERVICE_WORKER_DISABLED=true` and the shell never sends the auto-updater
-message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`.
+message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`; player menus: `routes/Player/CastDevicesMenu`,
+`routes/Player/OptionsMenu`, `routes/Player/StatisticsMenu`, `components/ContextMenu`
+(also dropped from `SubtitlesMenu/SubtitleVariant`: no right-click download /
+copy URL).
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -100,7 +103,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 |---|---|---|
 | `package.json`, `pnpm-lock.yaml` | `@noriginmedia/norigin-spatial-navigation` | Remote navigation engine |
 | `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
-| `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale); player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
+| `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale) and the player's `statisticsMenu` (hold D); other player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
 | `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider`; no `GamepadProvider`, gamepad guide or shortcuts dialog (and their shortcut cases) | "Always fullscreen" setting; gamepad support and shortcut screens dropped |
 | `src/routes/Settings/Interface/Interface.tsx` | Gamepad option removed; "Always fullscreen" toggle (localStorage, not core settings) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
@@ -125,8 +128,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/components/ColorInput/ColorInput.tsx` (+ `.less`) | Phone-layout branches removed (bottom sheets) | `BottomSheet` deleted |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
 | `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
-| `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward`/`volume` shortcuts `enabled=false`; `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode | Remote-first player |
-| `src/routes/Player/ControlBar/ControlBar.js` | `focusKey`s and `disabled` on the buttons; `data-tv-statistics` on the statistics button; mute, cast, "…" and the buttons-menu toggle `data-tv-hidden` + `focusable={false}` | Same |
+| `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward`/`volume` shortcuts `enabled=false`; `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode; no options / context menu, cast devices menu or statistics popup (their state and the cast device search removed; `useCastDevice` / `usePlayOnDevice` kept for the playback flow) | Remote-first player |
+| `src/routes/Player/ControlBar/ControlBar.js` | `focusKey`s and `disabled` on the buttons; `data-tv-statistics` on the statistics button; cast and "…" buttons removed (with the Chromecast state); mute and the buttons-menu toggle `data-tv-hidden` + `focusable={false}` | Same |
 | `src/routes/Player/ControlBar/SeekBar/SeekBar.js`, `styles.less` | Slider is focusable (`player-seek`), focus style on the thumb; time label not focusable | ←/→ seek on the focused bar |
 | `src/routes/Player/SideDrawerButton/` | Focusable (`player-drawer-button`), Enter opens | Remote reach |
 | `src/routes/Player/useKeyboardSeek.ts` | `seekBy` honours a caller's larger offset while held | Remote hold-to-seek ramp |
@@ -144,8 +147,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 
 ## Upstream UI we hide
 
-Still rendered (smaller merges), but hidden: mute button and volume slider, the
-"…" options button (right click still opens `OptionsMenu`), the cast button,
+Still rendered (smaller merges), but hidden: mute button and volume slider,
 the small-screen "more" toggle, the top bar's back/fullscreen buttons and logo.
 Buttons get `data-tv-hidden` + `focusable={false}`; the rest is hidden by
 attribute selectors in `src/routes/Player/TvControls/tvPlayer.less`. If
@@ -204,7 +206,7 @@ Never touched by upstream merges.
   audio centered, restyled with `[class*="name-"]` selectors in
   `TvPopup.less`; check those if upstream renames inner classes), and
   `TvStatistics` (panel shown while the statistics button is focused or
-  hovered; upstream's `StatisticsMenu` no longer opens).
+  hovered; upstream's `StatisticsMenu` is deleted).
 
 ## Conventions
 

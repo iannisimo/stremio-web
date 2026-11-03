@@ -2,9 +2,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import { PRIMARY_MODIFIER, getKeyboardShortcutKey, getKeyboardShortcutKeys } from './keyboard';
 import shortcuts from './shortcuts.json';
 
-// TV fork: no app-wide shortcuts, only the player's
+// TV fork: no app-wide shortcuts, only the player's (minus the statistics
+// hold on D: our statistics panel shows on the focused button)
 const groups = shortcuts.filter(({ name }) => name !== 'general');
-const SHORTCUTS = groups.map(({ shortcuts }) => shortcuts).flat();
+const SHORTCUTS = groups.map(({ shortcuts }) => shortcuts).flat().filter(({ name }) => name !== 'statisticsMenu');
 
 export type ShortcutName = string;
 export type ShortcutListener = (combo: number, key: string, repeat: boolean) => void;

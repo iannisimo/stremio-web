@@ -5,7 +5,6 @@ import Button from './Button';
 import Checkbox from './Checkbox';
 import Chips from './Chips';
 import ColorInput from './ColorInput';
-import ContextMenu from './ContextMenu';
 import ContinueWatchingItem from './ContinueWatchingItem';
 import Scale from './TvScale';
 import DelayedRenderer from './DelayedRenderer';
@@ -37,7 +36,6 @@ export {
     Checkbox,
     Chips,
     ColorInput,
-    ContextMenu,
     ContinueWatchingItem,
     Scale,
     DelayedRenderer,

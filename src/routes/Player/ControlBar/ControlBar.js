@@ -5,7 +5,6 @@ const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { Button } = require('stremio/components');
-const { useServices } = require('stremio/services');
 const SeekBar = require('./SeekBar');
 const VolumeSlider = require('./VolumeSlider');
 const styles = require('./styles');
@@ -44,9 +43,6 @@ const ControlBar = React.forwardRef(({
     onToggleAudioMenu,
     onToggleSpeedMenu,
     onToggleSideDrawer,
-    onToggleOptionsMenu,
-    shellCastSupported,
-    onToggleCastDevicesMenu,
     videoScale,
     videoScaleLabel,
     live,
@@ -58,9 +54,7 @@ const ControlBar = React.forwardRef(({
     onTouchEnd,
     ...props
 }, ref) => {
-    const { chromecast } = useServices();
     const platform = usePlatform();
-    const [chromecastServiceActive, setChromecastServiceActive] = React.useState(() => chromecast.active);
     const [buttonsMenuOpen, , , toggleButtonsMenu] = useBinaryState(false);
     const onSubtitlesButtonMouseDown = React.useCallback((event) => {
         event.nativeEvent.subtitlesMenuClosePrevented = true;
@@ -74,14 +68,8 @@ const ControlBar = React.forwardRef(({
     const onVideosButtonMouseDown = React.useCallback((event) => {
         event.nativeEvent.videosMenuClosePrevented = true;
     }, []);
-    const onOptionsButtonMouseDown = React.useCallback((event) => {
-        event.nativeEvent.optionsMenuClosePrevented = true;
-    }, []);
     const onStatisticsButtonMouseDown = React.useCallback((event) => {
         event.nativeEvent.statisticsMenuClosePrevented = true;
-    }, []);
-    const onCastDevicesButtonMouseDown = React.useCallback((event) => {
-        event.nativeEvent.castDevicesMenuClosePrevented = true;
     }, []);
     const onPlayPauseButtonClick = React.useCallback(() => {
         if (paused) {
@@ -110,28 +98,6 @@ const ControlBar = React.forwardRef(({
             }
         }
     }, [muted, onMuteRequested, onUnmuteRequested]);
-    const castButtonDisabled = platform.shell.active ? !shellCastSupported : !chromecastServiceActive;
-    const onChromecastButtonClick = React.useCallback(() => {
-        if (platform.shell.active) {
-            if (shellCastSupported && typeof onToggleCastDevicesMenu === 'function') {
-                onToggleCastDevicesMenu();
-            }
-            return;
-        }
-        if (castButtonDisabled) {
-            return;
-        }
-        chromecast.transport.requestSession();
-    }, [castButtonDisabled, platform.shell.active, shellCastSupported, onToggleCastDevicesMenu]);
-    React.useEffect(() => {
-        const onStateChanged = () => {
-            setChromecastServiceActive(chromecast.active);
-        };
-        chromecast.on('stateChanged', onStateChanged);
-        return () => {
-            chromecast.off('stateChanged', onStateChanged);
-        };
-    }, []);
     return (
         <div ref={ref} {...props} onTouchStart={props.onMouseOver} onTouchMove={props.onMouseMove} onTouchEnd={onTouchEnd} className={classnames(className, styles['control-bar-container'])}>
             <SeekBar
@@ -197,9 +163,6 @@ const ControlBar = React.forwardRef(({
                     <Button focusKey={'player-speed'} disabled={playbackSpeed === null} className={classnames(styles['control-bar-button'], { 'disabled': playbackSpeed === null })} tabIndex={-1} onMouseDown={onSpeedButtonMouseDown} onClick={onToggleSpeedMenu}>
                         <Icon className={styles['icon']} name={'speed'} />
                     </Button>
-                    <Button data-tv-hidden focusable={false} disabled={castButtonDisabled} className={classnames(styles['control-bar-button'], { 'disabled': castButtonDisabled })} tabIndex={-1} onMouseDown={onCastDevicesButtonMouseDown} onClick={onChromecastButtonClick}>
-                        <Icon className={styles['icon']} name={'cast'} />
-                    </Button>
                     <Button focusKey={'player-subtitles'} disabled={!Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0} className={classnames(styles['control-bar-button'], { 'disabled': !Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0 })} tabIndex={-1} onMouseDown={onSubtitlesButtonMouseDown} onClick={onToggleSubtitlesMenu}>
                         <Icon className={styles['icon']} name={'subtitles'} />
                     </Button>
@@ -216,9 +179,6 @@ const ControlBar = React.forwardRef(({
                     }
                     <Button focusKey={'player-scale'} disabled={videoScale === null} className={classnames(styles['control-bar-button'], { 'disabled': videoScale === null })} title={videoScaleLabel} tabIndex={-1} onClick={onVideoScaleChanged}>
                         <Icon className={styles['icon']} name={VIDEO_SCALE_ICONS[videoScale || 'contain']} />
-                    </Button>
-                    <Button data-tv-hidden focusable={false} className={classnames(styles['control-bar-button'], { 'disabled': !stream })} tabIndex={-1} onMouseDown={onOptionsButtonMouseDown} onClick={onToggleOptionsMenu}>
-                        <Icon className={styles['icon']} name={'more-horizontal'} />
                     </Button>
                 </div>
             </div>
@@ -259,9 +219,6 @@ ControlBar.propTypes = {
     onToggleAudioMenu: PropTypes.func,
     onToggleSpeedMenu: PropTypes.func,
     onToggleSideDrawer: PropTypes.func,
-    onToggleOptionsMenu: PropTypes.func,
-    shellCastSupported: PropTypes.bool,
-    onToggleCastDevicesMenu: PropTypes.func,
     onToggleStatisticsMenu: PropTypes.func,
     onMouseOver: PropTypes.func,
     onMouseMove: PropTypes.func,

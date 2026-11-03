@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { getCurrentFocusKey, setFocus } from 'stremio/services/Navigation';
 import usePlayerKeys from './usePlayerKeys';
 
-const OPENER_KEYS = /^player-(play|next|statistics|speed|cast|subtitles|audio|episodes|scale|drawer-button)$/;
+const OPENER_KEYS = /^player-(play|next|statistics|speed|subtitles|audio|episodes|scale|drawer-button)$/;
 
 type Options = {
     routeFocused: boolean,
@@ -12,7 +12,7 @@ type Options = {
     menusOpen: boolean,
     nextVideoPopupOpen: boolean,
     // which popup is open, to find the button that opened it
-    openMenu: 'subtitles' | 'audio' | 'speed' | 'statistics' | 'cast' | 'episodes' | null,
+    openMenu: 'subtitles' | 'audio' | 'speed' | 'statistics' | 'episodes' | null,
     seekTimeDuration: number,
     seekShortTimeDuration: number,
     seekBy: (offset: number) => void,

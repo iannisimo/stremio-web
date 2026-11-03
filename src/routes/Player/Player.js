@@ -13,7 +13,7 @@ const { useSettings, useProfile, useFullscreen, useBinaryState, useToast, useStr
 const { EPG_PLAYER_NOW_REFRESH_INTERVAL, getEpgTimeRange, useLiveRefresh } = require('stremio/common/EPG');
 const { default: toPath } = require('stremio-router/toPath');
 const { useGoBack } = require('stremio-router');
-const { HorizontalNavBar, Transition, ContextMenu } = require('stremio/components');
+const { HorizontalNavBar, Transition } = require('stremio/components');
 const { default: Buffering } = require('./Buffering');
 const VolumeChangeIndicator = require('./VolumeChangeIndicator');
 const Error = require('./Error');
@@ -22,9 +22,6 @@ const { default: withTvPopup } = require('./TvControls/popups');
 const { default: withTvPlayerRoot } = require('./TvControls/TvPlayerRoot');
 const { default: useTvPlayer } = require('./TvControls/useTvPlayer');
 const NextVideoPopup = withTvPopup(require('./NextVideoPopup'), { focusKey: 'player-popup-next', initial: '[class*="play-button"]' });
-const StatisticsMenu = withTvPopup(require('./StatisticsMenu'), { focusKey: 'player-popup-statistics' });
-const OptionsMenu = require('./OptionsMenu');
-const CastDevicesMenu = withTvPopup(require('./CastDevicesMenu').default, { focusKey: 'player-popup-cast' });
 const SubtitlesMenu = withTvPopup(require('./SubtitlesMenu'), { focusKey: 'player-popup-subtitles', centered: true });
 const AudioMenu = withTvPopup(require('./AudioMenu').default, { focusKey: 'player-popup-audio', centered: true });
 const SpeedMenu = withTvPopup(require('./SpeedMenu'), { focusKey: 'player-popup-speed', centered: true });
@@ -45,7 +42,6 @@ const { default: Indicator } = require('./Indicator/Indicator');
 const { default: useMediaSession } = require('./useMediaSession');
 
 
-const CAST_DEVICES_REFRESH_INTERVAL = 5000;
 
 const Player = () => {
     const { stream, streamTransportUrl, metaTransportUrl, type, id, videoId } = useParams();
@@ -83,7 +79,6 @@ const Player = () => {
     const [casting, setCasting] = React.useState(() => {
         return services.chromecast.active && services.chromecast.transport.getCastState() === cast.framework.CastState.CONNECTED;
     });
-    const playbackDevices = React.useMemo(() => streamingServer.playbackDevices !== null && streamingServer.playbackDevices.type === 'Ready' ? streamingServer.playbackDevices.content : [], [streamingServer]);
 
     const playerRef = React.useRef(null);
     const bufferingRef = React.useRef();
@@ -99,12 +94,10 @@ const Player = () => {
         return () => setVideoElement(null);
     }, [video.state.manifest]);
 
-    const [optionsMenuOpen, , closeOptionsMenu, toggleOptionsMenu] = useBinaryState(false);
     const [subtitlesMenuOpen, , closeSubtitlesMenu, toggleSubtitlesMenu] = useBinaryState(false);
     const [audioMenuOpen, , closeAudioMenu, toggleAudioMenu] = useBinaryState(false);
     const [speedMenuOpen, , closeSpeedMenu, toggleSpeedMenu] = useBinaryState(false);
     const [statisticsMenuOpen, openStatisticsMenu, closeStatisticsMenu, toggleStatisticsMenu] = useBinaryState(false);
-    const [castDevicesMenuOpen, , closeCastDevicesMenu, toggleCastDevicesMenu] = useBinaryState(false);
     const metaItemContent = player.metaItem !== null && player.metaItem.type === 'Ready' ? player.metaItem.content : null;
 
     const isEpg = (player.live ?? null) !== null;
@@ -129,51 +122,18 @@ const Player = () => {
     const [sideDrawerOpen, , closeSideDrawer, toggleSideDrawer] = useBinaryState(false);
 
     const menusOpen = React.useMemo(() => {
-        return optionsMenuOpen || subtitlesMenuOpen || audioMenuOpen || speedMenuOpen || statisticsMenuOpen || castDevicesMenuOpen || sideDrawerOpen || nextVideoPopupOpen;
-    }, [optionsMenuOpen, subtitlesMenuOpen, audioMenuOpen, speedMenuOpen, statisticsMenuOpen, castDevicesMenuOpen, sideDrawerOpen, nextVideoPopupOpen]);
+        return subtitlesMenuOpen || audioMenuOpen || speedMenuOpen || statisticsMenuOpen || sideDrawerOpen || nextVideoPopupOpen;
+    }, [subtitlesMenuOpen, audioMenuOpen, speedMenuOpen, statisticsMenuOpen, sideDrawerOpen, nextVideoPopupOpen]);
 
     const closeMenus = React.useCallback(() => {
-        closeOptionsMenu();
         closeSubtitlesMenu();
         closeAudioMenu();
         closeSpeedMenu();
         closeStatisticsMenu();
-        closeCastDevicesMenu();
         closeSideDrawer();
     }, []);
 
-    const castDevices = React.useMemo(() => {
-        return playbackDevices
-            .filter(({ type }) => type === 'chromecast' || type === 'tv')
-            .sort((a, b) => a.type === b.type ? 0 : a.type === 'chromecast' ? -1 : 1);
-    }, [playbackDevices]);
-    const [castDevicesSearching, setCastDevicesSearching] = React.useState(false);
-    const castDevicesLoading = platform.shell.active && (castDevicesSearching || (streamingServer.playbackDevices !== null && streamingServer.playbackDevices.type === 'Loading'));
     const { streamingUrl: castStreamingUrl } = usePlayOnDevice(player.selected?.stream ?? null);
-    const shellCastSupported = platform.shell.active && castStreamingUrl !== null;
-    const refreshCastDevices = React.useCallback(() => {
-        if (platform.shell.active) {
-            core.transport.dispatch({
-                action: 'StreamingServer',
-                args: {
-                    action: 'RefreshPlaybackDevices',
-                }
-            });
-        }
-    }, [platform.shell.active]);
-    React.useEffect(() => {
-        if (castDevicesMenuOpen && platform.shell.active) {
-            setCastDevicesSearching(true);
-            refreshCastDevices();
-            const interval = setInterval(refreshCastDevices, CAST_DEVICES_REFRESH_INTERVAL);
-            const timeout = setTimeout(() => setCastDevicesSearching(false), CAST_DEVICES_REFRESH_INTERVAL);
-            return () => {
-                clearInterval(interval);
-                clearTimeout(timeout);
-                setCastDevicesSearching(false);
-            };
-        }
-    }, [castDevicesMenuOpen, refreshCastDevices]);
 
     const onAudioTrackSelected = useAudio({
         player,
@@ -185,8 +145,6 @@ const Player = () => {
     const {
         streamSubtitles,
         allSubtitleTracks,
-        extraSubtitleTracks,
-        selectedExtraSubtitleTrackId,
         subtitlesMenuProps,
     } = useSubtitles({
         player,
@@ -200,11 +158,7 @@ const Player = () => {
     });
 
     const playingOnExternalDevice = React.useRef(false);
-    const { castToDevice, stopBeforeLocalPlay, isCasting } = useCastDevice(castStreamingUrl, streamingServer.casting, video, playingOnExternalDevice);
-    const onCastDeviceSelected = (deviceId) => {
-        castToDevice(deviceId);
-        closeCastDevicesMenu();
-    };
+    const { stopBeforeLocalPlay, isCasting } = useCastDevice(castStreamingUrl, streamingServer.casting, video, playingOnExternalDevice);
     const [error, setError] = React.useState(null);
 
     const VIDEO_SCALES = ['contain', 'cover', 'fill'];
@@ -403,7 +357,7 @@ const Player = () => {
         overlayHidden,
         menusOpen,
         nextVideoPopupOpen,
-        openMenu: subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : statisticsMenuOpen ? 'statistics' : castDevicesMenuOpen ? 'cast' : sideDrawerOpen ? 'episodes' : null,
+        openMenu: subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : statisticsMenuOpen ? 'statistics' : sideDrawerOpen ? 'episodes' : null,
         seekTimeDuration: settings.seekTimeDuration,
         seekShortTimeDuration: settings.seekShortTimeDuration,
         seekBy: onKeyboardSeekRequested,
@@ -431,9 +385,6 @@ const Player = () => {
     }, [toggleFullscreen]);
 
     const onContainerMouseDown = React.useCallback((event) => {
-        if (!event.nativeEvent.optionsMenuClosePrevented) {
-            closeOptionsMenu();
-        }
         if (!event.nativeEvent.subtitlesMenuClosePrevented) {
             closeSubtitlesMenu();
         }
@@ -445,9 +396,6 @@ const Player = () => {
         }
         if (!event.nativeEvent.statisticsMenuClosePrevented) {
             closeStatisticsMenu();
-        }
-        if (!event.nativeEvent.castDevicesMenuClosePrevented) {
-            closeCastDevicesMenu();
         }
 
         closeSideDrawer();
@@ -954,15 +902,6 @@ const Player = () => {
                     :
                     null
             }
-            <ContextMenu on={[video.containerRef, bufferingRef, errorRef]} autoClose>
-                <OptionsMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    stream={player?.selected?.stream}
-                    playbackDevices={playbackDevices}
-                    extraSubtitlesTracks={extraSubtitleTracks}
-                    selectedExtraSubtitlesTrackId={selectedExtraSubtitleTrackId}
-                />
-            </ContextMenu>
             <HorizontalNavBar
                 className={classnames(styles['layer'], styles['nav-bar-layer'])}
                 title={player.title !== null ? player.title : ''}
@@ -1005,9 +944,6 @@ const Player = () => {
                 onUnmuteRequested={onUnmuteRequested}
                 onVolumeChangeRequested={onVolumeChangeRequested}
                 onSeekRequested={onSeekRequested}
-                onToggleOptionsMenu={toggleOptionsMenu}
-                shellCastSupported={shellCastSupported}
-                onToggleCastDevicesMenu={toggleCastDevicesMenu}
                 onToggleSubtitlesMenu={toggleSubtitlesMenu}
                 onToggleAudioMenu={toggleAudioMenu}
                 onToggleSpeedMenu={toggleSpeedMenu}
@@ -1042,20 +978,6 @@ const Player = () => {
                     :
                     null
             }
-            <Transition when={statisticsMenuOpen} name={'fade'}>
-                <StatisticsMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    {...statistics}
-                />
-            </Transition>
-            <Transition when={castDevicesMenuOpen} name={'fade'}>
-                <CastDevicesMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    devices={castDevices}
-                    loading={castDevicesLoading}
-                    onDeviceSelected={onCastDeviceSelected}
-                />
-            </Transition>
             <Transition when={sideDrawerOpen} name={'slide-left'}>
                 <SideDrawer
                     className={classnames(styles['layer'], styles['side-drawer-layer'])}
@@ -1085,15 +1007,6 @@ const Player = () => {
                     className={classnames(styles['layer'], styles['menu-layer'])}
                     playbackSpeed={video.state.playbackSpeed}
                     onPlaybackSpeedChanged={onPlaybackSpeedChanged}
-                />
-            </Transition>
-            <Transition when={optionsMenuOpen} name={'fade'}>
-                <OptionsMenu
-                    className={classnames(styles['layer'], styles['menu-layer'])}
-                    stream={player.selected?.stream}
-                    playbackDevices={playbackDevices}
-                    extraSubtitlesTracks={extraSubtitleTracks}
-                    selectedExtraSubtitlesTrackId={selectedExtraSubtitleTrackId}
                 />
             </Transition>
         </div>
