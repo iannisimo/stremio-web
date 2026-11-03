@@ -111,7 +111,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
 | `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale) and the player's `statisticsMenu` (hold D); other player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
 | `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider`; no `GamepadProvider`, gamepad guide or shortcuts dialog (and their shortcut cases) | "Always fullscreen" setting; gamepad support and shortcut screens dropped |
-| `src/routes/Settings/Interface/Interface.tsx` | Gamepad option removed; "Always fullscreen" toggle (localStorage, not core settings) | Same |
+| `src/routes/Settings/Interface/Interface.tsx` | Gamepad option removed; "Always fullscreen" toggle (localStorage, not core settings); quit on close and Escape-exits-fullscreen hidden (`SHOW_WINDOW_OPTIONS = false`) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
@@ -125,6 +125,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/`, `styles.less` | Opt-in `readOnly` mode (pills, no action buttons); no library / watched icon row (`ActionsGroup`) or thumbs (`Ratings`) | Discover preview; those controls live on our detail page |
 | `src/components/NavBar/HorizontalNavBar/HorizontalNavBar.js`, `NavBar/index.js` | Title and HDR badge only: no back, logo, search bar, fullscreen or profile menu (`NavMenu`); only `HorizontalNavBar` exported | Player top bar and NotFound |
 | `src/components/HorizontalScroll/HorizontalScroll.tsx` | `onFocus={keepFocusedInView}` (our `services/Navigation`) | Focused chip scrolls fully into view |
+| `src/routes/Settings/General/General.tsx`, `General.less` | No data export (`useDataExport` deleted), calendar subscription or Discord toggle; account, Trakt and outside links stay | Only things that work from the TV |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
 | `src/routes/MetaDetails/MetaDetails.js` | Always renders `TvDetail` (Live TV branches, `LiveTvDetails`, its placeholder and `styles.less` removed); no `HorizontalNavBar`, no gamepad hook | Detail page TV layout; Live TV page dropped (`HTPC-AUDIT.md` #75, "Missing features") |
 | `src/routes/MetaDetails/StreamsList/Stream/Stream.js`, `styles.less` | Forwards `focusKey` to the row's `Button`; no `Popup` menu (copy links / play), the row renders directly; right click and long press open our `RowActions` | Remote focus on stream rows; one row menu for mouse and remote |
@@ -147,7 +148,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Addons/Addons.js` | `SHOW_ADDONS_LIST = false`: `TvAddonsNotice` (use web/mobile, QR to web.stremio.com; log in first when logged out) in place of the list and filters; dialogs kept, so `?addon=` install links still work | Managing addons with a remote is painful |
 | `src/routes/Library/Library.js`, `src/routes/Calendar/Calendar.tsx` | `Placeholder` import points at `TvPlaceholder` | Logged-out notice in the TV style |
 | `src/routes/Search/Search.js`, `styles.less` | `TvSearchField` on top; `TvSearchHistory` in place of the hints; `TvRow` instead of `MetaRow`; row spacing | Search page, like Home |
-| `src/routes/Settings/Player/Player.tsx` | Shift + arrow seek time hidden (`SHOW_SHIFT_SEEK = false`) | A remote has no Shift |
+| `src/routes/Settings/Player/Player.tsx` | Shift + arrow seek time hidden (`SHOW_SHIFT_SEEK = false`); play in background, external player and pause-on-minimize hidden (`SHOW_DESKTOP_PLAYBACK = false`) | A remote has no Shift; the shell's mpv is the player |
 | `src/routes/Settings/Settings.tsx` | Imports `TvMenu` as `Menu`; the menu selects one section instead of scrolling; only the selected section renders (`Info` with General); `TvPane` around the sections; no Shortcuts section | Two-pane settings |
 | `src/routes/Settings/Settings.less`, `components/Section/Section.less`, `components/Option/Option.less` | Pane padding; wider section, bigger heading; options as full-width rows lit by `:focus-within` | Same |
 | `src/components/index.ts` | `Scale` export points at `TvScale` | Same |

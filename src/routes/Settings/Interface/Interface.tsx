@@ -6,6 +6,9 @@ import useFullscreen from 'stremio/common/Fullscreen/useFullscreen';
 import { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from 'stremio/services/KeepFullscreen';
 import useInterfaceOptions from './useInterfaceOptions';
 
+// HTPC fork: no quit on close or Escape-exits-fullscreen (the shell stays fullscreen, see "Always fullscreen")
+const SHOW_WINDOW_OPTIONS = false;
+
 type Props = {
     profile: Profile,
 };
@@ -43,7 +46,7 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                 <Scale {...interfaceSize} />
             </Option>
             {
-                shell.active &&
+                SHOW_WINDOW_OPTIONS && shell.active &&
                     <Option label={'SETTINGS_QUIT_ON_CLOSE'}>
                         <Toggle
                             tabIndex={-1}
@@ -52,7 +55,7 @@ const Interface = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) =>
                     </Option>
             }
             {
-                shell.active &&
+                SHOW_WINDOW_OPTIONS && shell.active &&
                     <Option label={'SETTINGS_FULLSCREEN_EXIT'}>
                         <Toggle
                             tabIndex={-1}

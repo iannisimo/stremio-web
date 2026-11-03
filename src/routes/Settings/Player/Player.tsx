@@ -6,6 +6,8 @@ import usePlayerOptions from './usePlayerOptions';
 
 // HTPC fork: a remote has no Shift
 const SHOW_SHIFT_SEEK = false;
+// HTPC fork: no background playback, external player or pause-on-minimize (the shell's mpv is the player)
+const SHOW_DESKTOP_PLAYBACK = false;
 
 type Props = {
     profile: Profile,
@@ -112,13 +114,15 @@ const Player = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) => {
                         />
                     </Option>
                 }
-                <Option label={'SETTINGS_PLAY_IN_BACKGROUND'}>
-                    <Toggle
-                        disabled={true}
-                        tabIndex={-1}
-                        {...playInBackgroundToggle}
-                    />
-                </Option>
+                {
+                    SHOW_DESKTOP_PLAYBACK && <Option label={'SETTINGS_PLAY_IN_BACKGROUND'}>
+                        <Toggle
+                            disabled={true}
+                            tabIndex={-1}
+                            {...playInBackgroundToggle}
+                        />
+                    </Option>
+                }
             </Category>
             <Category icon={'play'} label={'SETTINGS_SECTION_AUTO_PLAY'}>
                 <Option label={'AUTO_PLAY'}>
@@ -135,12 +139,14 @@ const Player = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) => {
                 </Option>
             </Category>
             <Category icon={'glasses'} label={'SETTINGS_SECTION_ADVANCED'}>
-                <Option label={'SETTINGS_PLAY_IN_EXTERNAL_PLAYER'}>
-                    <MultiselectMenu
-                        className={'multiselect'}
-                        {...playInExternalPlayerSelect}
-                    />
-                </Option>
+                {
+                    SHOW_DESKTOP_PLAYBACK && <Option label={'SETTINGS_PLAY_IN_EXTERNAL_PLAYER'}>
+                        <MultiselectMenu
+                            className={'multiselect'}
+                            {...playInExternalPlayerSelect}
+                        />
+                    </Option>
+                }
                 {
                     shell.active &&
                         <Option label={'SETTINGS_HWDEC'}>
@@ -169,7 +175,7 @@ const Player = forwardRef<HTMLDivElement, Props>(({ profile }: Props, ref) => {
                         </Option>
                 }
                 {
-                    shell.active &&
+                    SHOW_DESKTOP_PLAYBACK && shell.active &&
                         <Option label={'SETTINGS_PAUSE_MINIMIZED'}>
                             <Toggle
                                 tabIndex={-1}
