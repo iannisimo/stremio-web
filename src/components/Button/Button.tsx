@@ -49,6 +49,8 @@ const Button = forwardRef(({ className, href, disabled, children, onLongPress, o
 
         if (event.key === 'Enter') {
             event.preventDefault();
+            // HTPC fork: a held Enter (long press) must not press what gets focus next
+            if (event.repeat) return;
             // @ts-expect-error: Property 'buttonClickPrevented' does not exist on type 'KeyboardEvent'.
             if (!event.nativeEvent.buttonClickPrevented) {
                 event.currentTarget.click();
