@@ -32,3 +32,57 @@ html[data-input='keyboard'] {
         pointer-events: none;
     }
 }
+
+// Toasts (upstream common/Toast): small glass notes in the TV style.
+[class*='toast-item-container-'] {
+    width: auto !important;
+    min-width: 16rem;
+    max-width: 24rem;
+    align-items: center !important;
+    margin-bottom: 0.75rem !important;
+    padding: 0.75rem 1.1rem !important;
+    border: 1px solid var(--tv-stroke-strong) !important;
+    border-radius: 1rem !important;
+    background-color: var(--tv-glass-strong) !important;
+    backdrop-filter: blur(24px) saturate(1.4) !important;
+    box-shadow: 0 0.75rem 2.5rem rgba(0, 0, 0, 0.45) !important;
+    animation: tv-toast-in 0.25s var(--tv-ease);
+
+    [class*='icon-container-'] {
+        flex: none;
+        width: 1.75rem;
+        height: 1.75rem;
+        padding: 0.3rem;
+        border-radius: 50% !important;
+        background-color: var(--tv-fill) !important;
+    }
+
+    [class*='info-container-'] {
+        padding: 0 0 0 0.8rem !important;
+        align-self: center !important;
+
+        [class*='title-container-'] {
+            font-size: 1rem !important;
+            font-weight: 600;
+            color: var(--tv-text) !important;
+        }
+
+        [class*='message-container-'] {
+            font-size: 0.9rem !important;
+            color: var(--tv-text-2) !important;
+            opacity: 1 !important;
+        }
+    }
+}
+
+@keyframes tv-toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}

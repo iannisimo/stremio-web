@@ -125,6 +125,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/`, `styles.less` | Opt-in `readOnly` mode (pills, no action buttons); no library / watched icon row (`ActionsGroup`) or thumbs (`Ratings`) | Discover preview; those controls live on our detail page |
 | `src/components/NavBar/HorizontalNavBar/HorizontalNavBar.js`, `NavBar/index.js` | Title and HDR badge only: no back, logo, search bar, fullscreen or profile menu (`NavMenu`); only `HorizontalNavBar` exported | Player top bar and NotFound |
 | `src/components/HorizontalScroll/HorizontalScroll.tsx` | `onFocus={keepFocusedInView}` (our `services/Navigation`) | Focused chip scrolls fully into view |
+| `src/common/Toast/ToastItem/ToastItem.js` | No close button; the toast is never a focus stop (`focusable={false}`); restyled in our `App/tv.less` with `[class*="toast-item-container-"]` selectors (check those if upstream renames the classes) | Toasts time out on their own and must not steal remote focus |
 | `src/components/RadioButton/RadioButton.tsx` | Registers with Norigin (`useFocusable`, not focusable while disabled / selected) | Settings → Streaming: pick the server URL with the remote |
 | `src/routes/Settings/General/General.tsx`, `General.less` | No data export (`useDataExport` deleted), calendar subscription or Discord toggle; account, Trakt and outside links stay | Only things that work from the TV |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
@@ -208,7 +209,7 @@ Never touched by upstream merges.
 - `src/routes/TvIntro/`: login screen. Code / QR login through link.stremio.com
   (then core's `LoginWithToken`), "Standard login" for email and password.
 - `src/routes/Board/TvHero/`, `src/routes/Board/TvServerWarning/`.
-- `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
+- `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules, toast restyle.
 - `src/routes/Player/TvControls/`: player remote handling (`useTvPlayer`,
   `usePlayerKeys`: hidden-controls seek, Back closes popups and refocuses
   the opener), the control bar focus group, the player focus boundary,
