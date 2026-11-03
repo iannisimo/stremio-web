@@ -143,7 +143,14 @@ Not tied to one upstream component's verdict; fix with the rest of the work.
 
 ## Next session: what's left
 
-Status on 2026-11-03: every item (1–108) has a verdict. Nothing above is implemented or committed.
+Status on 2026-11-03: every item (1–108) has a verdict. The cleanup plan (`docs/plans/2026-11-03-htpc-cleanup.md`, branch `htpc-cleanup`) is done: deletions, small edits, renames. Left for the reworks plan: guide navigation (#71), statistics for every stream (#57), Share QR (#34), Addons section in Settings + Addons route removal with `AddonDetailsModal`, `Checkbox`, `components/SearchBar`, `SharePrompt` (#90, #101, #3, #6, #33), `TvColorInput` (#8), typeable season / episode (#27), Play URL keyboard (#28, issue D), `ModalDialog` users to `TvFullscreenDialog` (#12, #24, #51); then the moves pass (issue C).
+
+Still unused after the cleanup (`node tools/dead-code.mjs stremio-web tools/dead-code-cuts.txt`): the Addons list parts (`routes/Addons/Addon/`, `AddonPlaceholder/`: go with the Addons route), and upstream's own leftovers not covered by the audit: `router/styles.css`, `common/useInstallPrompt.ts`, `common/usePWA.js`, `common/useOrientation.ts`, `routes/Calendar/Table/Cell/index.ts`.
+
+Found during the cleanup, not yet decided:
+- `tests/i18nScan.test.js` fails on hard-coded English in our `TvIntro` and `TvAddonsNotice` (and jest also scans the package build copy in `packaging/arch/src/`). Both predate the cleanup.
+- Our stream row dialog (`TvRowActions` → `StreamActions`) still offers "Copy stream link" / "Copy video download link", though #61 judged clipboard actions useless on the HTPC.
+- After closing a card's long-press dialog (`TvMetaItemActions`) focus lands on the page, not back on the card (episode / stream row dialogs do return it).
 
 ### How to check things in the browser
 

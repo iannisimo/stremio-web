@@ -274,6 +274,8 @@
 
 ### Task 20: Close out
 
+> Done 2026-11-03: see `HTPC-AUDIT.md` "Next session" status for what's left and what was found.
+
 - [ ] **Step 1:** Dead-code script; compare with Task 0. Expected: the remaining dead files are only ones the audit kept on purpose (list them in `HTPC-AUDIT.md`).
 - [ ] **Step 2:** Mark done items in `HTPC-AUDIT.md` ("Status" line), refresh `FORK.md` "Last upstream commit merged" if a merge happened meanwhile.
 - [ ] **Step 3:** Commit: `docs: audit cleanup done`.
