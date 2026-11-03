@@ -149,7 +149,7 @@ Still unused after the cleanup (`node tools/dead-code.mjs stremio-web tools/dead
 
 Found during the cleanup, not yet decided:
 - `tests/i18nScan.test.js` fails on hard-coded English in our `TvIntro` and `TvAddonsNotice` (and jest also scans the package build copy in `packaging/arch/src/`). Both predate the cleanup.
-- Our stream row dialog (`TvRowActions` → `StreamActions`) still offers "Copy stream link" / "Copy video download link", though #61 judged clipboard actions useless on the HTPC.
+- Our stream row dialog (`TvRowActions` → `StreamActions`) offers "Copy stream link" / "Copy video download link": decided to keep them (2026-11-03).
 - After closing a card's long-press dialog (`TvMetaItemActions`) focus lands on the page, not back on the card (episode / stream row dialogs do return it).
 
 ### How to check things in the browser
