@@ -72,7 +72,7 @@ modify/delete conflicts; the others are still in the tree but unused.
 
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
-`SharePrompt`, `MetaPreview/Ratings/useRating`, `EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
+`SharePrompt`, `MetaPreview/Ratings/useRating` (its `Ratings` component is deleted), `EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
 models, `MetaItem`, `Button`, `NavBar/HorizontalNavBar/SearchBar/useSearchHistory` /
 `useLocalSearch`.
 
@@ -95,7 +95,8 @@ message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`;
 (also dropped from `SubtitlesMenu/SubtitleVariant`: no right-click download /
 copy URL); app volume: `routes/Player/VolumeChangeIndicator`,
 `routes/Player/ControlBar/VolumeSlider`; `components/Popup` (its last users were
-the episode and stream row menus; `MetaItem/styles.less` lost the matching rule).
+the episode and stream row menus; `MetaItem/styles.less` lost the matching rule);
+`components/ActionsGroup`, `components/MetaPreview/Ratings/Ratings.tsx`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -121,7 +122,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |
-| `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/` | Opt-in `readOnly` mode (pills, no action buttons) | Discover preview |
+| `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/`, `styles.less` | Opt-in `readOnly` mode (pills, no action buttons); no library / watched icon row (`ActionsGroup`) or thumbs (`Ratings`) | Discover preview; those controls live on our detail page |
 | `src/components/NavBar/HorizontalNavBar/HorizontalNavBar.js`, `NavBar/index.js` | Title and HDR badge only: no back, logo, search bar, fullscreen or profile menu (`NavMenu`); only `HorizontalNavBar` exported | Player top bar and NotFound |
 | `src/components/HorizontalScroll/HorizontalScroll.tsx` | `onFocus={keepFocusedInView}` (our `services/Navigation`) | Focused chip scrolls fully into view |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |

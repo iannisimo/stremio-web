@@ -8,7 +8,6 @@ const { useTranslation } = require('react-i18next');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { default: Button } = require('stremio/components/Button');
 const { default: Image } = require('stremio/components/Image');
-const { default: ActionsGroup } = require('stremio/components/ActionsGroup');
 const ModalDialog = require('stremio/components/ModalDialog');
 const SharePrompt = require('stremio/components/SharePrompt');
 const CONSTANTS = require('stremio/common/CONSTANTS');
@@ -20,7 +19,6 @@ const ActionButton = require('./ActionButton');
 const MetaLinks = require('./MetaLinks');
 const MetaPreviewPlaceholder = require('./MetaPreviewPlaceholder');
 const styles = require('./styles');
-const { Ratings } = require('./Ratings');
 
 const ALLOWED_LINK_REDIRECTS = [
     routesRegexp.search.regexp,
@@ -103,18 +101,6 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
     const renderLogoFallback = React.useCallback(() => (
         <div className={styles['logo-placeholder']}>{name}</div>
     ), [name]);
-    const metaItemActions = React.useMemo(() => [
-        {
-            icon: inLibrary ? 'remove-from-library' : 'add-to-library',
-            label: inLibrary ? t('REMOVE_FROM_LIB') : t('ADD_TO_LIB'),
-            onClick: typeof toggleInLibrary === 'function' ? toggleInLibrary : null,
-        },
-        {
-            icon: watched ? 'eye-off' : 'eye',
-            label: watched ? t('CTX_MARK_UNWATCHED') : t('CTX_MARK_WATCHED'),
-            onClick: typeof toggleWatched === 'function' ? toggleWatched : undefined,
-        },
-    ], [inLibrary, watched, toggleInLibrary, toggleWatched]);
     return (
         <div className={classnames(className, styles['meta-preview-container'], { [styles['compact']]: compact })} ref={ref}>
             {
@@ -235,11 +221,6 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                             null
                     }
                     {
-                        typeof toggleInLibrary === 'function' && typeof toggleWatched === 'function'
-                            ? <ActionsGroup items={metaItemActions} className={styles['group-container']} />
-                            : null
-                    }
-                    {
                         typeof showHref === 'string' && compact ?
                             <ActionButton
                                 className={classnames(styles['action-button'], styles['show-button'])}
@@ -250,15 +231,6 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                                 tabIndex={0}
                                 href={showHref}
                                 onClick={onShowClick}
-                            />
-                            :
-                            null
-                    }
-                    {
-                        !compact && ratingInfo !== null ?
-                            <Ratings
-                                ratingInfo={ratingInfo}
-                                className={styles['group-container']}
                             />
                             :
                             null
