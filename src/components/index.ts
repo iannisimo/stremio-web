@@ -17,7 +17,7 @@ import MetaItem from './MetaItem';
 import MetaPreview from './MetaPreview';
 import ModalDialog from './ModalDialog';
 import MultiselectMenu from './TvSelect';
-import { HorizontalNavBar, VerticalNavBar } from './NavBar';
+import { HorizontalNavBar } from './NavBar';
 import NumberInput from './NumberInput';
 import Popup from './Popup';
 import RadioButton from './RadioButton';
@@ -49,7 +49,6 @@ export {
     ModalDialog,
     MultiselectMenu,
     HorizontalNavBar,
-    VerticalNavBar,
     NumberInput,
     Popup,
     RadioButton,

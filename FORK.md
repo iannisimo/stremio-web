@@ -57,7 +57,7 @@ modify/delete conflicts; the others are still in the tree but unused.
 
 | Upstream file(s) | Replaced by | Used in | In tree |
 |---|---|---|---|
-| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/Rail/` | `MainNavBars` (every main page) | yes |
+| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/Rail/` | `MainNavBars` (every main page) | deleted |
 | `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) | deleted |
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home | deleted (`useEvents.js` kept) |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home | deleted |
@@ -73,7 +73,8 @@ modify/delete conflicts; the others are still in the tree but unused.
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
 `SharePrompt`, `MetaPreview/Ratings/useRating`, `EventModal/useEvents.js`, `useProfile`, `useStreamingServer`, the core
-models, `NavMenu`, `MetaItem`, `Button`.
+models, `MetaItem`, `Button`, `NavBar/HorizontalNavBar/SearchBar/useSearchHistory` /
+`useLocalSearch`.
 
 Deleted with nothing replacing them (unused in HTPC mode): `components/ActionMenu`
 (card three-dots menu), `components/Multiselect`, `routes/Player/VideosMenu`,
@@ -85,7 +86,9 @@ channels open in `TvDetail`, which hides "Mark as watched" for `tv` items),
 `services/GamepadNavigation`, `App/GamepadModal` (and its calls in `App.js`,
 `MainNavBars`, `HorizontalNavBar`, `Player.js`, `services/index.js`); shortcut
 screens: `App/ShortcutsModal`, `routes/Settings/Shortcuts`,
-`components/ShortcutsGroup`; update banners (the package builds with
+`components/ShortcutsGroup`; top bar parts: `NavBar/VerticalNavBar`,
+`NavBar/HorizontalNavBar/NavMenu` (profile menu), the `SearchBar` UI (its two
+hooks stay); update banners (the package builds with
 `SERVICE_WORKER_DISABLED=true` and the shell never sends the auto-updater
 message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`; player menus: `routes/Player/CastDevicesMenu`,
 `routes/Player/OptionsMenu`, `routes/Player/StatisticsMenu`, `components/ContextMenu`
@@ -112,13 +115,14 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
 | `src/components/index.ts` | `MultiselectMenu` export points at `TvSelect` | All dropdowns use the TV picker |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`) | Makes every button remote-reachable |
-| `src/components/MainNavBars/` | `Rail` instead of both nav bars; top bar off (`search` forced to `false`); no gamepad hooks | TV shell |
+| `src/components/MainNavBars/` | `Rail` instead of both nav bars; no top bar; no gamepad hooks | TV shell |
 | `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |
 | `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/` | Opt-in `readOnly` mode (pills, no action buttons) | Discover preview |
-| `src/components/NavBar/HorizontalNavBar/NavMenu/NavMenu.js` | `direction` prop | Was for the rail's profile menu (removed); unused now |
+| `src/components/NavBar/HorizontalNavBar/HorizontalNavBar.js`, `NavBar/index.js` | Title and HDR badge only: no back, logo, search bar, fullscreen or profile menu (`NavMenu`); only `HorizontalNavBar` exported | Player top bar and NotFound |
+| `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
 | `src/routes/MetaDetails/MetaDetails.js` | Always renders `TvDetail` (Live TV branches, `LiveTvDetails`, its placeholder and `styles.less` removed); no `HorizontalNavBar`, no gamepad hook | Detail page TV layout; Live TV page dropped (`HTPC-AUDIT.md` #75, "Missing features") |
 | `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
 | `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |

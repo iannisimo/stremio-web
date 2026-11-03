@@ -2,7 +2,6 @@
 
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
-import { HorizontalNavBar } from 'stremio/components/NavBar';
 import Rail from 'stremio/components/Rail';
 import PlayUrlDialog from 'stremio/components/PlayUrlDialog';
 import styles from './MainNavBars.less';
@@ -25,12 +24,9 @@ type Props = {
     children?: React.ReactNode,
 };
 
-const MainNavBars = memo(({ className, route, query, children }: Props) => {
+const MainNavBars = memo(({ className, route, children }: Props) => {
     const navRef = React.useRef(null);
     const contentRef = React.useRef(null);
-
-    // HTPC fork: TvSearch has its own field, no page gets the top bar (was route === 'search')
-    const search = false;
 
     const [playUrlOpen, setPlayUrlOpen] = useState(false);
     const closePlayUrl = useCallback(() => setPlayUrlOpen(false), []);
@@ -39,21 +35,7 @@ const MainNavBars = memo(({ className, route, query, children }: Props) => {
     )), []);
 
     return (
-        <div className={classnames(className, styles['main-nav-bars-container'], { [styles['search']]: search })}>
-            {
-                search ?
-                    <HorizontalNavBar
-                        className={styles['horizontal-nav-bar']}
-                        route={route}
-                        query={query}
-                        backButton={false}
-                        searchBar={true}
-                        fullscreenButton={false}
-                        navMenu={false}
-                    />
-                    :
-                    null
-            }
+        <div className={classnames(className, styles['main-nav-bars-container'])}>
             <Rail
                 ref={navRef}
                 className={styles['vertical-nav-bar']}
