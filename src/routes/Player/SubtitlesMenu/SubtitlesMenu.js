@@ -85,7 +85,8 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
     }, []);
     const subtitlesLanguageOnClick = React.useCallback((event) => {
         const tracks = allSubtitles.filter(({ lang }) => lang === event.currentTarget.dataset.lang);
-        const track = sortByValues(tracks, ORIGIN_PRIORITIES).shift();
+        // HTPC fork: picking the selected language again turns subtitles off
+        const track = event.currentTarget.dataset.lang === selectedSubtitlesLanguage ? undefined : sortByValues(tracks, ORIGIN_PRIORITIES).shift();
 
         if (!track) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
@@ -103,9 +104,17 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
                 props.onExtraSubtitlesTrackSelected(track);
             }
         }
-    }, [allSubtitles, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
+    }, [allSubtitles, selectedSubtitlesLanguage, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
     const subtitlesTrackOnSelect = React.useCallback((track) => {
-        if (track.embedded) {
+        // HTPC fork: picking the selected track again turns subtitles off
+        if (props.selectedSubtitlesTrackId === track.id || props.selectedExtraSubtitlesTrackId === track.id) {
+            if (typeof props.onSubtitlesTrackSelected === 'function') {
+                props.onSubtitlesTrackSelected(null);
+            }
+            if (typeof props.onExtraSubtitlesTrackSelected === 'function') {
+                props.onExtraSubtitlesTrackSelected(null);
+            }
+        } else if (track.embedded) {
             if (typeof props.onSubtitlesTrackSelected === 'function') {
                 props.onSubtitlesTrackSelected(track);
             }
@@ -114,7 +123,7 @@ const SubtitlesMenu = React.memo(React.forwardRef((props, ref) => {
                 props.onExtraSubtitlesTrackSelected(track);
             }
         }
-    }, [props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
+    }, [props.selectedSubtitlesTrackId, props.selectedExtraSubtitlesTrackId, props.onSubtitlesTrackSelected, props.onExtraSubtitlesTrackSelected]);
     const onSubtitlesDelayChanged = React.useCallback((value) => {
         if (typeof props.selectedExtraSubtitlesTrackId === 'string') {
             if (props.extraSubtitlesDelay !== null && !isNaN(props.extraSubtitlesDelay)) {

@@ -142,6 +142,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Player/ControlBar/SeekBar/SeekBar.js`, `styles.less` | Slider is focusable (`player-seek`), focus style on the thumb; time label not focusable | ←/→ seek on the focused bar |
 | `src/routes/Player/SideDrawerButton/` | Focusable (`player-drawer-button`), Enter opens | Remote reach |
 | `src/routes/Player/useKeyboardSeek.ts` | `seekBy` honours a caller's larger offset while held | Remote hold-to-seek ramp |
+| `src/routes/Player/SubtitlesMenu/SubtitlesMenu.js` | Picking the selected language or the selected track again turns subtitles off | One button press to switch subtitles off and on |
 | `src/routes/Player/SubtitlesMenu/Stepper/Stepper.tsx` | Enter steps once; buttons at the limit not focusable | Subtitles popup |
 | `src/components/TextInput/index.ts` | Default export is `TvTextInput` | Every text field opens a full-screen editor |
 | `src/routes/index.js` | `Intro` points at `TvIntro` | Code login first, TV login form |
