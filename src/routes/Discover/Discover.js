@@ -11,7 +11,7 @@ const { epgDateKey, parseEpgDate } = require('stremio/common/EPG');
 const screenSizes = require('stremio/common/screen-sizes.less');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
 const { useRouteActive } = require('stremio/common/useRouteFocused');
-const { AddonDetailsModal, Button, DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, MultiselectMenu } = require('stremio/components');
+const { DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, MultiselectMenu } = require('stremio/components');
 const { default: EpgProgramModal } = require('stremio/components/EpgProgramModal');
 const useDiscover = require('./useDiscover');
 const useSelectableInputs = require('./useSelectableInputs');
@@ -46,7 +46,6 @@ const Discover = () => {
     const routeActive = useRouteActive();
     const [discover, loadNextPage] = useDiscover(urlParams, catalogQueryParams);
     const [selectInputs, hasNextPage] = useSelectableInputs(discover);
-    const [addonModalOpen, openAddonModal, closeAddonModal] = useBinaryState(false);
     const [selectedMetaItemIndex, setSelectedMetaItemIndex] = React.useState(0);
     const compactEpgDate = useMediaQuery(`(max-width: ${screenSizes.xsmall}) and (max-height: ${screenSizes['phone-landscape-size']}) and (orientation: landscape)`);
 
@@ -166,10 +165,9 @@ const Discover = () => {
     }, [hasNextPage, loadNextPage]);
     const onScroll = useOnScrollToBottom(onScrollToBottom, SCROLL_TO_BOTTOM_THRESHOLD);
     React.useEffect(() => {
-        closeAddonModal();
         setSelectedMetaItemIndex(0);
         setSelectedEpgProgram(null);
-    }, [discover.selected, closeAddonModal]);
+    }, [discover.selected]);
     const renderEmptyState = () => (
         <DelayedRenderer delay={500}>
             <div className={styles['message-container']}>
@@ -332,9 +330,6 @@ const Discover = () => {
                         discover.catalog !== null && !discover.catalog.installed ?
                             <div className={styles['missing-addon-warning-container']}>
                                 <div className={styles['warning-label']}>{t('ERR_ADDON_NOT_INSTALLED')}</div>
-                                <Button className={styles['install-button']} title={t('INSTALL_ADDON')} onClick={openAddonModal}>
-                                    <div className={styles['label']}>{t('ADDON_INSTALL')}</div>
-                                </Button>
                             </div>
                             :
                             null
@@ -354,12 +349,6 @@ const Discover = () => {
                 {renderMetaPreview()}
             </div>
             {renderEpgPreviewModal()}
-            {
-                addonModalOpen && discover.selected !== null ?
-                    <AddonDetailsModal transportUrl={discover.selected.request.base} onCloseRequest={closeAddonModal} />
-                    :
-                    null
-            }
         </MainNavBars>
     );
 };

@@ -3,6 +3,9 @@ const { useTranslation } = require('react-i18next');
 const { default: FullscreenDialog } = require('stremio/components/FullscreenDialog');
 const useEvents = require('stremio/components/EventModal/useEvents');
 
+// Only links that stay in the app; addon installs and web pages don't work here.
+const isInternalLink = (url) => typeof url === 'string' && (url.startsWith('#/') || url.startsWith('stremio://'));
+
 const TvEventModal = () => {
     const { t } = useTranslation();
 
@@ -25,13 +28,10 @@ const TvEventModal = () => {
 
     const actions = React.useMemo(() => {
         if (modal === null) return [];
-        const primary = modal.addon?.manifestUrl ?
-            [{ label: t('INSTALL_ADDON'), href: `#/addons?addon=${encodeURIComponent(modal.addon.manifestUrl)}`, onClick: onClose }]
+        const primary = isInternalLink(modal.externalUrl) ?
+            [{ label: t('LEARN_MORE'), href: modal.externalUrl, onClick: onClose }]
             :
-            modal.externalUrl ?
-                [{ label: t('LEARN_MORE'), href: modal.externalUrl, target: '_blank' }]
-                :
-                [];
+            [];
         return [...primary, { label: t('BUTTON_CLOSE'), onClick: onClose }];
     }, [modal, onClose, t]);
 

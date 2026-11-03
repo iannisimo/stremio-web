@@ -68,7 +68,7 @@ modify/delete conflicts; the others are still in the tree but unused.
 | `src/routes/Settings/Menu/` | `src/routes/Settings/TvMenu/` (same props; focus picks the section) | Settings | deleted |
 | `src/components/Scale/` | `src/components/TvScale/` (same props; left/right step the options) | Settings > Interface zoom | deleted |
 | `src/routes/Library/Placeholder/`, `src/routes/Calendar/Placeholder/` (logged out) | `Library/TvPlaceholder/`, `Calendar/TvPlaceholder/` (same texts, `TvNotice`) | Library, Calendar | deleted |
-| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown anywhere | yes |
+| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown on main pages | `SearchBar` UI deleted; the bar itself stays (player, NotFound) |
 
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
@@ -129,7 +129,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/styles.less`, `Discover/Guide/Header/Header.less` | `:import` of `Label.less` points at `TvSelect/Label/` | `MultiselectMenu` deleted |
 | `src/routes/Player/SideDrawer/SideDrawer.less` | Dropped the rule for upstream's dropdown (`Dropdown.less` import) | `MultiselectMenu` deleted; the season picker is `TvSelect` |
-| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `data-tv-start` on the card grid; phone layout (bottom-sheet preview and filters) and the "All filters" button + dialog removed | Discover; the pickers always fit in one row on a TV |
+| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `data-tv-start` on the card grid; phone layout (bottom-sheet preview and filters), the "All filters" button + dialog and the missing-addon "Install" button removed | Discover; the pickers always fit in one row on a TV |
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/components/ColorInput/ColorInput.tsx` (+ `.less`) | Phone-layout branches removed (bottom sheets) | `BottomSheet` deleted |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
 | `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
@@ -178,7 +178,7 @@ Never touched by upstream merges.
 - `src/components/MetaItem/MetaItemActions.js`: card actions dialog.
 - `src/components/PlayUrlDialog/`: "Play URL / magnet" from the rail (uses
   upstream's `usePlayUrl`, replaces the profile menu's clipboard item).
-- `src/components/Rail/`, `TvRow/`, `TvEventModal/`, `TvSelect/`.
+- `src/components/Rail/`, `TvRow/`, `TvEventModal/` (announcements: no "Install addon"; a link action only for in-app links, `#/…` or `stremio://…`), `TvSelect/`.
 - `src/routes/MetaDetails/TvDetail/`: detail page (layout, info block, episodes and
   streams panels, season switcher, long-press row actions, `detailLogic.js` with
   tests in `tests/tvDetail.spec.js`). Rows are upstream's `Stream` / `Video`,

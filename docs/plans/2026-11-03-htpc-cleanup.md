@@ -157,7 +157,9 @@
 - [ ] **Step 4:** Browser: `#/does-not-exist` shows the title only, Backspace leaves; player top bar shows the title; Search page field and history still work (hooks kept).
 - [ ] **Step 5:** `FORK.md`. Commit: `refactor: top bar shows the title only`.
 
-### Task 10: Drop addon install links and checkboxes; announcements without outside links (#3, #6, #13)
+### Task 10: Announcements without outside links; no addon install from Discover (#13, part of #3)
+
+> Changed while executing: `AddonDetailsModal` and `Checkbox` stay until the Addons route is replaced (reworks plan): `Addons.js` uses them throughout its list code. This task only drops the install entry points outside the Addons page.
 
 **Files:**
 - Delete: `src/components/AddonDetailsModal/`, `src/components/Checkbox/`
