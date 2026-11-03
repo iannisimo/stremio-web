@@ -1,7 +1,6 @@
 // Copyright (C) 2017-2026 Smart code 203358507
 
 import AddonDetailsModal from './AddonDetailsModal';
-import BottomSheet from './BottomSheet';
 import Button from './Button';
 import Checkbox from './Checkbox';
 import Chips from './Chips';
@@ -36,7 +35,6 @@ import ActionsGroup from './ActionsGroup';
 
 export {
     AddonDetailsModal,
-    BottomSheet,
     Button,
     Checkbox,
     Chips,

@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { EPGProgram } from 'stremio/common/EPG';
 import MetaPreview from 'stremio/components/MetaPreview';
-import MetaPreviewSheet from 'stremio/components/MetaPreviewSheet';
 import ActionButton from 'stremio/components/MetaPreview/ActionButton';
 import MetaLinks from 'stremio/components/MetaPreview/MetaLinks';
 import ModalDialog from 'stremio/components/ModalDialog';
@@ -21,8 +20,6 @@ type Props = {
 
 const EpgProgramModal = ({ program, now, show, onCloseRequest, channelHref }: Props) => {
     const { t } = useTranslation();
-    // HTPC fork: never the phone layout (bottom-sheet program details)
-    const isMobile = false;
     const genres = program.genres?.length ?
         program.genres
         :
@@ -57,14 +54,6 @@ const EpgProgramModal = ({ program, now, show, onCloseRequest, channelHref }: Pr
             }
         </MetaPreview>
     );
-
-    if (isMobile) {
-        return (
-            <MetaPreviewSheet show={show} onCloseRequest={onCloseRequest} ariaLabel={program.title}>
-                {preview}
-            </MetaPreviewSheet>
-        );
-    }
 
     return show ? (
         <ModalDialog

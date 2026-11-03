@@ -79,7 +79,9 @@ Deleted with nothing replacing them (unused in HTPC mode): `components/ActionMen
 (card three-dots menu), `components/Multiselect`, `routes/Player/VideosMenu`,
 `common/useOutsideClick.ts`, `routes/MetaDetails/LiveTvDetails/` (Live TV page:
 channels open in `TvDetail`, which hides "Mark as watched" for `tv` items),
-`routes/MetaDetails/styles.less`.
+`routes/MetaDetails/styles.less`, and the phone layouts: `components/BottomSheet`,
+`components/MetaPreviewSheet`, `routes/Discover/FiltersSheet`,
+`routes/Calendar/Details`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -113,8 +115,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/styles.less`, `Discover/Guide/Header/Header.less` | `:import` of `Label.less` points at `TvSelect/Label/` | `MultiselectMenu` deleted |
 | `src/routes/Player/SideDrawer/SideDrawer.less` | Dropped the rule for upstream's dropdown (`Dropdown.less` import) | `MultiselectMenu` deleted; the season picker is `TvSelect` |
-| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `isMobile` forced to `false`; `data-tv-start` on the card grid | Discover; no bottom-sheet preview/filters on narrow or tall screens |
-| `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/components/ColorInput/ColorInput.tsx` | Phone-layout media query replaced by `false` (and its imports dropped) | No bottom sheets on narrow or tall screens |
+| `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `data-tv-start` on the card grid; phone layout (bottom-sheet preview and filters) and the "All filters" button + dialog removed | Discover; the pickers always fit in one row on a TV |
+| `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/components/ColorInput/ColorInput.tsx` (+ `.less`) | Phone-layout branches removed (bottom sheets) | `BottomSheet` deleted |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
 | `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
 | `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward`/`volume` shortcuts `enabled=false`; `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode | Remote-first player |

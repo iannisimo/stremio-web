@@ -5,20 +5,16 @@ const { useTranslation } = require('react-i18next');
 const { useParams } = require('react-router');
 const { useSearchParams } = require('react-router-dom');
 const classnames = require('classnames');
-const { default: Icon } = require('@stremio/stremio-icons/react');
 const { useCore } = require('stremio/core');
 const { CONSTANTS, useBinaryState, useMediaQuery, useOnScrollToBottom, withCoreSuspender } = require('stremio/common');
 const { epgDateKey, parseEpgDate } = require('stremio/common/EPG');
 const screenSizes = require('stremio/common/screen-sizes.less');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
 const { useRouteActive } = require('stremio/common/useRouteFocused');
-const { useNavigateWithOrigin } = require('stremio-router');
-const { AddonDetailsModal, Button, DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, ModalDialog, MultiselectMenu } = require('stremio/components');
-const { default: MetaPreviewSheet } = require('stremio/components/MetaPreviewSheet');
+const { AddonDetailsModal, Button, DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, MultiselectMenu } = require('stremio/components');
 const { default: EpgProgramModal } = require('stremio/components/EpgProgramModal');
 const useDiscover = require('./useDiscover');
 const useSelectableInputs = require('./useSelectableInputs');
-const { default: FiltersSheet } = require('./FiltersSheet');
 const { default: Guide } = require('./Guide');
 const { default: DaySelector } = require('./Guide/DaySelector');
 const { default: useLiveTvGuide } = require('./useLiveTvGuide');
@@ -47,20 +43,11 @@ const Discover = () => {
     }, [queryParams]);
     const { t } = useTranslation();
     const core = useCore();
-    const { navigateWithOrigin } = useNavigateWithOrigin();
     const routeActive = useRouteActive();
     const [discover, loadNextPage] = useDiscover(urlParams, catalogQueryParams);
     const [selectInputs, hasNextPage] = useSelectableInputs(discover);
-    const [filtersOpen, openFilters, closeFilters] = useBinaryState(false);
-    const selectedTypeOption = selectInputs[0].options.find(({ value }) => value === selectInputs[0].value);
-    const selectedCatalogOption = selectInputs[1].options.find(({ value }) => value === selectInputs[1].value);
-    const activeFilterCount = selectInputs.filter(({ active }) => active).length;
     const [addonModalOpen, openAddonModal, closeAddonModal] = useBinaryState(false);
-    const [mobilePreviewOpen, openMobilePreview, closeMobilePreview] = useBinaryState(false);
     const [selectedMetaItemIndex, setSelectedMetaItemIndex] = React.useState(0);
-    // HTPC fork: never the phone layout (bottom-sheet preview and filters)
-    const isMobile = false;
-
     const compactEpgDate = useMediaQuery(`(max-width: ${screenSizes.xsmall}) and (max-height: ${screenSizes['phone-landscape-size']}) and (orientation: landscape)`);
 
     const selectedMetaItem = React.useMemo(() => {
@@ -162,13 +149,6 @@ const Discover = () => {
         const index = Number(event.currentTarget.dataset.index);
         const hasIndex = Number.isInteger(index);
 
-        if (isMobile && hasIndex) {
-            event.preventDefault();
-            setSelectedMetaItemIndex(index);
-            openMobilePreview();
-            return;
-        }
-
         if (!hasIndex) {
             return;
         }
@@ -178,7 +158,7 @@ const Discover = () => {
             event.preventDefault();
             event.currentTarget.focus();
         }
-    }, [isMobile, selectedMetaItemIndex, openMobilePreview]);
+    }, [selectedMetaItemIndex]);
     const onScrollToBottom = React.useCallback(() => {
         if (hasNextPage) {
             loadNextPage();
@@ -186,12 +166,10 @@ const Discover = () => {
     }, [hasNextPage, loadNextPage]);
     const onScroll = useOnScrollToBottom(onScrollToBottom, SCROLL_TO_BOTTOM_THRESHOLD);
     React.useEffect(() => {
-        if (!isMobile) closeFilters();
         closeAddonModal();
-        closeMobilePreview();
         setSelectedMetaItemIndex(0);
         setSelectedEpgProgram(null);
-    }, [discover.selected, isMobile, closeFilters, closeAddonModal, closeMobilePreview]);
+    }, [discover.selected, closeAddonModal]);
     const renderEmptyState = () => (
         <DelayedRenderer delay={500}>
             <div className={styles['message-container']}>
@@ -317,47 +295,15 @@ const Discover = () => {
 
     React.useEffect(() => {
         if (!routeActive) {
-            closeFilters();
-            closeMobilePreview();
             setSelectedEpgProgram(null);
         }
-    }, [routeActive, closeFilters, closeMobilePreview]);
-    const pendingHrefRef = React.useRef(null);
-    const onMobileShowClick = React.useCallback((event) => {
-        event.preventDefault();
-        pendingHrefRef.current = getMetaDetailsHref(selectedMetaItem && selectedMetaItem.deepLinks);
-        closeMobilePreview();
-    }, [selectedMetaItem, closeMobilePreview]);
-    const onMobilePreviewExited = React.useCallback(() => {
-        const href = pendingHrefRef.current;
-        pendingHrefRef.current = null;
-        if (typeof href === 'string') {
-            navigateWithOrigin(href);
-        }
-    }, [navigateWithOrigin]);
+    }, [routeActive]);
     return (
         <MainNavBars className={styles['discover-container']} route={'discover'}>
             <div className={styles['discover-content']}>
                 <div className={styles['catalog-container']}>
                     <div className={classnames(styles['selectable-inputs-container'], { [styles['epg-inputs']]: isEpgLayout })}>
-                        {isMobile ? <div className={styles['mobile-filters']}>
-                            <div className={styles['catalog-summary']}>
-                                <div className={styles['catalog-type']}>{selectedTypeOption?.label ?? t('SELECT_TYPE')}</div>
-                                <div className={styles['catalog-name']} title={selectedCatalogOption?.label}>{selectedCatalogOption?.label ?? t('SELECT_CATALOG')}</div>
-                            </div>
-                            <Button
-                                className={styles['mobile-filter-button']}
-                                role={'button'}
-                                aria-label={t('CATALOG_FILTERS')}
-                                aria-haspopup={'dialog'}
-                                aria-expanded={filtersOpen}
-                                onClick={openFilters}
-                            >
-                                <Icon name={'filters'} />
-                                <span>{t('FILTERS')}</span>
-                                {activeFilterCount > 0 && <span className={styles['filter-count']}>{activeFilterCount}</span>}
-                            </Button>
-                        </div> : <div className={styles['selectable-inputs']}>
+                        <div className={styles['selectable-inputs']}>
                             {selectInputs.map(({ title, options, value, onSelect }, index) => (
                                 <MultiselectMenu
                                     key={index}
@@ -369,12 +315,7 @@ const Discover = () => {
                                     portal={isEpgLayout}
                                 />
                             ))}
-                            <div className={styles['filter-container']}>
-                                <Button className={styles['filter-button']} title={t('ALL_FILTERS')} onClick={openFilters}>
-                                    <Icon className={styles['filter-icon']} name={'filters'} />
-                                </Button>
-                            </div>
-                        </div>}
+                        </div>
                         {
                             isEpgLayout && compactEpgDate ?
                                 <DaySelector
@@ -413,43 +354,6 @@ const Discover = () => {
                 {renderMetaPreview()}
             </div>
             {renderEpgPreviewModal()}
-            {
-                selectedMetaItem !== null ?
-                    <MetaPreviewSheet
-                        show={isMobile && mobilePreviewOpen}
-                        onCloseRequest={closeMobilePreview}
-                        onExited={onMobilePreviewExited}
-                        ariaLabel={selectedMetaItem.name}
-                    >
-                        <MetaPreview
-                            {...metaPreviewProps}
-                            background={selectedMetaItem.background || selectedMetaItem.poster}
-                            links={selectedMetaItem.links?.filter((link) => link?.category !== 'Cast' && link?.category !== 'Directors')}
-                            onShowClick={onMobileShowClick}
-                            showIcon={'chevron-forward'}
-                        />
-                    </MetaPreviewSheet>
-                    :
-                    null
-            }
-            <FiltersSheet inputs={selectInputs} show={isMobile && filtersOpen} onCloseRequest={closeFilters} />
-            {
-                filtersOpen && !isMobile ?
-                    <ModalDialog title={t('CATALOG_FILTERS')} className={styles['selectable-inputs-modal']} onCloseRequest={closeFilters}>
-                        {selectInputs.map(({ title, options, value, onSelect }, index) => (
-                            <MultiselectMenu
-                                key={index}
-                                className={styles['select-input']}
-                                title={title}
-                                options={options}
-                                value={value}
-                                onSelect={onSelect}
-                            />
-                        ))}
-                    </ModalDialog>
-                    :
-                    null
-            }
             {
                 addonModalOpen && discover.selected !== null ?
                     <AddonDetailsModal transportUrl={discover.selected.request.base} onCloseRequest={closeAddonModal} />

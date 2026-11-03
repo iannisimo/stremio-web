@@ -5,7 +5,6 @@ import classnames from 'classnames';
 import { HexAlphaColorPicker } from 'react-colorful';
 import { useTranslation } from 'react-i18next';
 import { Button } from 'stremio/components';
-import BottomSheet from 'stremio/components/BottomSheet';
 import ModalDialog from 'stremio/components/ModalDialog';
 import useBinaryState from 'stremio/common/useBinaryState';
 import styles from './ColorInput.less';
@@ -19,8 +18,6 @@ type Props = {
 
 const ColorInput = ({ className, value, onChange, onClick, ...props }: Props) => {
     const { t } = useTranslation();
-    // HTPC fork: never the phone layout (color picker in a bottom sheet)
-    const isMobile = false;
     const [modalOpen, openModal, closeModal] = useBinaryState(false);
     const [tempValue, setTempValue] = useState(value);
 
@@ -77,20 +74,12 @@ const ColorInput = ({ className, value, onChange, onClick, ...props }: Props) =>
                 }
             </Button>
             {
-                isMobile ?
-                    <BottomSheet className={styles['color-sheet']} title={t('CHOOSE_COLOR')} show={modalOpen} onCloseRequest={closeModal} closeOnContentClick={false}>
+                modalOpen ?
+                    <ModalDialog title={t('CHOOSE_COLOR')} buttons={modalButtons} onCloseRequest={closeModal}>
                         {picker}
-                        <Button className={styles['select-button']} onClick={selectButtonOnClick}>
-                            {t('SELECT')}
-                        </Button>
-                    </BottomSheet>
+                    </ModalDialog>
                     :
-                    modalOpen ?
-                        <ModalDialog title={t('CHOOSE_COLOR')} buttons={modalButtons} onCloseRequest={closeModal}>
-                            {picker}
-                        </ModalDialog>
-                        :
-                        null
+                    null
             }
         </React.Fragment>
     );

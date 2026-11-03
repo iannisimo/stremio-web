@@ -1,16 +1,14 @@
 // Copyright (C) 2017-2024 Smart code 203358507
 
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import { useProfile, withCoreSuspender } from 'stremio/common';
-import { MainNavBars, BottomSheet } from 'stremio/components';
+import { MainNavBars } from 'stremio/components';
 import Selector from './Selector';
 import Table from './Table';
 import List from './List';
-import Details from './Details';
-import Placeholder from './TvPlaceholder'; // HTPC fork: upstream './Placeholder'
+import Placeholder from './TvPlaceholder';
 import useCalendar from './useCalendar';
-import useCalendarDate from './useCalendarDate';
 import styles from './Calendar.less';
 import classNames from 'classnames';
 
@@ -23,19 +21,8 @@ const Calendar = () => {
     const calendar = useCalendar(urlParams);
     const profile = useProfile();
 
-    const { toDayMonth } = useCalendarDate(profile);
-
     const [selected, setSelected] = useState<CalendarDate | null>(null);
-    // HTPC fork: never the phone layout (details in a bottom sheet)
-    const detailsInSheet = false;
-
-    const detailsTitle = useMemo(() => toDayMonth(selected), [selected, toDayMonth]);
-
     const loading = calendar.metaItems.some(({ type }) => type === 'Loading');
-
-    const onDetailsClose = () => {
-        setSelected(null);
-    };
 
     return (
         <MainNavBars className={styles['calendar']} route={'calendar'}>
@@ -63,13 +50,6 @@ const Calendar = () => {
                             profile={profile}
                             onChange={setSelected}
                         />
-                        <BottomSheet title={detailsTitle} show={detailsInSheet && !!selected} onCloseRequest={onDetailsClose}>
-                            <Details
-                                selected={selected}
-                                items={calendar.items}
-                                hideSpoilers={profile.settings.hideSpoilers}
-                            />
-                        </BottomSheet>
                     </div>
                     :
                     <Placeholder />
