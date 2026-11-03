@@ -14,7 +14,7 @@ const { useLongPressEnter } = require('stremio/services/Navigation');
 const useBinaryState = require('stremio/common/useBinaryState');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
 const { ICON_FOR_TYPE } = require('stremio/common/CONSTANTS');
-const MetaItemActions = require('./MetaItemActions');
+const TvMetaItemActions = require('./TvMetaItemActions');
 const styles = require('./styles');
 
 const MetaItem = React.memo(({ className, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, href: customHref, dataset, optionOnSelect, onPlayClick, watched, live, metaItem, ...props }) => {
@@ -138,7 +138,7 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
             </Button>
             {
                 menuOpen ?
-                    <MetaItemActions
+                    <TvMetaItemActions
                         name={name}
                         image={typeof artwork.src === 'string' ? artwork.src : undefined}
                         href={href}

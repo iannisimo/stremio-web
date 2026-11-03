@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
 import Button from 'stremio/components/Button';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 import styles from './TvSeasonSwitcher.less';
 
 type Props = {
@@ -47,7 +47,7 @@ const TvSeasonSwitcher = ({ seasons, season, onSelect }: Props) => {
             </Button>
             {
                 open ?
-                    <FullscreenDialog
+                    <TvFullscreenDialog
                         title={t('SEASON')}
                         actions={actions}
                         initialFocusKey={`detail-season-option-${season}`}

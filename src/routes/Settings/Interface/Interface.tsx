@@ -3,7 +3,7 @@ import { usePlatform } from 'stremio/common';
 import { Scale, MultiselectMenu, Toggle } from 'stremio/components';
 import { Section, Option } from '../components';
 import useFullscreen from 'stremio/common/Fullscreen/useFullscreen';
-import { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from 'stremio/services/KeepFullscreen';
+import { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from 'stremio/services/TvKeepFullscreen';
 import useInterfaceOptions from './useInterfaceOptions';
 
 // HTPC fork: no quit on close or Escape-exits-fullscreen (the shell stays fullscreen, see "Always fullscreen")

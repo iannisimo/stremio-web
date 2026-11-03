@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import toPath from 'stremio/router/toPath';
 import { useCore } from 'stremio/core';
 import useToast from 'stremio/common/Toast/useToast';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 
 type EpisodeProps = {
     video: any,
@@ -52,7 +52,7 @@ export const EpisodeActions = ({ video, seasonWatched, onClose }: EpisodeProps) 
         :
         (video.title ?? '');
 
-    return <FullscreenDialog title={title} message={video.overview ?? undefined} actions={actions} onClose={onClose} />;
+    return <TvFullscreenDialog title={title} message={video.overview ?? undefined} actions={actions} onClose={onClose} />;
 };
 
 type StreamProps = {
@@ -94,7 +94,7 @@ export const StreamActions = ({ stream, onPlay, onClose }: StreamProps) => {
     }, [stream, onPlay, onClose, t, toast]);
 
     return (
-        <FullscreenDialog
+        <TvFullscreenDialog
             title={stream.name || stream.addonName || ''}
             message={stream.description ?? undefined}
             actions={actions}

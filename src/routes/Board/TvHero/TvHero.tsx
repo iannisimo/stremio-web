@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next';
 import Icon from '@stremio/stremio-icons/react';
 import { Button } from 'stremio/components';
 import { FocusContext, useFocusGroup } from 'stremio/services/Navigation';
-import styles from './Hero.less';
+import styles from './TvHero.less';
 
 const SLIDES = 6;
 const INTERVAL = 9000;
@@ -63,7 +63,7 @@ const metaLine = (item: Item, t: TFunction) => {
     ].filter((part) => typeof part === 'string' && part.length > 0);
 };
 
-const Hero = ({ catalogs }: Props) => {
+const TvHero = ({ catalogs }: Props) => {
     const { t } = useTranslation();
     const slides = useMemo(() => pickSlides(catalogs), [catalogs]);
     const [index, setIndex] = useState(0);
@@ -168,4 +168,4 @@ const Hero = ({ catalogs }: Props) => {
     );
 };
 
-export default Hero;
+export default TvHero;

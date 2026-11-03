@@ -13,7 +13,7 @@ const useContinueWatchingPreview = require('./useContinueWatchingPreview');
 const { default: useLiveTvContinueWatching } = require('./useLiveTvContinueWatching');
 const styles = require('./styles');
 const { default: TvServerWarning } = require('./TvServerWarning');
-const { default: Hero } = require('./Hero');
+const { default: TvHero } = require('./TvHero');
 const useEvents = require('stremio/components/EventModal/useEvents');
 
 const THRESHOLD = 5;
@@ -82,7 +82,7 @@ const Board = () => {
             <TvEventModal />
             <MainNavBars className={styles['board-content-container']} route={'board'}>
                 <div ref={scrollContainerRef} className={styles['board-content']} onScroll={onScroll}>
-                    <Hero catalogs={board.catalogs} />
+                    <TvHero catalogs={board.catalogs} />
                     {
                         continueWatchingPreview.items.length > 0 ?
                             <TvRow

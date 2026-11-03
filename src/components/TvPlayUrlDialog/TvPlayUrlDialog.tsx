@@ -2,11 +2,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import usePlayUrl from 'stremio/common/usePlayUrl';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 // already a dialog, so the plain input
 import TextInput from 'stremio/components/TextInput/TextInput';
 import { useFocusable, setFocus } from 'stremio/services/Navigation';
-import styles from './PlayUrlDialog.less';
+import styles from './TvPlayUrlDialog.less';
 
 const INPUT_KEY = 'play-url-input';
 const PLAY_KEY = 'play-url-play';
@@ -17,7 +17,7 @@ type Props = {
     onClose: () => void,
 };
 
-const PlayUrlDialog = ({ onClose }: Props) => {
+const TvPlayUrlDialog = ({ onClose }: Props) => {
     const { t } = useTranslation();
     const toast = useToast();
     const { handlePlayUrl } = usePlayUrl();
@@ -64,7 +64,7 @@ const PlayUrlDialog = ({ onClose }: Props) => {
     ], [t, play, onClose]);
 
     return (
-        <FullscreenDialog
+        <TvFullscreenDialog
             icon={'magnet-link'}
             title={t('PLAY_URL_MAGNET_LINK')}
             message={'Paste an http(s) stream URL or a magnet link.'}
@@ -80,8 +80,8 @@ const PlayUrlDialog = ({ onClose }: Props) => {
                 onChange={onChange}
                 onSubmit={play}
             />
-        </FullscreenDialog>
+        </TvFullscreenDialog>
     );
 };
 
-export default PlayUrlDialog;
+export default TvPlayUrlDialog;

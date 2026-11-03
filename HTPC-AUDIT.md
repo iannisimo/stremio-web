@@ -159,7 +159,7 @@ Status on 2026-11-03: every item (1–108) has a verdict. Nothing above is imple
 
 | Item | What to do |
 |---|---|
-| Renames (#14, #28, #31) | Decided: `FullscreenDialog` → `TvFullscreenDialog`, `PlayUrlDialog` → `TvPlayUrlDialog`, `Rail` → `TvRail`, `Board/Hero` → `Board/TvHero`, `MetaItem/MetaItemActions` → `MetaItem/TvMetaItemActions`, `TvDetail/RowActions` → `TvDetail/TvRowActions`, `services/KeepFullscreen` → `services/TvKeepFullscreen`. Update FORK.md with the new names. |
+| Renames (#14, #28, #31) | Done (cleanup plan, Task 19). Decided: `FullscreenDialog` → `TvFullscreenDialog`, `PlayUrlDialog` → `TvPlayUrlDialog`, `Rail` → `TvRail`, `Board/Hero` → `Board/TvHero`, `MetaItem/MetaItemActions` → `MetaItem/TvMetaItemActions`, `TvDetail/RowActions` → `TvDetail/TvRowActions`, `services/KeepFullscreen` → `services/TvKeepFullscreen`. Update FORK.md with the new names. |
 | #28 `PlayUrlDialog` | Confirmed in Chromium: rail → Play URL opens the dialog with focus in a plain input; Enter submits the empty field ("Not a valid URL or magnet link."), no on-screen keyboard, so a remote can't type. Fix: use `TvTextInput` for the field (Enter opens the editor with `TvKeyboard`, a dialog over the dialog; only the top one handles Back). Its live value sync means `PlayUrlDialog` reads the field (ref) instead of its own `onChange` state. Keep the clipboard prefill. |
 | #34 `SharePrompt` | Decided: add `qrcode.react` (MIT, no dependencies, renders an SVG `QRCodeSVG`) to `package.json`, pinned; record it in FORK.md's "Upstream files we edit". |
 

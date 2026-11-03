@@ -3,10 +3,10 @@ const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
 const { FocusContext, SIDEBAR_KEY, useFocusGroup, useRouteScope, mergeRefs } = require('stremio/services/Navigation');
-const RailButton = require('./RailButton/RailButton');
+const TvRailButton = require('./TvRailButton/TvRailButton');
 const styles = require('./styles');
 
-const Rail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) => {
+const TvRail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) => {
     const { t } = useTranslation();
     const key = `${useRouteScope()}:${SIDEBAR_KEY}`;
     const group = useFocusGroup({
@@ -16,7 +16,7 @@ const Rail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) =>
     });
     const setRef = React.useMemo(() => mergeRefs(group.ref, ref), [ref]);
     const renderTab = (tab) => (
-        <RailButton
+        <TvRailButton
             key={tab.id}
             className={styles['rail-button']}
             selected={tab.id === selected}
@@ -45,9 +45,9 @@ const Rail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) =>
     );
 }));
 
-Rail.displayName = 'Rail';
+TvRail.displayName = 'TvRail';
 
-Rail.propTypes = {
+TvRail.propTypes = {
     className: PropTypes.string,
     selected: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({
@@ -61,4 +61,4 @@ Rail.propTypes = {
     }))
 };
 
-module.exports = Rail;
+module.exports = TvRail;

@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'rea
 import type { ComponentProps, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import classnames from 'classnames';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 import TextInput from 'stremio/components/TextInput/TextInput';
 import Button from 'stremio/components/Button';
 import { FocusContext, useFocusable, useFocusGroup, setFocus, mergeRefs } from 'stremio/services/Navigation';
@@ -115,7 +115,7 @@ const Editor = ({ title, field, inputProps, suggestions, onClose }: EditorProps)
     }, [field, onChange, onClose]);
 
     return (
-        <FullscreenDialog
+        <TvFullscreenDialog
             title={title}
             actions={[{ label: t('BUTTON_CANCEL'), onClick: cancel }]}
             initialFocusKey={`${editKey}-keyboard`}
@@ -138,7 +138,7 @@ const Editor = ({ title, field, inputProps, suggestions, onClose }: EditorProps)
                     null
             }
             <TvKeyboard inputRef={inputRef} focusKey={`${editKey}-keyboard`} onDone={submit} />
-        </FullscreenDialog>
+        </TvFullscreenDialog>
     );
 };
 

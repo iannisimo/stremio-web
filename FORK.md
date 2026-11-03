@@ -57,18 +57,18 @@ modify/delete conflicts; the others are still in the tree but unused.
 
 | Upstream file(s) | Replaced by | Used in | In tree |
 |---|---|---|---|
-| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/Rail/` | `MainNavBars` (every main page) | deleted |
+| `src/components/NavBar/VerticalNavBar/` (+ `NavTabButton`) | `src/components/TvRail/` | `MainNavBars` (every main page) | deleted |
 | `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) | deleted |
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home | deleted (`useEvents.js` kept) |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home | deleted |
 | `src/components/MultiselectMenu/` (menu, `Dropdown`, `Option`, `Label`) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label). `Label` and the `MultiselectMenuOption` type (`types.d.ts`) moved into `TvSelect/` | Every dropdown: swapped in `src/components/index.ts` | deleted |
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page, Live TV channels included | `StreamsList.js`, `VideosList.js` deleted; `MetaPreview`, `SeasonsBar` (player side drawer) kept |
 | `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` | deleted |
-| `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) | yes (used inside our editor) |
+| `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `TvPlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) | yes (used inside our editor) |
 | `src/routes/Settings/Menu/` | `src/routes/Settings/TvMenu/` (same props; focus picks the section) | Settings | deleted |
 | `src/components/Scale/` | `src/components/TvScale/` (same props; left/right step the options) | Settings > Interface zoom | deleted |
 | `src/routes/Library/Placeholder/`, `src/routes/Calendar/Placeholder/` (logged out) | `Library/TvPlaceholder/`, `Calendar/TvPlaceholder/` (same texts, `TvNotice`) | Library, Calendar | deleted |
-| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `Rail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown on main pages | `SearchBar` UI deleted; the bar itself stays (player, NotFound) |
+| Top bar (`HorizontalNavBar`, + its `SearchBar` and history popup) on main pages | `TvRail` (no profile menu); on Search, `Search/TvSearchField` and `Search/TvSearchHistory` (still use `SearchBar`'s `useSearchHistory` / `useLocalSearch`) | Not shown on main pages | `SearchBar` UI deleted; the bar itself stays (player, NotFound) |
 
 Still upstream's and reused by our versions, so their changes reach us:
 `MetaDetails/StreamsList/Stream`, `components/Video`, `MetaDetails/EpisodePicker`,
@@ -110,15 +110,15 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `package.json`, `pnpm-lock.yaml` | `@noriginmedia/norigin-spatial-navigation` | Remote navigation engine |
 | `package.json`, `pnpm-lock.yaml` | `react-simple-keyboard` (pinned) | On-screen keyboard in the text editor |
 | `src/common/Shortcuts/Shortcuts.tsx` | Drops the `general` group (tabs 1-6, 0 search, Backspace back, F fullscreen, Ctrl+/, Ctrl+G, interface scale) and the player's `statisticsMenu` (hold D); other player shortcuts stay | Keys belong to the remote and the on-screen keyboard |
-| `src/App/App.js` | Renders `KeepFullscreen` inside `FullscreenProvider`; no `GamepadProvider`, gamepad guide or shortcuts dialog (and their shortcut cases) | "Always fullscreen" setting; gamepad support and shortcut screens dropped |
+| `src/App/App.js` | Renders `TvKeepFullscreen` inside `FullscreenProvider`; no `GamepadProvider`, gamepad guide or shortcuts dialog (and their shortcut cases) | "Always fullscreen" setting; gamepad support and shortcut screens dropped |
 | `src/routes/Settings/Interface/Interface.tsx` | Gamepad option removed; "Always fullscreen" toggle (localStorage, not core settings); quit on close and Escape-exits-fullscreen hidden (`SHOW_WINDOW_OPTIONS = false`) | Same |
 | `src/index.js` | `initNavigation()` | Start key handling, focus sync, input mode |
 | `src/App/App.js` | Removed `require('spatial-navigation-polyfill')` | Conflicts with Norigin on arrow keys |
 | `src/App/styles.less` | Imports `tv.less` at the end | Theme tokens and global rules live in `tv.less` |
 | `src/components/index.ts` | `MultiselectMenu` export points at `TvSelect` | All dropdowns use the TV picker |
 | `src/components/Button/Button.tsx` | Registers with Norigin (`focusable`, `focusKey`, `onArrowPress`); repeated Enter keydowns don't click | Makes every button remote-reachable; a held Enter (long press) doesn't press the dialog it opens |
-| `src/components/MainNavBars/` | `Rail` instead of both nav bars; no top bar; no gamepad hooks | TV shell |
-| `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `MetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
+| `src/components/MainNavBars/` | `TvRail` instead of both nav bars; no top bar; no gamepad hooks | TV shell |
+| `src/components/MetaItem/MetaItem.js` | Card click plays when it can; no dismiss X, play button or three-dots menu; long press / right click opens `TvMetaItemActions` | TV cards, one action menu; square posters drawn as 2:3 posters |
 | `src/components/MetaItem/styles.less` | Hover highlight only in mouse mode | Resting cursor doesn't fake focus |
 | `src/components/LibItem/LibItem.js` | Keeps `onDismissClick` to itself | `MetaItem` no longer renders the X |
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |
@@ -129,9 +129,9 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Settings/General/General.tsx`, `General.less` | No data export (`useDataExport` deleted), calendar subscription or Discord toggle; account, Trakt and outside links stay | Only things that work from the TV |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
 | `src/routes/MetaDetails/MetaDetails.js` | Always renders `TvDetail` (Live TV branches, `LiveTvDetails`, its placeholder and `styles.less` removed); no `HorizontalNavBar`, no gamepad hook | Detail page TV layout; Live TV page dropped (`HTPC-AUDIT.md` #75, "Missing features") |
-| `src/routes/MetaDetails/StreamsList/Stream/Stream.js`, `styles.less` | Forwards `focusKey` to the row's `Button`; no `Popup` menu (copy links / play), the row renders directly; right click and long press open our `RowActions` | Remote focus on stream rows; one row menu for mouse and remote |
-| `src/components/Video/Video.js`, `styles.less` | Inner play button `focusable={false}`; no `Popup` menu (watched / rest watched), the row renders directly; right click and long press open our `RowActions` | Row is the only focus stop; one row menu |
-| `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
+| `src/routes/MetaDetails/StreamsList/Stream/Stream.js`, `styles.less` | Forwards `focusKey` to the row's `Button`; no `Popup` menu (copy links / play), the row renders directly; right click and long press open our `TvRowActions` | Remote focus on stream rows; one row menu for mouse and remote |
+| `src/components/Video/Video.js`, `styles.less` | Inner play button `focusable={false}`; no `Popup` menu (watched / rest watched), the row renders directly; right click and long press open our `TvRowActions` | Row is the only focus stop; one row menu |
+| `src/routes/Board/Board.js`, `styles.less` | `TvHero`, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/styles.less`, `Discover/Guide/Header/Header.less` | `:import` of `Label.less` points at `TvSelect/Label/` | `MultiselectMenu` deleted |
 | `src/routes/Player/SideDrawer/SideDrawer.less` | Dropped the rule for upstream's dropdown (`Dropdown.less` import) | `MultiselectMenu` deleted; the season picker is `TvSelect` |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `data-tv-start` on the card grid; phone layout (bottom-sheet preview and filters), the "All filters" button + dialog and the missing-addon "Install" button removed | Discover; the pickers always fit in one row on a TV |
@@ -177,15 +177,15 @@ Never touched by upstream merges.
   holds it while content loads (hero)), sidebar/content crossing (not
   from dialogs or `data-tv-arrows` controls that use left/right themselves), `useRouteFocusScope` / `useRouteScope`
   (route-prefixed keys).
-- `src/services/KeepFullscreen/`: "Always fullscreen" setting (localStorage
+- `src/services/TvKeepFullscreen/`: "Always fullscreen" setting (localStorage
   `keepFullscreen`) and the listener that re-enters fullscreen on any key or
   click, through upstream `useFullscreen` (works in the shell too).
-- `src/components/FullscreenDialog/`: full-screen dialog used for alerts and
+- `src/components/TvFullscreenDialog/`: full-screen dialog used for alerts and
   card actions.
-- `src/components/MetaItem/MetaItemActions.js`: card actions dialog.
-- `src/components/PlayUrlDialog/`: "Play URL / magnet" from the rail (uses
+- `src/components/MetaItem/TvMetaItemActions.js`: card actions dialog.
+- `src/components/TvPlayUrlDialog/`: "Play URL / magnet" from the rail (uses
   upstream's `usePlayUrl`, replaces the profile menu's clipboard item).
-- `src/components/Rail/`, `TvRow/`, `TvEventModal/` (announcements: no "Install addon"; a link action only for in-app links, `#/…` or `stremio://…`), `TvSelect/`.
+- `src/components/TvRail/`, `TvRow/`, `TvEventModal/` (announcements: no "Install addon"; a link action only for in-app links, `#/…` or `stremio://…`), `TvSelect/`.
 - `src/routes/MetaDetails/TvDetail/`: detail page (layout, info block, episodes and
   streams panels, season switcher, long-press row actions, `detailLogic.js` with
   tests in `tests/tvDetail.spec.js`). Rows are upstream's `Stream` / `Video`,
@@ -207,7 +207,7 @@ Never touched by upstream merges.
   the text editor, with `useLocalSearch` suggestions) and history chips.
 - `src/routes/TvIntro/`: login screen. Code / QR login through link.stremio.com
   (then core's `LoginWithToken`), "Standard login" for email and password.
-- `src/routes/Board/Hero/`, `src/routes/Board/TvServerWarning/`.
+- `src/routes/Board/TvHero/`, `src/routes/Board/TvServerWarning/`.
 - `src/App/tv.less`: theme tokens (`--tv-*`), background, keyboard-mode rules.
 - `src/routes/Player/TvControls/`: player remote handling (`useTvPlayer`,
   `usePlayerKeys`: hidden-controls seek, Back closes popups and refocuses

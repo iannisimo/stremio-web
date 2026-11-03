@@ -7,7 +7,7 @@ const styles = require('./styles');
 const { Link } = require('react-router-dom');
 const { useFocusable } = require('stremio/services/Navigation');
 
-const RailButton = ({ className, logo, icon, label, href, selected, focusKey, onClick }) => {
+const TvRailButton = ({ className, logo, icon, label, href, selected, focusKey, onClick }) => {
     const { ref } = useFocusable({ focusKey });
     const onKeyDown = React.useCallback((event) => {
         if (event.key === 'Enter' && !event.repeat) {
@@ -59,7 +59,7 @@ const RailButton = ({ className, logo, icon, label, href, selected, focusKey, on
     );
 };
 
-RailButton.propTypes = {
+TvRailButton.propTypes = {
     className: PropTypes.string,
     logo: PropTypes.string,
     icon: PropTypes.string,
@@ -70,4 +70,4 @@ RailButton.propTypes = {
     onClick: PropTypes.func
 };
 
-module.exports = RailButton;
+module.exports = TvRailButton;

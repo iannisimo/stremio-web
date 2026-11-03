@@ -9,7 +9,7 @@ import { doesFocusableExist } from '@noriginmedia/norigin-spatial-navigation';
 import { setFocus, useLongPressEnter } from 'stremio/services/Navigation';
 import StreamRow from '../StreamsList/Stream';
 import EpisodePicker from '../EpisodePicker';
-import { StreamActions } from './RowActions';
+import { StreamActions } from './TvRowActions';
 import useStreamsByAddon from './useStreamsByAddon';
 import styles from './TvStreamsPanel.less';
 

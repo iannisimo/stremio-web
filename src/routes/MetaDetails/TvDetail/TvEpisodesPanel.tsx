@@ -11,7 +11,7 @@ import VideoRow from 'stremio/components/Video';
 import { setFocus, useLongPressEnter } from 'stremio/services/Navigation';
 import EpisodePicker from '../EpisodePicker';
 import { seasonsOf, pickSeason, videosForSeason, pickInitialVideoId } from './detailLogic';
-import { EpisodeActions } from './RowActions';
+import { EpisodeActions } from './TvRowActions';
 import TvSeasonSwitcher from './TvSeasonSwitcher';
 import styles from './TvEpisodesPanel.less';
 

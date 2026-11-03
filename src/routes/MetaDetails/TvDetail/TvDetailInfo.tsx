@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
 import Button from 'stremio/components/Button';
 import Image from 'stremio/components/Image';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 import SharePrompt from 'stremio/components/SharePrompt';
 import useRating from 'stremio/components/MetaPreview/Ratings/useRating';
 import useTranslate from 'stremio/common/useTranslate';
@@ -200,13 +200,13 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
             </div>
             {
                 shareOpen && share ?
-                    <FullscreenDialog
+                    <TvFullscreenDialog
                         title={t('CTX_SHARE', { defaultValue: 'Share' })}
                         actions={shareActions}
                         onClose={closeShare}
                     >
                         <SharePrompt url={share.href} />
-                    </FullscreenDialog>
+                    </TvFullscreenDialog>
                     :
                     null
             }

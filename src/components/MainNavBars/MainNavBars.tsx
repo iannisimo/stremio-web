@@ -2,8 +2,8 @@
 
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
-import Rail from 'stremio/components/Rail';
-import PlayUrlDialog from 'stremio/components/PlayUrlDialog';
+import TvRail from 'stremio/components/TvRail';
+import TvPlayUrlDialog from 'stremio/components/TvPlayUrlDialog';
 import styles from './MainNavBars.less';
 
 const TABS = [
@@ -36,7 +36,7 @@ const MainNavBars = memo(({ className, route, children }: Props) => {
 
     return (
         <div className={classnames(className, styles['main-nav-bars-container'])}>
-            <Rail
+            <TvRail
                 ref={navRef}
                 className={styles['vertical-nav-bar']}
                 selected={route}
@@ -45,7 +45,7 @@ const MainNavBars = memo(({ className, route, children }: Props) => {
             <div ref={contentRef} className={styles['nav-content-container']}>{children}</div>
             {
                 playUrlOpen ?
-                    <PlayUrlDialog onClose={closePlayUrl} />
+                    <TvPlayUrlDialog onClose={closePlayUrl} />
                     :
                     null
             }

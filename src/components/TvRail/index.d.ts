@@ -16,6 +16,6 @@ type Props = {
     tabs: Tab[],
 };
 
-declare const Rail: ForwardRefExoticComponent<Props & RefAttributes<HTMLElement>>;
+declare const TvRail: ForwardRefExoticComponent<Props & RefAttributes<HTMLElement>>;
 
-export = Rail;
+export = TvRail;

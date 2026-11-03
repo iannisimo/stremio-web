@@ -4,7 +4,7 @@ import { useKeepFullscreenSetting } from './keepFullscreenSetting';
 
 // With the setting on, any key press or click while windowed goes back to
 // fullscreen. The event itself still goes through.
-const KeepFullscreen = () => {
+const TvKeepFullscreen = () => {
     const [enabled] = useKeepFullscreenSetting();
     const [fullscreen, requestFullscreen, , , supported] = useFullscreen();
 
@@ -24,4 +24,4 @@ const KeepFullscreen = () => {
     return null;
 };
 
-export default KeepFullscreen;
+export default TvKeepFullscreen;

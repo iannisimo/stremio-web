@@ -1,4 +1,4 @@
-import KeepFullscreen from './KeepFullscreen';
+import TvKeepFullscreen from './TvKeepFullscreen';
 
 export { KEEP_FULLSCREEN_LABEL, useKeepFullscreenSetting } from './keepFullscreenSetting';
-export default KeepFullscreen;
+export default TvKeepFullscreen;

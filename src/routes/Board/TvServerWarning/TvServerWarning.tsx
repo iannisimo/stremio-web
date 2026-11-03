@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useCore } from 'stremio/core';
 import useProfile from 'stremio/common/useProfile';
 import { withCoreSuspender } from 'stremio/common/CoreSuspender';
-import FullscreenDialog from 'stremio/components/FullscreenDialog';
+import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 
 const createDismissalDate = (months: number, years = 0): Date => {
     const dismissalDate = new Date();
@@ -45,7 +45,7 @@ const TvServerWarning = () => {
     ], [t, onLater, onDismiss]);
 
     return (
-        <FullscreenDialog
+        <TvFullscreenDialog
             icon={'warning'}
             title={t('SETTINGS_SERVER_UNAVAILABLE')}
             message={'Most streams need the streaming server. Start it on this device, or set a remote server in Settings → Streaming.'}

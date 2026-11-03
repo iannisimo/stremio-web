@@ -6,7 +6,7 @@ import { useModalsContainer } from 'stremio/router/ModalsContainerContext';
 import useRouteFocused from 'stremio/common/useRouteFocused';
 import { FocusContext, useFocusGroup, setFocus } from 'stremio/services/Navigation';
 import Button from 'stremio/components/Button';
-import styles from './FullscreenDialog.less';
+import styles from './TvFullscreenDialog.less';
 
 export type DialogAction = {
     label: string,
@@ -35,7 +35,7 @@ const Modal = RouterModal as React.ComponentType<{ className?: string, children?
 
 let nextId = 0;
 
-const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, initialFocusKey, onClose }: Props) => {
+const TvFullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, initialFocusKey, onClose }: Props) => {
     const routeFocused = useRouteFocused();
     const modalsContainer = useModalsContainer() as HTMLElement | null;
     const containerRef = useRef<HTMLElement | null>(null);
@@ -119,4 +119,4 @@ const FullscreenDialog = ({ className, icon, image, background, eyebrow, title, 
     );
 };
 
-export default FullscreenDialog;
+export default TvFullscreenDialog;

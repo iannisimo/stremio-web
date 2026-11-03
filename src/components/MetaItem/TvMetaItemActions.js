@@ -2,11 +2,11 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const { useTranslation } = require('react-i18next');
 const { useCore } = require('stremio/core');
-const { default: FullscreenDialog } = require('stremio/components/FullscreenDialog');
+const { default: TvFullscreenDialog } = require('stremio/components/TvFullscreenDialog');
 
 // Long-press / right-click dialog for a card. Library items bring their own
 // options; other cards get the meta actions built from `metaItem`.
-const MetaItemActions = ({ name, image, href, metaItem, watched, options, onSelectOption, onClose }) => {
+const TvMetaItemActions = ({ name, image, href, metaItem, watched, options, onSelectOption, onClose }) => {
     const { t } = useTranslation();
     const core = useCore();
 
@@ -45,7 +45,7 @@ const MetaItemActions = ({ name, image, href, metaItem, watched, options, onSele
 
     const logo = typeof metaItem?.logo === 'string' ? metaItem.logo : null;
     return (
-        <FullscreenDialog
+        <TvFullscreenDialog
             image={logo ?? image}
             background={metaItem?.background ?? image}
             title={logo !== null || typeof name !== 'string' ? '' : name}
@@ -56,7 +56,7 @@ const MetaItemActions = ({ name, image, href, metaItem, watched, options, onSele
     );
 };
 
-MetaItemActions.propTypes = {
+TvMetaItemActions.propTypes = {
     name: PropTypes.string,
     image: PropTypes.string,
     href: PropTypes.string,
@@ -78,4 +78,4 @@ MetaItemActions.propTypes = {
     onClose: PropTypes.func,
 };
 
-module.exports = MetaItemActions;
+module.exports = TvMetaItemActions;
