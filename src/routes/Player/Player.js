@@ -15,7 +15,6 @@ const { default: toPath } = require('stremio-router/toPath');
 const { useGoBack } = require('stremio-router');
 const { HorizontalNavBar, Transition } = require('stremio/components');
 const { default: Buffering } = require('./Buffering');
-const VolumeChangeIndicator = require('./VolumeChangeIndicator');
 const Error = require('./Error');
 const { default: ControlBar } = require('./TvControls/TvControlBar');
 const { default: withTvPopup } = require('./TvControls/popups');
@@ -242,18 +241,6 @@ const Player = () => {
     }, []);
 
     const onPauseRequestedDebounced = React.useCallback(debounce(onPauseRequested, 200), []);
-    const onMuteRequested = React.useCallback(() => {
-        video.setMuted(true);
-    }, []);
-
-    const onUnmuteRequested = React.useCallback(() => {
-        video.setMuted(false);
-    }, []);
-
-    const onVolumeChangeRequested = React.useCallback((volume) => {
-        video.setVolume(volume);
-    }, []);
-
     const commitSeek = React.useCallback((time) => {
         if (!canSeek) {
             return;
@@ -619,17 +606,6 @@ const Player = () => {
         onKeyboardSeekRequested(-seekDuration);
     }, [settings.seekShortTimeDuration, settings.seekTimeDuration, onKeyboardSeekRequested]), false);
 
-    useShortcut('mute', React.useCallback(() => {
-        video.state.muted === true ? onUnmuteRequested() : onMuteRequested();
-    }, [onMuteRequested, onUnmuteRequested, video.state.muted]), !menusOpen);
-
-    useShortcut('volume', React.useCallback((combo) => {
-        if (video.state.volume !== null) {
-            const volume = combo === 0 ? Math.min(video.state.volume + 5, 200) : Math.max(video.state.volume - 5, 0);
-            onVolumeChangeRequested(volume);
-        }
-    }, [onVolumeChangeRequested, video.state.volume]), false);
-
     useShortcut('audioMenu', React.useCallback(() => {
         closeMenus();
         if (video.state?.audioTracks?.length > 0) {
@@ -772,18 +748,6 @@ const Player = () => {
             }
         };
 
-        const onWheel = ({ deltaY }) => {
-            if (menusOpen || video.state.volume === null) return;
-
-            if (deltaY > 0) {
-                onVolumeChangeRequested(Math.max(video.state.volume - 5, 0));
-            } else {
-                if (video.state.volume < 100) {
-                    onVolumeChangeRequested(Math.min(video.state.volume + 5, 100));
-                }
-            }
-        };
-
         const onMouseDownHold = (e) => {
             if (e.button !== 0) return; // left mouse button only
             if (menusOpen || detailsHold.current !== null) return;
@@ -809,7 +773,6 @@ const Player = () => {
         if (routeFocused) {
             window.addEventListener('keyup', onKeyUp);
             window.addEventListener('keydown', onKeyDown);
-            window.addEventListener('wheel', onWheel);
             window.addEventListener('mousedown', onMouseDownHold);
             window.addEventListener('mouseup', onMouseUp);
             window.addEventListener('blur', onBlur);
@@ -819,12 +782,11 @@ const Player = () => {
         return () => {
             window.removeEventListener('keyup', onKeyUp);
             window.removeEventListener('keydown', onKeyDown);
-            window.removeEventListener('wheel', onWheel);
             window.removeEventListener('mousedown', onMouseDownHold);
             window.removeEventListener('mouseup', onMouseUp);
             window.removeEventListener('blur', onBlur);
         };
-    }, [routeFocused, menusOpen, video.state.volume, video.state.paused, finishDetailsHold, releaseDetailsHold, cancelKeyboardSeek, flushKeyboardSeek, releaseKeyboardSeek, startPlaybackSpeedHold, finishPlaybackSpeedHold, cancelPlaybackSpeedHold]);
+    }, [routeFocused, menusOpen, video.state.paused, finishDetailsHold, releaseDetailsHold, cancelKeyboardSeek, flushKeyboardSeek, releaseKeyboardSeek, startPlaybackSpeedHold, finishPlaybackSpeedHold, cancelPlaybackSpeedHold]);
 
     React.useEffect(() => {
         video.events.on('error', onError);
@@ -893,15 +855,6 @@ const Player = () => {
                     :
                     null
             }
-            {
-                video.state.volume !== null && overlayHidden ?
-                    <VolumeChangeIndicator
-                        muted={video.state.muted}
-                        volume={video.state.volume}
-                    />
-                    :
-                    null
-            }
             <HorizontalNavBar
                 className={classnames(styles['layer'], styles['nav-bar-layer'])}
                 title={player.title !== null ? player.title : ''}
@@ -927,8 +880,6 @@ const Player = () => {
                 time={keyboardSeekTime ?? video.state.time}
                 duration={video.state.duration}
                 buffered={video.state.buffered}
-                volume={video.state.volume}
-                muted={video.state.muted}
                 playbackSpeed={video.state.playbackSpeed}
                 subtitlesTracks={allSubtitleTracks}
                 audioTracks={video.state.audioTracks}
@@ -940,9 +891,6 @@ const Player = () => {
                 onPlayRequested={onPlayRequested}
                 onPauseRequested={onPauseRequested}
                 onNextVideoRequested={onNextVideoRequested}
-                onMuteRequested={onMuteRequested}
-                onUnmuteRequested={onUnmuteRequested}
-                onVolumeChangeRequested={onVolumeChangeRequested}
                 onSeekRequested={onSeekRequested}
                 onToggleSubtitlesMenu={toggleSubtitlesMenu}
                 onToggleAudioMenu={toggleAudioMenu}

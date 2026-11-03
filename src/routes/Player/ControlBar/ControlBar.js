@@ -6,9 +6,7 @@ const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { Button } = require('stremio/components');
 const SeekBar = require('./SeekBar');
-const VolumeSlider = require('./VolumeSlider');
 const styles = require('./styles');
-const { useBinaryState, usePlatform } = require('stremio/common');
 const { t } = require('i18next');
 
 const VIDEO_SCALE_ICONS = {
@@ -23,8 +21,6 @@ const ControlBar = React.forwardRef(({
     time,
     duration,
     buffered,
-    volume,
-    muted,
     playbackSpeed,
     subtitlesTracks,
     audioTracks,
@@ -35,9 +31,6 @@ const ControlBar = React.forwardRef(({
     onPlayRequested,
     onPauseRequested,
     onNextVideoRequested,
-    onMuteRequested,
-    onUnmuteRequested,
-    onVolumeChangeRequested,
     onSeekRequested,
     onToggleSubtitlesMenu,
     onToggleAudioMenu,
@@ -54,8 +47,6 @@ const ControlBar = React.forwardRef(({
     onTouchEnd,
     ...props
 }, ref) => {
-    const platform = usePlatform();
-    const [buttonsMenuOpen, , , toggleButtonsMenu] = useBinaryState(false);
     const onSubtitlesButtonMouseDown = React.useCallback((event) => {
         event.nativeEvent.subtitlesMenuClosePrevented = true;
     }, []);
@@ -87,17 +78,6 @@ const ControlBar = React.forwardRef(({
             onNextVideoRequested();
         }
     }, [nextVideo, onNextVideoRequested]);
-    const onMuteButtonClick = React.useCallback(() => {
-        if (muted) {
-            if (typeof onUnmuteRequested === 'function') {
-                onUnmuteRequested();
-            }
-        } else {
-            if (typeof onMuteRequested === 'function') {
-                onMuteRequested();
-            }
-        }
-    }, [muted, onMuteRequested, onUnmuteRequested]);
     return (
         <div ref={ref} {...props} onTouchStart={props.onMouseOver} onTouchMove={props.onMouseMove} onTouchEnd={onTouchEnd} className={classnames(className, styles['control-bar-container'])}>
             <SeekBar
@@ -126,34 +106,8 @@ const ControlBar = React.forwardRef(({
                         :
                         null
                 }
-                <Button data-tv-hidden focusable={false} className={classnames(styles['control-bar-button'], { 'disabled': typeof muted !== 'boolean' })} title={muted ? t('PLAYER_UNMUTE') : t('PLAYER_MUTE')} tabIndex={-1} onClick={onMuteButtonClick}>
-                    <Icon
-                        className={styles['icon']}
-                        name={
-                            (typeof muted === 'boolean' && muted) ? 'volume-mute' :
-                                (volume === null || isNaN(volume)) ? 'volume-off' :
-                                    volume === 0 ? 'volume-mute' :
-                                        volume < 30 ? 'volume-low' :
-                                            volume < 70 ? 'volume-medium' :
-                                                'volume-high'
-                        }
-                    />
-                </Button>
-                {
-                    !platform.isMobile ?
-                        <VolumeSlider
-                            className={styles['volume-slider']}
-                            volume={volume}
-                            muted={muted}
-                            onVolumeChangeRequested={onVolumeChangeRequested}
-                        />
-                        : null
-                }
                 <div className={styles['spacing']} />
-                <Button data-tv-hidden focusable={false} className={styles['control-bar-buttons-menu-button']} onClick={toggleButtonsMenu}>
-                    <Icon className={styles['icon']} name={'more-vertical'} />
-                </Button>
-                <div className={classnames(styles['control-bar-buttons-menu-container'], { 'open': buttonsMenuOpen })}>
+                <div className={classnames(styles['control-bar-buttons-menu-container'], 'open')}>
                     {
                         statisticsAvailable &&
                             <Button focusKey={'player-statistics'} data-tv-statistics className={styles['control-bar-button']} tabIndex={-1} onMouseDown={onStatisticsButtonMouseDown} onClick={onToggleStatisticsMenu}>
@@ -192,8 +146,6 @@ ControlBar.propTypes = {
     time: PropTypes.number,
     duration: PropTypes.number,
     buffered: PropTypes.number,
-    volume: PropTypes.number,
-    muted: PropTypes.bool,
     playbackSpeed: PropTypes.number,
     videoScale: PropTypes.string,
     videoScaleLabel: PropTypes.string,
@@ -211,9 +163,6 @@ ControlBar.propTypes = {
     onPlayRequested: PropTypes.func,
     onPauseRequested: PropTypes.func,
     onNextVideoRequested: PropTypes.func,
-    onMuteRequested: PropTypes.func,
-    onUnmuteRequested: PropTypes.func,
-    onVolumeChangeRequested: PropTypes.func,
     onSeekRequested: PropTypes.func,
     onToggleSubtitlesMenu: PropTypes.func,
     onToggleAudioMenu: PropTypes.func,

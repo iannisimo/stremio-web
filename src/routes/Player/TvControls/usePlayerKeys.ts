@@ -31,7 +31,7 @@ type Options = {
 const stepButtons = (root: HTMLElement, direction: number) => {
     const focused = document.activeElement;
     const buttons = Array.from(root.querySelectorAll<HTMLElement>('[class*="control-bar-buttons-container-"] [class*="control-bar-button-"]'))
-        .filter((button) => button.offsetParent !== null && !button.classList.contains('disabled') && !button.hasAttribute('data-tv-hidden'));
+        .filter((button) => button.offsetParent !== null && !button.classList.contains('disabled'));
     const index = buttons.findIndex((button) => button === focused);
     if (index === -1) return false;
     buttons[index + direction]?.focus();

@@ -1,11 +1,6 @@
-// Player overrides for the remote. Upstream elements we don't use stay
-// rendered (so merges stay small) and are hidden here; their Buttons also get
-// focusable={false}. Selectors are attribute-based, so CSS-module hashing
-// doesn't matter.
+// Player overrides for the remote. Selectors are attribute-based, so
+// CSS-module hashing doesn't matter.
 
-[data-tv-hidden],
-[class*='control-bar-buttons-menu-button-'],
-[class*='volume-slider-'],
 [class*='nav-bar-layer-'] [class*='logo-container-'] {
     display: none !important;
 }

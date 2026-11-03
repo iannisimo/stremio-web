@@ -90,7 +90,8 @@ screens: `App/ShortcutsModal`, `routes/Settings/Shortcuts`,
 message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`; player menus: `routes/Player/CastDevicesMenu`,
 `routes/Player/OptionsMenu`, `routes/Player/StatisticsMenu`, `components/ContextMenu`
 (also dropped from `SubtitlesMenu/SubtitleVariant`: no right-click download /
-copy URL).
+copy URL); app volume: `routes/Player/VolumeChangeIndicator`,
+`routes/Player/ControlBar/VolumeSlider`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -128,8 +129,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/components/ColorInput/ColorInput.tsx` (+ `.less`) | Phone-layout branches removed (bottom sheets) | `BottomSheet` deleted |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |
 | `src/router/Routes.tsx` | Passes `view` to `Route`; swallows the skipped view transition's rejected `ready` | Same; "Transition was skipped" runtime error when a push lands mid-transition |
-| `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward`/`volume` shortcuts `enabled=false`; `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode; no options / context menu, cast devices menu or statistics popup (their state and the cast device search removed; `useCastDevice` / `usePlayOnDevice` kept for the playback flow) | Remote-first player |
-| `src/routes/Player/ControlBar/ControlBar.js` | `focusKey`s and `disabled` on the buttons; `data-tv-statistics` on the statistics button; cast and "…" buttons removed (with the Chromecast state); mute and the buttons-menu toggle `data-tv-hidden` + `focusable={false}` | Same |
+| `src/routes/Player/Player.js` | Wraps the TV control bar, popups and root from `TvControls/`; `useTvPlayer`; `statistics` passed to the control bar; `seekForward`/`seekBackward` shortcuts `enabled=false`; no app volume (mute / volume shortcuts, wheel volume, `VolumeChangeIndicator` removed); `exit` only closes an open menu; no back/fullscreen in the top bar; container mouse leave ignored in keyboard mode; no options / context menu, cast devices menu or statistics popup (their state and the cast device search removed; `useCastDevice` / `usePlayOnDevice` kept for the playback flow) | Remote-first player |
+| `src/routes/Player/ControlBar/ControlBar.js` | `focusKey`s and `disabled` on the buttons; `data-tv-statistics` on the statistics button; cast, "…", mute, volume slider and the buttons-menu toggle removed (the button group is always `open`) | Same |
 | `src/routes/Player/ControlBar/SeekBar/SeekBar.js`, `styles.less` | Slider is focusable (`player-seek`), focus style on the thumb; time label not focusable | ←/→ seek on the focused bar |
 | `src/routes/Player/SideDrawerButton/` | Focusable (`player-drawer-button`), Enter opens | Remote reach |
 | `src/routes/Player/useKeyboardSeek.ts` | `seekBy` honours a caller's larger offset while held | Remote hold-to-seek ramp |
@@ -147,11 +148,9 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 
 ## Upstream UI we hide
 
-Still rendered (smaller merges), but hidden: mute button and volume slider,
-the small-screen "more" toggle, the top bar's back/fullscreen buttons and logo.
-Buttons get `data-tv-hidden` + `focusable={false}`; the rest is hidden by
-attribute selectors in `src/routes/Player/TvControls/tvPlayer.less`. If
-upstream renames those classes, they show up again.
+Still rendered, but hidden: the player top bar's logo (attribute selector in
+`src/routes/Player/TvControls/tvPlayer.less`; if upstream renames the class it
+shows up again). The player buttons we don't use are deleted.
 
 ## Our own files
 
