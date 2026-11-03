@@ -68,14 +68,16 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
         ].filter((part) => typeof part === 'string' && part.length > 0);
     }, [meta, imdb, t, string]);
 
+    // live channels can't be watched to the end
+    const watchable = meta.type !== 'tv';
     const actions = useMemo(() => [
         trailerHref ? 'trailer' : null,
         'library',
-        'watched',
+        watchable ? 'watched' : null,
         'like',
         'love',
         share ? 'share' : null,
-    ].filter((key): key is string => key !== null), [trailerHref, share]);
+    ].filter((key): key is string => key !== null), [trailerHref, watchable, share]);
     const lastAction = actions[actions.length - 1];
 
     const onArrowPress = useCallback((key: string) => (direction: string) => {
@@ -147,15 +149,20 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
                     <Icon className={styles['icon']} name={meta.inLibrary ? 'remove-from-library' : 'add-to-library'} />
                     <span>{meta.inLibrary ? t('REMOVE_FROM_LIB') : t('ADD_TO_LIB')}</span>
                 </Button>
-                <Button
-                    focusKey={'detail-action-watched'}
-                    className={classnames(styles['button'], styles['round'])}
-                    title={meta.watched ? t('CTX_MARK_UNWATCHED') : t('CTX_MARK_WATCHED')}
-                    onClick={onToggleWatched}
-                    onArrowPress={onArrowPress('watched')}
-                >
-                    <Icon className={styles['icon']} name={meta.watched ? 'eye-off' : 'eye'} />
-                </Button>
+                {
+                    watchable ?
+                        <Button
+                            focusKey={'detail-action-watched'}
+                            className={classnames(styles['button'], styles['round'])}
+                            title={meta.watched ? t('CTX_MARK_UNWATCHED') : t('CTX_MARK_WATCHED')}
+                            onClick={onToggleWatched}
+                            onArrowPress={onArrowPress('watched')}
+                        >
+                            <Icon className={styles['icon']} name={meta.watched ? 'eye-off' : 'eye'} />
+                        </Button>
+                        :
+                        null
+                }
                 <Button
                     focusKey={'detail-action-like'}
                     className={classnames(styles['button'], styles['round'])}

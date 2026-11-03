@@ -3,30 +3,24 @@
 const React = require('react');
 const { useParams, useLocation, useNavigate } = require('react-router');
 const { useCore } = require('stremio/core');
-const { withCoreSuspender, useProfile } = require('stremio/common');
+const { withCoreSuspender } = require('stremio/common');
 const { useNavigateWithOrigin, useGoBack } = require('stremio-router');
 const { default: toPath } = require('stremio-router/toPath');
-const { HorizontalNavBar } = require('stremio/components');
 const { default: TvDetail } = require('./TvDetail');
 const { default: TvDetailInfo, TvDetailInfoPlaceholder } = require('./TvDetail/TvDetailInfo');
 const { default: TvStreamsPanel } = require('./TvDetail/TvStreamsPanel');
 const { default: TvEpisodesPanel } = require('./TvDetail/TvEpisodesPanel');
-const { default: LiveTvDetails } = require('./LiveTvDetails');
-const { default: LiveTvPlaceholder } = require('./LiveTvDetails/Placeholder');
 const useMetaDetails = require('./useMetaDetails');
 const useSeason = require('./useSeason');
 const { default: useExternalPlayerCallback } = require('./useExternalPlayerCallback');
-const styles = require('./styles');
 
 const MetaDetails = () => {
     const { type, id, videoId } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const { getStoredOrigin } = useNavigateWithOrigin();
-    const contentRef = React.useRef(null);
     const returnVideoIdRef = React.useRef(null);
     const core = useCore();
-    const profile = useProfile();
     const urlParams = React.useMemo(() => ({
         type,
         id,
@@ -34,11 +28,6 @@ const MetaDetails = () => {
     }), [type, id, videoId]);
     const metaDetails = useMetaDetails(urlParams);
     const readyMeta = metaDetails.metaItem?.content.type === 'Ready' ? metaDetails.metaItem.content.content : null;
-    const metaAddonUrl = metaDetails.metaItem?.addon.transportUrl;
-    const isEpgProvider = React.useMemo(() => {
-        return profile.addons.some((addon) => addon.transportUrl === metaAddonUrl && addon.manifest.behaviorHints?.epgProvider === true);
-    }, [profile.addons, metaAddonUrl]);
-    const isLiveMeta = isEpgProvider && readyMeta !== null && (readyMeta.behaviorHints?.isLive === true || readyMeta.type === 'tv');
     useExternalPlayerCallback(urlParams, metaDetails);
     const [season, setSeason] = useSeason(urlParams);
     const [metaPath, streamPath] = React.useMemo(() => {
@@ -142,41 +131,6 @@ const MetaDetails = () => {
             goBack();
         }
     }, [streamPath, readyMeta, video, navigate, goBack]);
-    if (type === 'tv' && (metaDetails.selected === null || (isEpgProvider && metaDetails.metaItem?.content.type === 'Loading'))) {
-        return (
-            <div className={styles['metadetails-container']}>
-                <HorizontalNavBar
-                    className={styles['nav-bar']}
-                    backButton={true}
-                    fullscreenButton={true}
-                    navMenu={true}
-                    originPath={originPath}
-                />
-                <LiveTvPlaceholder />
-            </div>
-        );
-    }
-    if (isLiveMeta) {
-        return (
-            <LiveTvDetails
-                key={readyMeta.id}
-                className={styles['metadetails-container']}
-                contentRef={contentRef}
-                meta={readyMeta}
-                addonName={metaDetails.metaItem.addon.manifest.name}
-                streams={metaDetails.streams}
-                onToggleLibrary={readyMeta.inLibrary ? removeFromLibrary : addToLibrary}
-            >
-                <HorizontalNavBar
-                    className={styles['nav-bar']}
-                    backButton={true}
-                    fullscreenButton={true}
-                    navMenu={true}
-                    originPath={originPath}
-                />
-            </LiveTvDetails>
-        );
-    }
     const metaState = metaPath === null ?
         'none'
         :
@@ -238,21 +192,7 @@ const MetaDetails = () => {
 };
 
 const MetaDetailsFallback = () => {
-    const { type } = useParams();
     const goBack = useGoBack();
-    if (type === 'tv') {
-        return (
-            <div className={styles['metadetails-container']}>
-                <HorizontalNavBar
-                    className={styles['nav-bar']}
-                    backButton={true}
-                    fullscreenButton={true}
-                    navMenu={true}
-                />
-                <LiveTvPlaceholder />
-            </div>
-        );
-    }
     return <TvDetail meta={null} metaState={'loading'} info={null} panel={null} onBack={goBack} />;
 };
 
