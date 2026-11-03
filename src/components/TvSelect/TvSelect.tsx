@@ -4,7 +4,7 @@ import RouterModal from 'stremio/router/Modal';
 import { useModalsContainer } from 'stremio/router/ModalsContainerContext';
 import useBinaryState from 'stremio/common/useBinaryState';
 import Button from 'stremio/components/Button';
-import Label from 'stremio/components/MultiselectMenu/Label';
+import Label from './Label';
 import { FocusContext, useFocusGroup, setFocus } from 'stremio/services/Navigation';
 import styles from './TvSelect.less';
 

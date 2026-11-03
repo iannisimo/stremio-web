@@ -18,7 +18,7 @@ import MainNavBars from './MainNavBars';
 import MetaItem from './MetaItem';
 import MetaPreview from './MetaPreview';
 import ModalDialog from './ModalDialog';
-import MultiselectMenu from './TvSelect'; // HTPC fork: TV picker, same props
+import MultiselectMenu from './TvSelect';
 import { HorizontalNavBar, VerticalNavBar } from './NavBar';
 import NumberInput from './NumberInput';
 import Popup from './Popup';

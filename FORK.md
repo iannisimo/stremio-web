@@ -61,7 +61,7 @@ modify/delete conflicts; the others are still in the tree but unused.
 | `src/components/MetaRow/` (+ `MetaRowPlaceholder`) | `src/components/TvRow/` | Home (`Board`) | deleted |
 | `src/components/EventModal/EventModal.js` (UI only) | `src/components/TvEventModal/` | Home | deleted (`useEvents.js` kept) |
 | `src/routes/Board/StreamingServerWarning/` | `src/routes/Board/TvServerWarning/` | Home | deleted |
-| `src/components/MultiselectMenu/` (menu + `Dropdown`, `Option`; `Label` still used) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label) | Every dropdown: swapped in `src/components/index.ts` | yes |
+| `src/components/MultiselectMenu/` (menu, `Dropdown`, `Option`, `Label`) | `src/components/TvSelect/` (same props; centered list, Back closes, focus returns to the label). `Label` and the `MultiselectMenuOption` type (`types.d.ts`) moved into `TvSelect/` | Every dropdown: swapped in `src/components/index.ts` | deleted |
 | `src/components/MetaPreview/` (info + actions), `src/routes/MetaDetails/StreamsList/StreamsList.js`, `src/routes/MetaDetails/VideosList/` (+ `SeasonsBar`) | `src/routes/MetaDetails/TvDetail/` | Detail page (not Live TV) | `StreamsList.js`, `VideosList.js` deleted; `MetaPreview`, `SeasonsBar` (player side drawer) kept |
 | `src/routes/Intro/` (login, sign up, Facebook/Apple, guest, password reset) | `src/routes/TvIntro/` (code login + email/password only) | `/intro` | deleted |
 | `src/components/TextInput/TextInput.tsx` (as a page field) | `src/components/TvTextInput/` (read-only field, Enter opens the editor with the real `TextInput`) | Every `TextInput` user except read-only ones (`SharePrompt`) and `PlayUrlDialog` (already a dialog, imports `TextInput/TextInput` directly) | yes (used inside our editor) |
@@ -76,7 +76,8 @@ Still upstream's and reused by our versions, so their changes reach us:
 models, `NavMenu`, `MetaItem`, `Button`.
 
 Deleted with nothing replacing them (unused in HTPC mode): `components/ActionMenu`
-(card three-dots menu), `components/Multiselect`, `routes/Player/VideosMenu`.
+(card three-dots menu), `components/Multiselect`, `routes/Player/VideosMenu`,
+`common/useOutsideClick.ts`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -108,6 +109,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
 | `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
+| `src/routes/Discover/styles.less`, `Discover/Guide/Header/Header.less` | `:import` of `Label.less` points at `TvSelect/Label/` | `MultiselectMenu` deleted |
+| `src/routes/Player/SideDrawer/SideDrawer.less` | Dropped the rule for upstream's dropdown (`Dropdown.less` import) | `MultiselectMenu` deleted; the season picker is `TvSelect` |
 | `src/routes/Discover/Discover.js` | Preview `readOnly`, backdrop, `metaItem` on cards; `isMobile` forced to `false`; `data-tv-start` on the card grid | Discover; no bottom-sheet preview/filters on narrow or tall screens |
 | `src/routes/Calendar/Calendar.tsx`, `src/components/EpgProgramModal/EpgProgramModal.tsx`, `src/routes/MetaDetails/LiveTvDetails/LiveTvDetails.tsx`, `src/components/ColorInput/ColorInput.tsx` | Phone-layout media query replaced by `false` (and its imports dropped) | No bottom sheets on narrow or tall screens |
 | `src/router/Route/Route.js` | `view` prop; route-container is a focus group via `useRouteFocusScope` | Hidden routes stay mounted; only the top one takes focus, and per-route keys (sidebar) don't collide |

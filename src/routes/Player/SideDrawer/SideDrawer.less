@@ -7,11 +7,6 @@
     action-buttons-container: action-buttons-container;
 }
 
-:import('~stremio/components/MultiselectMenu/Dropdown/Dropdown.less') {
-    dropdown: dropdown;
-    open: open;
-}
-
 @padding: 1rem;
 
 .side-drawer {
@@ -110,10 +105,6 @@
 
         .info {
             max-height: calc(var(--dynamic-viewport-height) * 0.4);
-        }
-
-        .dropdown.open {
-            max-height: calc(3rem * 4);
         }
     }
 }
