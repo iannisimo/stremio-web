@@ -19,7 +19,6 @@ import ModalDialog from './ModalDialog';
 import MultiselectMenu from './TvSelect';
 import { HorizontalNavBar } from './NavBar';
 import NumberInput from './NumberInput';
-import Popup from './Popup';
 import RadioButton from './RadioButton';
 import SearchBar from './SearchBar';
 import SharePrompt from './SharePrompt';
@@ -50,7 +49,6 @@ export {
     MultiselectMenu,
     HorizontalNavBar,
     NumberInput,
-    Popup,
     RadioButton,
     SearchBar,
     SharePrompt,

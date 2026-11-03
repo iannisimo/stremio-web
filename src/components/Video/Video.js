@@ -6,10 +6,8 @@ const { useNavigate } = require('react-router');
 const { default: toPath } = require('stremio-router/toPath');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
-const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const { default: Icon } = require('@stremio/stremio-icons/react');
-const { Button, Image, Popup } = require('stremio/components');
-const useBinaryState = require('stremio/common/useBinaryState');
+const { Button, Image } = require('stremio/components');
 const useProfile = require('stremio/common/useProfile');
 const { usePlatform } = require('stremio/common/Platform');
 const { formatEpgTimeRange } = require('stremio/common/EPG');
@@ -44,59 +42,13 @@ VideoLabel.propTypes = {
 };
 
 const Video = ({ className, id, title, thumbnail, season, episode, released, upcoming, watched, progress, scheduled, seasonWatched, selected, deepLinks, isEpg, isNow, startTime, endTime, onSelect, onMarkVideoAsWatched, onMarkSeasonAsWatched, ...props }) => {
-    const routeFocused = useRouteFocused();
     const profile = useProfile();
     const navigate = useNavigate();
     const platform = usePlatform();
     const { t } = useTranslation();
 
-    const [menuOpen, openMenu, closeMenu, toggleMenu] = useBinaryState(false);
+    const labelRef = React.useRef(null);
 
-    const popupLabelOnMouseUp = React.useCallback((event) => {
-        if (!event.nativeEvent.togglePopupPrevented) {
-            if (event.nativeEvent.ctrlKey || event.nativeEvent.button === 2) {
-                event.preventDefault();
-                openMenu();
-            }
-        }
-    }, [openMenu]);
-    const popupLabelOnContextMenu = React.useCallback((event) => {
-        if (!event.nativeEvent.togglePopupPrevented && !event.nativeEvent.ctrlKey && !event.nativeEvent.shiftKey) {
-            event.preventDefault();
-        }
-    }, [toggleMenu]);
-    const popupLabelOnLongPress = React.useCallback((event) => {
-        if (event.nativeEvent.pointerType !== 'mouse' && !event.nativeEvent.togglePopupPrevented) {
-            toggleMenu();
-        }
-    }, [toggleMenu]);
-    const popupMenuOnPointerDown = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-    }, []);
-    const popupMenuOnContextMenu = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-        if (!event.nativeEvent.ctrlKey && !event.nativeEvent.shiftKey) {
-            event.preventDefault();
-        }
-    }, []);
-    const popupMenuOnClick = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-    }, []);
-    const popupMenuOnKeyDown = React.useCallback((event) => {
-        event.nativeEvent.buttonClickPrevented = true;
-    }, []);
-    const toggleWatchedOnClick = React.useCallback((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        closeMenu();
-        onMarkVideoAsWatched({ id, released }, watched);
-    }, [id, released, watched]);
-    const toggleWatchedSeasonOnClick = React.useCallback((event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        closeMenu();
-        onMarkSeasonAsWatched(season, seasonWatched);
-    }, [season, seasonWatched, onMarkSeasonAsWatched]);
     const selectVideo = React.useCallback(() => {
         if (typeof onSelect === 'function') {
             onSelect();
@@ -128,7 +80,7 @@ const Video = ({ className, id, title, thumbnail, season, episode, released, upc
             null;
 
         return (
-            <VideoLabel {...props} ref={ref} shouldScroll={selected && (!watched || !!progress)} className={classnames(className, styles['video-container'], { [styles['selected']]: selected, 'active': menuOpen })} title={title}>
+            <VideoLabel {...props} ref={ref} shouldScroll={selected && (!watched || !!progress)} className={classnames(className, styles['video-container'], { [styles['selected']]: selected })} title={title}>
                 {
                     typeof thumbnail === 'string' && thumbnail.length > 0 ?
                         <div className={styles['thumbnail-container']}>
@@ -228,54 +180,23 @@ const Video = ({ className, id, title, thumbnail, season, episode, released, upc
                 {children}
             </VideoLabel>
         );
-    }, [deepLinks, playButtonOnClick, playButtonOnKeyDown, selected, menuOpen, endTime, isEpg, isNow, profile.settings.hideSpoilers, profile.settings.interfaceLanguage, season, startTime, t]);
-    const renderMenu = React.useMemo(() => function renderMenu() {
-        return (
-            <div className={styles['context-menu-content']} onPointerDown={popupMenuOnPointerDown} onContextMenu={popupMenuOnContextMenu} onClick={popupMenuOnClick} onKeyDown={popupMenuOnKeyDown}>
-                <Button className={styles['context-menu-option-container']} title={t('CTX_WATCH')}>
-                    <div className={styles['context-menu-option-label']}>{t('CTX_WATCH')}</div>
-                </Button>
-                <Button className={styles['context-menu-option-container']} title={watched ? t('CTX_MARK_NON_WATCHED') : t('CTX_MARK_WATCHED')} onClick={toggleWatchedOnClick}>
-                    <div className={styles['context-menu-option-label']}>{watched ? t('CTX_MARK_NON_WATCHED') : t('CTX_MARK_WATCHED')}</div>
-                </Button>
-                <Button className={styles['context-menu-option-container']} title={seasonWatched ? t('CTX_UNMARK_REST') : t('CTX_MARK_REST')} onClick={toggleWatchedSeasonOnClick}>
-                    <div className={styles['context-menu-option-label']}>{seasonWatched ? t('CTX_UNMARK_REST') : t('CTX_MARK_REST')}</div>
-                </Button>
-            </div>
-        );
-    }, [watched, seasonWatched, toggleWatchedOnClick]);
-    React.useEffect(() => {
-        if (!routeFocused) {
-            closeMenu();
-        }
-    }, [routeFocused]);
-    return (
-        <Popup
-            className={className}
-            id={id}
-            title={title}
-            thumbnail={thumbnail}
-            episode={episode}
-            released={released}
-            upcoming={upcoming}
-            watched={watched}
-            progress={progress}
-            scheduled={scheduled}
-            isEpg={isEpg}
-            isNow={isNow}
-            startTime={startTime}
-            endTime={endTime}
-            onClick={videoButtonOnClick}
-            {...props}
-            onMouseUp={popupLabelOnMouseUp}
-            onLongPress={popupLabelOnLongPress}
-            onContextMenu={popupLabelOnContextMenu}
-            open={menuOpen}
-            onCloseRequest={closeMenu}
-            renderLabel={renderLabel}
-            renderMenu={renderMenu}
-        />
-    );
+    }, [deepLinks, playButtonOnClick, playButtonOnKeyDown, selected, endTime, isEpg, isNow, profile.settings.hideSpoilers, profile.settings.interfaceLanguage, season, startTime, t]);
+    // HTPC fork: no popup menu; long press / right click opens our row actions
+    return renderLabel({
+        className,
+        id,
+        title,
+        thumbnail,
+        episode,
+        released,
+        upcoming,
+        watched,
+        progress,
+        scheduled,
+        onClick: videoButtonOnClick,
+        ...props,
+        ref: labelRef,
+    });
 };
 
 Video.Placeholder = VideoPlaceholder;

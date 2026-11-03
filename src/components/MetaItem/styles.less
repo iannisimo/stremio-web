@@ -3,10 +3,6 @@
 @import (reference) '~@stremio/stremio-colors/less/stremio-colors.less';
 @import (reference) '~stremio/common/screen-sizes.less';
 
-:import('~stremio/components/Popup/styles.less') {
-    popup-menu-container: menu-container;
-}
-
 @play-icon-size: 4rem;
 
 .meta-item-container {
@@ -210,7 +206,6 @@
                     color: #fff;
                 }
             }
-
         }
 
         .play-icon-layer {
@@ -397,10 +392,6 @@
             height: 100%;
             color: var(--primary-foreground-color);
             opacity: 0.6;
-        }
-
-        .popup-menu-container {
-            width: auto;
         }
     }
 }

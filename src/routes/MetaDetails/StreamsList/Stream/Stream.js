@@ -4,12 +4,10 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
-const { t } = require('i18next');
 const { useCore } = require('stremio/core');
-const { useProfile, usePlatform, useToast, useBinaryState } = require('stremio/common');
-const { Button, Image, Popup } = require('stremio/components');
+const { useProfile, usePlatform, useToast } = require('stremio/common');
+const { Button, Image } = require('stremio/components');
 const ActionButton = require('stremio/components/MetaPreview/ActionButton');
-const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const StreamPlaceholder = require('./StreamPlaceholder');
 const styles = require('./styles');
 
@@ -18,43 +16,6 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
     const toast = useToast();
     const platform = usePlatform();
     const core = useCore();
-    const routeFocused = useRouteFocused();
-
-    const [menuOpen, openMenu, closeMenu, toggleMenu] = useBinaryState(false);
-
-    const popupLabelOnMouseUp = React.useCallback((event) => {
-        if (!event.nativeEvent.togglePopupPrevented) {
-            if (event.nativeEvent.ctrlKey || event.nativeEvent.button === 2) {
-                event.preventDefault();
-                openMenu();
-            }
-        }
-    }, [openMenu]);
-    const popupLabelOnContextMenu = React.useCallback((event) => {
-        if (!event.nativeEvent.togglePopupPrevented && !event.nativeEvent.ctrlKey && !event.nativeEvent.shiftKey) {
-            event.preventDefault();
-        }
-    }, [toggleMenu]);
-    const popupLabelOnLongPress = React.useCallback((event) => {
-        if (event.nativeEvent.pointerType !== 'mouse' && !event.nativeEvent.togglePopupPrevented) {
-            toggleMenu();
-        }
-    }, [toggleMenu]);
-    const popupMenuOnPointerDown = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-    }, []);
-    const popupMenuOnContextMenu = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-        if (!event.nativeEvent.ctrlKey && !event.nativeEvent.shiftKey) {
-            event.preventDefault();
-        }
-    }, []);
-    const popupMenuOnClick = React.useCallback((event) => {
-        event.nativeEvent.togglePopupPrevented = true;
-    }, []);
-    const popupMenuOnKeyDown = React.useCallback((event) => {
-        event.nativeEvent.buttonClickPrevented = true;
-    }, []);
 
     const href = React.useMemo(() => {
         return deepLinks ?
@@ -89,18 +50,6 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
             null;
     }, [href, deepLinks]);
 
-    const streamLink = React.useMemo(() => {
-        return deepLinks?.externalPlayer?.streaming;
-    }, [deepLinks]);
-
-    const downloadLink = React.useMemo(() => {
-        return deepLinks?.externalPlayer?.download;
-    }, [deepLinks]);
-
-    const magnetLink = React.useMemo(() => {
-        return deepLinks?.externalPlayer?.magnet;
-    }, [deepLinks]);
-
     const markVideoAsWatched = React.useCallback(() => {
         if (typeof videoId === 'string') {
             core.transport.dispatch({
@@ -118,8 +67,6 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
             return;
         }
 
-        if (isEpg) closeMenu();
-
         if (profile.settings.playerType !== null) {
             if (profile.settings.playerType !== 'infuse' || !platform.shell.active || !externalPlayerCallbackCanMarkWatched) {
                 markVideoAsWatched();
@@ -134,73 +81,7 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
         if (typeof props.onClick === 'function') {
             props.onClick(event);
         }
-    }, [props.onClick, profile.settings.playerType, platform.shell.active, externalPlayerCallbackCanMarkWatched, markVideoAsWatched, isEpg, closeMenu]);
-
-    const copyMagnetLink = React.useCallback((event) => {
-        event.preventDefault();
-        closeMenu();
-        if (magnetLink) {
-            navigator.clipboard.writeText(magnetLink)
-                .then(() => {
-                    toast.show({
-                        type: 'success',
-                        title: t('PLAYER_COPY_MAGNET_LINK_SUCCESS'),
-                        timeout: 4000
-                    });
-                })
-                .catch(() => {
-                    toast.show({
-                        type: 'error',
-                        title: t('PLAYER_COPY_MAGNET_LINK_ERROR'),
-                        timeout: 4000,
-                    });
-                });
-        }
-    }, [magnetLink]);
-
-    const copyDownloadLink = React.useCallback((event) => {
-        event.preventDefault();
-        closeMenu();
-        if (downloadLink) {
-            navigator.clipboard.writeText(downloadLink)
-                .then(() => {
-                    toast.show({
-                        type: 'success',
-                        title: t('PLAYER_COPY_DOWNLOAD_LINK_SUCCESS'),
-                        timeout: 4000
-                    });
-                })
-                .catch(() => {
-                    toast.show({
-                        type: 'error',
-                        title: t('PLAYER_COPY_DOWNLOAD_LINK_ERROR'),
-                        timeout: 4000,
-                    });
-                });
-        }
-    }, [downloadLink]);
-
-    const copyStreamLink = React.useCallback((event) => {
-        event.preventDefault();
-        closeMenu();
-        if (streamLink) {
-            navigator.clipboard.writeText(streamLink)
-                .then(() => {
-                    toast.show({
-                        type: 'success',
-                        title: t('PLAYER_COPY_STREAM_SUCCESS'),
-                        timeout: 4000
-                    });
-                })
-                .catch(() => {
-                    toast.show({
-                        type: 'error',
-                        title: t('PLAYER_COPY_STREAM_ERROR'),
-                        timeout: 4000,
-                    });
-                });
-        }
-    }, [streamLink]);
+    }, [props.onClick, profile.settings.playerType, platform.shell.active, externalPlayerCallbackCanMarkWatched, markVideoAsWatched]);
 
     const renderThumbnailFallback = React.useCallback(() => (
         <Icon className={styles['placeholder-icon']} name={'ic_broken_link'} />
@@ -214,7 +95,7 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
         }
 
         return (
-            <Button className={classnames(className, styles['stream-container'], { 'active': menuOpen })} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
+            <Button className={classnames(className, styles['stream-container'])} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
                 <div className={styles['info-container']}>
                     {
                         typeof thumbnail === 'string' && thumbnail.length > 0 ?
@@ -246,64 +127,10 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
                 {children}
             </Button>
         );
-    }, [compact, thumbnail, progress, addonName, name, description, href, target, download, onClick, menuOpen]);
+    }, [compact, thumbnail, progress, addonName, name, description, href, target, download, onClick]);
 
-    const renderMenu = React.useMemo(() => function renderMenu() {
-        return (
-            <div className={styles['context-menu-content']} onPointerDown={popupMenuOnPointerDown} onContextMenu={popupMenuOnContextMenu} onClick={popupMenuOnClick} onKeyDown={popupMenuOnKeyDown}>
-                <div className={styles['context-menu-title']}>
-                    {description}
-                </div>
-                <Button className={styles['context-menu-option-container']} title={t('CTX_PLAY')} href={isEpg ? href : undefined} target={isEpg ? target : undefined} download={isEpg ? download : undefined} onClick={isEpg ? onClick : undefined}>
-                    <Icon className={styles['menu-icon']} name={'play'} />
-                    <div className={styles['context-menu-option-label']}>{t('CTX_PLAY')}</div>
-                </Button>
-                {
-                    streamLink &&
-                        <Button className={styles['context-menu-option-container']} title={t('CTX_COPY_STREAM_LINK')} onClick={copyStreamLink}>
-                            <Icon className={styles['menu-icon']} name={'link'} />
-                            <div className={styles['context-menu-option-label']}>{t('CTX_COPY_STREAM_LINK')}</div>
-                        </Button>
-                }
-                {
-                    !isEpg && magnetLink &&
-                        <Button className={styles['context-menu-option-container']} title={t('CTX_COPY_MAGNET_LINK')} onClick={copyMagnetLink}>
-                            <Icon className={styles['menu-icon']} name={'magnet-link'} />
-                            <div className={styles['context-menu-option-label']}>{t('CTX_COPY_MAGNET_LINK')}</div>
-                        </Button>
-                }
-                {
-                    !isEpg && downloadLink &&
-                        <Button className={styles['context-menu-option-container']} title={t('CTX_DOWNLOAD_VIDEO')} onClick={copyDownloadLink}>
-                            <Icon className={styles['menu-icon']} name={'download'} />
-                            <div className={styles['context-menu-option-label']}>{t('CTX_COPY_VIDEO_DOWNLOAD_LINK')}</div>
-                        </Button>
-                }
-            </div>
-        );
-    }, [copyStreamLink, onClick, isEpg, href, target, download]);
-
-    React.useEffect(() => {
-        if (!routeFocused) {
-            closeMenu();
-        }
-    }, [routeFocused]);
-
-    return (
-        <Popup
-            className={className}
-            focusKey={focusKey}
-            onMouseUp={popupLabelOnMouseUp}
-            onLongPress={popupLabelOnLongPress}
-            onContextMenu={popupLabelOnContextMenu}
-            open={menuOpen}
-            portal={isEpg}
-            menuClassName={isEpg ? styles['epg-menu'] : undefined}
-            onCloseRequest={closeMenu}
-            renderLabel={renderLabel}
-            renderMenu={renderMenu}
-        />
-    );
+    // HTPC fork: no popup menu; long press / right click opens our row actions
+    return renderLabel({ className, focusKey });
 };
 
 Stream.Placeholder = StreamPlaceholder;

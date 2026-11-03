@@ -94,7 +94,8 @@ message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`;
 `routes/Player/OptionsMenu`, `routes/Player/StatisticsMenu`, `components/ContextMenu`
 (also dropped from `SubtitlesMenu/SubtitleVariant`: no right-click download /
 copy URL); app volume: `routes/Player/VolumeChangeIndicator`,
-`routes/Player/ControlBar/VolumeSlider`.
+`routes/Player/ControlBar/VolumeSlider`; `components/Popup` (its last users were
+the episode and stream row menus; `MetaItem/styles.less` lost the matching rule).
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.
@@ -125,8 +126,8 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/HorizontalScroll/HorizontalScroll.tsx` | `onFocus={keepFocusedInView}` (our `services/Navigation`) | Focused chip scrolls fully into view |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
 | `src/routes/MetaDetails/MetaDetails.js` | Always renders `TvDetail` (Live TV branches, `LiveTvDetails`, its placeholder and `styles.less` removed); no `HorizontalNavBar`, no gamepad hook | Detail page TV layout; Live TV page dropped (`HTPC-AUDIT.md` #75, "Missing features") |
-| `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
-| `src/components/Video/Video.js` | Inner play button `focusable={false}` | Row is the only focus stop |
+| `src/routes/MetaDetails/StreamsList/Stream/Stream.js`, `styles.less` | Forwards `focusKey` to the row's `Button`; no `Popup` menu (copy links / play), the row renders directly; right click and long press open our `RowActions` | Remote focus on stream rows; one row menu for mouse and remote |
+| `src/components/Video/Video.js`, `styles.less` | Inner play button `focusable={false}`; no `Popup` menu (watched / rest watched), the row renders directly; right click and long press open our `RowActions` | Row is the only focus stop; one row menu |
 | `src/routes/Board/Board.js`, `styles.less` | Hero, landscape Continue Watching, `TvRow`, our dialogs | Home redesign |
 | `src/routes/Discover/styles.less`, `Discover/Guide/Header/Header.less` | `:import` of `Label.less` points at `TvSelect/Label/` | `MultiselectMenu` deleted |
 | `src/routes/Player/SideDrawer/SideDrawer.less` | Dropped the rule for upstream's dropdown (`Dropdown.less` import) | `MultiselectMenu` deleted; the season picker is `TvSelect` |
