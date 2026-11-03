@@ -240,6 +240,8 @@
 
 ### Task 17: Streaming server URL pick reachable (#30)
 
+> Status 2026-11-03: implemented; not tried live (only one server URL is configured and it's the selected one, so its radio is disabled). Add a second URL to test.
+
 **Files:**
 - Modify: `src/components/RadioButton/RadioButton.tsx` (the clickable element becomes a `Button` with `disabled` passed through), `FORK.md`
 

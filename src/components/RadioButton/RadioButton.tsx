@@ -2,6 +2,7 @@
 
 import React, { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 import classNames from 'classnames';
+import { useFocusable } from 'stremio/services/Navigation';
 import styles from './RadioButton.less';
 
 type Props = {
@@ -15,6 +16,8 @@ type Props = {
 };
 
 const RadioButton = ({ disabled, selected, className, label, ariaLabel, onChange, error }: Props) => {
+    // HTPC fork: a focus stop for the remote
+    const { ref } = useFocusable<object, HTMLDivElement>({ focusable: !disabled });
 
     const handleSelect = useCallback(({ target }: ChangeEvent<HTMLInputElement>) => {
         if (!disabled && onChange) {
@@ -34,6 +37,7 @@ const RadioButton = ({ disabled, selected, className, label, ariaLabel, onChange
             <label>
                 {label}
                 <div
+                    ref={ref}
                     className={classNames(
                         styles['radio-container'],
                         { [styles['selected']]: selected },
