@@ -85,7 +85,9 @@ channels open in `TvDetail`, which hides "Mark as watched" for `tv` items),
 `services/GamepadNavigation`, `App/GamepadModal` (and its calls in `App.js`,
 `MainNavBars`, `HorizontalNavBar`, `Player.js`, `services/index.js`); shortcut
 screens: `App/ShortcutsModal`, `routes/Settings/Shortcuts`,
-`components/ShortcutsGroup`.
+`components/ShortcutsGroup`; update banners (the package builds with
+`SERVICE_WORKER_DISABLED=true` and the shell never sends the auto-updater
+message): `App/UpdaterBanner`, `App/WebUpdateScreen`, `components/UpdateBanner`.
 Their style rules in `Board/styles.less`, `Search/styles.less` and
 `MetaItem/styles.less` (cross-module `:import`s of `MetaRow` / `Multiselect`
 classes) went with them.

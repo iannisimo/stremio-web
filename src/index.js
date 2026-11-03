@@ -18,7 +18,6 @@ const i18n = require('i18next');
 const { initReactI18next } = require('react-i18next');
 const stremioTranslations = require('stremio-translations');
 const App = require('./App');
-const { default: WebUpdateScreen } = require('./App/WebUpdateScreen');
 const { CoreProvider } = require('./core');
 const { FileDropProvider, PlatformProvider } = require('./common');
 const { initNavigation } = require('./services/Navigation');
@@ -53,7 +52,6 @@ root.render(
                 <FileDropProvider>
                     <HashRouter>
                         <>
-                            <WebUpdateScreen />
                             <App />
                         </>
                     </HashRouter>

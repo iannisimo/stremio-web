@@ -220,20 +220,6 @@ html {
                 box-shadow: var(--outer-glow);
                 transition: opacity 0.1s ease-out;
             }
-
-            .updater-banner-container {
-                z-index: 1;
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 0;
-
-                @media only screen and (max-width: @minimum) {
-                    left: 0.5rem;
-                    right: 0.5rem;
-                    bottom: calc(var(--vertical-nav-bar-size) + var(--safe-area-inset-bottom) + 0.5rem);
-                }
-            }
         }
     }
 }

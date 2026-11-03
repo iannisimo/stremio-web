@@ -12,7 +12,6 @@ const SearchParamsHandler = require('./SearchParamsHandler');
 const DeepLinkHandler = require('./DeepLinkHandler');
 const { default: KeepFullscreen } = require('stremio/services/KeepFullscreen');
 const { default: ShellOpenHandler } = require('./ShellOpenHandler');
-const { default: UpdaterBanner } = require('./UpdaterBanner');
 const { default: useInterfaceScale } = require('./useInterfaceScale');
 const styles = require('./styles');
 
@@ -152,7 +151,6 @@ const App = () => {
                                 <DeepLinkHandler />
                                 <ShellOpenHandler />
                                 <KeepFullscreen />
-                                <UpdaterBanner className={styles['updater-banner-container']} />
                                 <ProtectedRoutes />
                             </DiscordProvider>
                         </FullscreenProvider>
