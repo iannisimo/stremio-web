@@ -189,6 +189,8 @@
 
 ### Task 12: Focused chips scroll into view (#15, issue A)
 
+> Status 2026-11-03: implemented and committed; at 700 px most focused chips scroll into view, two didn't in a test while the browser drew no frames. Recheck with the Chromium window visible.
+
 **Files:**
 - Modify: `src/components/HorizontalScroll/HorizontalScroll.tsx` (on focus inside, `scrollIntoView({ block: 'nearest', inline: 'nearest' })` the focused element), `src/routes/MetaDetails/TvDetail/TvDetailInfo.tsx` (same for the genre / cast / writer / director rows), `FORK.md`
 

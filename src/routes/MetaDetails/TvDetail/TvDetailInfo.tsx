@@ -8,7 +8,7 @@ import FullscreenDialog from 'stremio/components/FullscreenDialog';
 import SharePrompt from 'stremio/components/SharePrompt';
 import useRating from 'stremio/components/MetaPreview/Ratings/useRating';
 import useTranslate from 'stremio/common/useTranslate';
-import { setFocus } from 'stremio/services/Navigation';
+import { setFocus, keepFocusedInView } from 'stremio/services/Navigation';
 import { groupLinks } from './detailLogic';
 import styles from './TvDetailInfo.less';
 
@@ -123,7 +123,7 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
                 groups.map(({ category, items }) => (
                     <div key={category} className={styles['chips-row']}>
                         <div className={styles['chips-label']}>{stringWithPrefix(category.toUpperCase(), 'LINKS_')}</div>
-                        <div className={styles['chips']}>
+                        <div className={styles['chips']} onFocus={keepFocusedInView}>
                             {
                                 items.map(({ label, href }, index) => (
                                     <Button key={index} className={styles['chip']} title={label} href={href}>

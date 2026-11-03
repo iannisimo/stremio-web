@@ -122,6 +122,7 @@ Small edits, likely to conflict only if upstream rewrites the same lines.
 | `src/components/ContinueWatchingItem/ContinueWatchingItem.js` | Dropped `actionMenu` | Menu replaced by the dialog |
 | `src/components/MetaPreview/MetaPreview.js`, `MetaLinks/` | Opt-in `readOnly` mode (pills, no action buttons) | Discover preview |
 | `src/components/NavBar/HorizontalNavBar/HorizontalNavBar.js`, `NavBar/index.js` | Title and HDR badge only: no back, logo, search bar, fullscreen or profile menu (`NavMenu`); only `HorizontalNavBar` exported | Player top bar and NotFound |
+| `src/components/HorizontalScroll/HorizontalScroll.tsx` | `onFocus={keepFocusedInView}` (our `services/Navigation`) | Focused chip scrolls fully into view |
 | `src/routes/NotFound/NotFound.js` | Back key leaves (`TvDetail/useDetailBack` with upstream `useGoBack`) | No back button in the top bar any more |
 | `src/routes/MetaDetails/MetaDetails.js` | Always renders `TvDetail` (Live TV branches, `LiveTvDetails`, its placeholder and `styles.less` removed); no `HorizontalNavBar`, no gamepad hook | Detail page TV layout; Live TV page dropped (`HTPC-AUDIT.md` #75, "Missing features") |
 | `src/routes/MetaDetails/StreamsList/Stream/Stream.js` | Forwards `focusKey` to the row's `Button` | Remote focus on stream rows |
