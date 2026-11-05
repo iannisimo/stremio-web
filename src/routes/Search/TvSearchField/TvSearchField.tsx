@@ -2,11 +2,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
-import useRouteFocused from 'stremio/common/useRouteFocused';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import usePlayUrl from 'stremio/common/usePlayUrl';
 import Button from 'stremio/components/Button';
 import TextInput from 'stremio/components/TextInput';
-import { setFocus, useRouteScope } from 'stremio/services/Navigation';
 import styles from './TvSearchField.less';
 
 // JS modules without types
@@ -15,28 +14,28 @@ const debounce = require('lodash.debounce');
 
 type Props = {
     query: string | null,
+    focusKey?: string,
+};
+
+const ClearButton = ({ onClick }: { onClick: () => void }) => {
+    const { ref } = useFocusable();
+    return (
+        <Button ref={ref} className={styles['clear-button']} onClick={onClick}>
+            <Icon className={styles['clear-icon']} name={'close'} />
+        </Button>
+    );
 };
 
 // Takes the place of the top bar's SearchBar: the field opens the text
 // editor, which shows the local-search suggestions while typing.
-const TvSearchField = ({ query }: Props) => {
+const TvSearchField = ({ query, focusKey }: Props) => {
     const { t } = useTranslation();
     const [, setSearchParams] = useSearchParams();
-    const routeFocused = useRouteFocused();
-    const scope = useRouteScope();
     const { handlePlayUrl } = usePlayUrl();
     const localSearch = useLocalSearch();
     const [text, setText] = useState(query ?? '');
-    const fieldKey = `${scope}-search-field`;
 
     useEffect(() => setText(query ?? ''), [query]);
-
-    // Landing on an empty search goes straight to the field.
-    useEffect(() => {
-        if (!routeFocused || query) return;
-        const frame = requestAnimationFrame(() => setFocus(fieldKey));
-        return () => cancelAnimationFrame(frame);
-    }, [routeFocused]);
 
     const searchLocal = useMemo(() => debounce(localSearch.search, 250), [localSearch.search]);
     useEffect(() => {
@@ -62,16 +61,15 @@ const TvSearchField = ({ query }: Props) => {
     const clear = useCallback(() => {
         setText('');
         setSearchParams({});
-        requestAnimationFrame(() => setFocus(fieldKey));
-    }, [setSearchParams, fieldKey]);
+    }, [setSearchParams]);
 
     return (
         <div className={styles['tv-search-field']}>
             <div className={styles['field-container']}>
                 <Icon className={styles['field-icon']} name={'search'} />
                 <TextInput
+                    focusKey={focusKey}
                     className={styles['field']}
-                    focusKey={fieldKey}
                     type={'text'}
                     placeholder={t('SEARCH_OR_PASTE_LINK')}
                     value={text}
@@ -83,9 +81,7 @@ const TvSearchField = ({ query }: Props) => {
             </div>
             {
                 query ?
-                    <Button className={styles['clear-button']} onClick={clear}>
-                        <Icon className={styles['clear-icon']} name={'close'} />
-                    </Button>
+                    <ClearButton onClick={clear} />
                     :
                     null
             }

@@ -2,17 +2,16 @@
 
 const React = require('react');
 const { useTranslation } = require('react-i18next');
-const { useParams } = require('react-router');
+const { useParams, useNavigate } = require('react-router');
 const { useSearchParams } = require('react-router-dom');
 const classnames = require('classnames');
 const { useCore } = require('stremio/core');
-const { CONSTANTS, useBinaryState, useMediaQuery, useOnScrollToBottom, withCoreSuspender } = require('stremio/common');
+const { CONSTANTS, useMediaQuery, useOnScrollToBottom, withCoreSuspender } = require('stremio/common');
 const { epgDateKey, parseEpgDate } = require('stremio/common/EPG');
 const screenSizes = require('stremio/common/screen-sizes.less');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
-const { useRouteActive } = require('stremio/common/useRouteFocused');
+const { default: toPath } = require('stremio-router/toPath');
 const { DelayedRenderer, Image, MainNavBars, MetaItem, MetaPreview, MultiselectMenu } = require('stremio/components');
-const { default: EpgProgramModal } = require('stremio/components/EpgProgramModal');
 const useDiscover = require('./useDiscover');
 const useSelectableInputs = require('./useSelectableInputs');
 const { default: Guide } = require('./Guide');
@@ -21,6 +20,8 @@ const { default: useLiveTvGuide } = require('./useLiveTvGuide');
 const styles = require('./styles');
 
 const SCROLL_TO_BOTTOM_THRESHOLD = 400;
+// HTPC fork: the first card, where the page starts
+const GRID_FOCUS_KEY = 'discover:grid';
 
 const Discover = () => {
     const { type, transportUrl, catalogId } = useParams();
@@ -43,7 +44,6 @@ const Discover = () => {
     }, [queryParams]);
     const { t } = useTranslation();
     const core = useCore();
-    const routeActive = useRouteActive();
     const [discover, loadNextPage] = useDiscover(urlParams, catalogQueryParams);
     const [selectInputs, hasNextPage] = useSelectableInputs(discover);
     const [selectedMetaItemIndex, setSelectedMetaItemIndex] = React.useState(0);
@@ -58,8 +58,6 @@ const Discover = () => {
     const metaPreviewRef = React.useRef();
     const previousCatalogSizeRef = React.useRef(0);
 
-    const [selectedEpgProgram, setSelectedEpgProgram] = React.useState(null);
-    const [epgPreviewOpen, openEpgPreview, closeEpgPreviewModal] = useBinaryState(false);
     const isEpgLayout = discover.selectable.catalogs.find(({ selected }) => selected)?.isEpgGuide === true;
     const guide = useLiveTvGuide(discover, epgDate, isEpgLayout);
     const onEpgDayChange = React.useCallback((day) => {
@@ -70,10 +68,14 @@ const Discover = () => {
             return nextParams;
         }, { replace: true });
     }, [setQueryParams]);
-    const onProgramSelect = React.useCallback((program, channel) => {
-        setSelectedEpgProgram({ program, channel });
-        openEpgPreview();
-    }, [openEpgPreview]);
+    // HTPC fork: a program opens its channel on the program list, no preview dialog
+    const navigate = useNavigate();
+    const onProgramSelect = React.useCallback((_program, channel) => {
+        const href = getMetaDetailsHref(channel.deepLinks, true);
+        if (href !== null) {
+            navigate(toPath(href));
+        }
+    }, [navigate]);
 
     React.useEffect(() => {
         if (!isEpgLayout && discover.catalog?.content.type === 'Loading' && metasContainerRef.current) {
@@ -166,7 +168,6 @@ const Discover = () => {
     const onScroll = useOnScrollToBottom(onScrollToBottom, SCROLL_TO_BOTTOM_THRESHOLD);
     React.useEffect(() => {
         setSelectedMetaItemIndex(0);
-        setSelectedEpgProgram(null);
     }, [discover.selected]);
     const renderEmptyState = () => (
         <DelayedRenderer delay={500}>
@@ -215,10 +216,11 @@ const Discover = () => {
         }
 
         return (
-            <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} data-tv-start={true} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
+            <div ref={metasContainerRef} className={classnames(styles['meta-items-container'], 'animation-fade-in')} onScroll={onScroll} onFocusCapture={metaItemsOnFocusCapture}>
                 {discover.catalog.content.content.map((metaItem, index) => (
                     <MetaItem
                         key={index}
+                        focusKey={index === 0 ? GRID_FOCUS_KEY : undefined}
                         className={classnames({ 'selected': selectedMetaItemIndex === index })}
                         type={metaItem.type}
                         name={metaItem.name}
@@ -274,30 +276,8 @@ const Discover = () => {
 
         return null;
     };
-    const renderEpgPreviewModal = () => {
-        if (!isEpgLayout || selectedEpgProgram === null) {
-            return null;
-        }
-
-        const { program, channel } = selectedEpgProgram;
-        return (
-            <EpgProgramModal
-                program={program}
-                now={guide.now}
-                show={epgPreviewOpen}
-                onCloseRequest={closeEpgPreviewModal}
-                channelHref={getMetaDetailsHref(channel.deepLinks)}
-            />
-        );
-    };
-
-    React.useEffect(() => {
-        if (!routeActive) {
-            setSelectedEpgProgram(null);
-        }
-    }, [routeActive]);
     return (
-        <MainNavBars className={styles['discover-container']} route={'discover'}>
+        <MainNavBars className={styles['discover-container']} route={'discover'} startFocusKey={GRID_FOCUS_KEY}>
             <div className={styles['discover-content']}>
                 <div className={styles['catalog-container']}>
                     <div className={classnames(styles['selectable-inputs-container'], { [styles['epg-inputs']]: isEpgLayout })}>
@@ -348,13 +328,12 @@ const Discover = () => {
                 </div>
                 {renderMetaPreview()}
             </div>
-            {renderEpgPreviewModal()}
         </MainNavBars>
     );
 };
 
 const DiscoverFallback = () => (
-    <MainNavBars className={styles['discover-container']} route={'discover'} />
+    <MainNavBars className={styles['discover-container']} route={'discover'} startFocusKey={GRID_FOCUS_KEY} />
 );
 
 module.exports = withCoreSuspender(Discover, DiscoverFallback);

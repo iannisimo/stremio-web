@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@babel/runtime": "7.29.2",
-        "@noriginmedia/norigin-spatial-navigation": "3.4.0",
+        "@noriginmedia/norigin-spatial-navigation": "3.3.0",
         "@sentry/browser": "8.42.0",
         "@stremio/stremio-colors": "5.2.0",
         "@stremio/stremio-core-web": "0.66.0",
@@ -50,7 +50,6 @@
         "react-router": "6.30.0",
         "react-router-dom": "6.30.0",
         "react-simple-keyboard": "3.8.282",
-        "spatial-navigation-polyfill": "github:Stremio/spatial-navigation#64871b1422466f5f45d24ebc8bbd315b2ebab6a6",
         "stremio-translations": "github:Stremio/stremio-translations#2be2d578fed03c615d58617c554655100c99bc6f",
         "url": "0.11.4",
         "use-long-press": "^3.3.0",

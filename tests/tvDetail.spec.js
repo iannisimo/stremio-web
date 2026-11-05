@@ -3,7 +3,6 @@ const {
     seasonsOf,
     pickSeason,
     videosForSeason,
-    pickInitialVideoId,
     groupStreamsByAddon
 } = require('../src/routes/MetaDetails/TvDetail/detailLogic');
 
@@ -73,19 +72,6 @@ describe('tvDetail logic', () => {
         it('filters by season', () => {
             const videos = [{ season: 1, episode: 2 }, { season: 2, episode: 1 }, { season: 1, episode: 1 }];
             expect(videosForSeason(videos, 1).map((v) => v.episode)).toEqual([1, 2]);
-        });
-    });
-
-    describe('pickInitialVideoId', () => {
-        const list = [{ id: 'a' }, { id: 'b' }];
-        it('prefers the library video', () => {
-            expect(pickInitialVideoId({ videosForSeason: list, libraryVideoId: 'b' })).toBe('b');
-        });
-        it('falls back to the first', () => {
-            expect(pickInitialVideoId({ videosForSeason: list, libraryVideoId: 'zzz' })).toBe('a');
-        });
-        it('returns null when empty', () => {
-            expect(pickInitialVideoId({ videosForSeason: [], libraryVideoId: 'a' })).toBeNull();
         });
     });
 

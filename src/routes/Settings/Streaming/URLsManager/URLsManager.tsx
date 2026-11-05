@@ -3,7 +3,8 @@
 import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './URLsManager.less';
-import { Button } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import Item from './Item';
 import AddItem from './AddItem';
 import Icon from '@stremio/stremio-icons/react';

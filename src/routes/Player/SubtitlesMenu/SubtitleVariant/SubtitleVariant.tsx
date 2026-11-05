@@ -2,7 +2,8 @@
 
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button } from 'stremio/components';
+// HTPC fork: a focus stop (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import { languages } from 'stremio/common';
 import classNames from 'classnames';
 import styles from './SubtitleVariant.less';

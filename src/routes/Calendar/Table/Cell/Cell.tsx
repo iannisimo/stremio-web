@@ -5,6 +5,8 @@ import Icon from '@stremio/stremio-icons/react';
 import classNames from 'classnames';
 import { useNavigateWithOrigin } from 'stremio-router';
 import { Button, HorizontalScroll, Image } from 'stremio/components';
+// HTPC fork: the day cell is a focus stop (upstream: Button)
+import { FocusButton } from 'stremio/services/Navigation';
 import styles from './Cell.less';
 
 type Props = {
@@ -33,7 +35,7 @@ const Cell = ({ selected, monthInfo, date, items, onClick }: Props) => {
     }, [navigateWithOrigin]);
 
     return (
-        <Button
+        <FocusButton
             className={classNames(styles['cell'], { [styles['active']]: active, [styles['today']]: today })}
             onClick={onCellClick}
         >
@@ -62,7 +64,7 @@ const Cell = ({ selected, monthInfo, date, items, onClick }: Props) => {
                     :
                     null
             }
-        </Button>
+        </FocusButton>
     );
 };
 

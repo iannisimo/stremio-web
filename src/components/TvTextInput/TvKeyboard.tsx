@@ -1,7 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { RefObject } from 'react';
 import Keyboard from 'react-simple-keyboard';
-import { useFocusable, mergeRefs } from 'stremio/services/Navigation';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
+import type { KeyPressDetails } from '@noriginmedia/norigin-spatial-navigation';
 import styles from './TvKeyboard.less';
 
 const LAYOUT = {
@@ -43,8 +44,6 @@ const DISPLAY = {
     '{abc}': 'ABC',
 };
 
-const ACTIVE = styles['active'];
-
 const valueSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
 
 // Sets the value the way typing would, so React's onChange fires.
@@ -72,36 +71,36 @@ const deleteBack = (input: HTMLInputElement) => {
 };
 
 type Props = {
+    focusKey?: string,
     inputRef: RefObject<HTMLInputElement | null>,
-    focusKey: string,
+    // start the highlight on Done instead of the first letter
+    startOnDone?: boolean,
     onDone: () => void,
 };
 
-// On-screen keyboard for the text editor. Navigation sees it as one focus
-// stop; arrows move between keys and leave it only past the top or bottom row.
-const TvKeyboard = ({ inputRef, focusKey, onDone }: Props) => {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const position = useRef({ row: 1, col: 0 });
-    const held = useRef(false);
+type Cursor = { row: number, col: number };
 
-    // Arrow handlers don't get the event; note auto-repeat before they run.
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            held.current = event.repeat;
-        };
-        window.addEventListener('keydown', onKeyDown, true);
-        return () => window.removeEventListener('keydown', onKeyDown, true);
-    }, []);
+const findKey = (rows: string[][], key: string): Cursor => {
+    const row = rows.findIndex((keys) => keys.includes(key));
+    return { row, col: rows[row].indexOf(key) };
+};
+
+const centerX = (element: Element) => {
+    const rect = element.getBoundingClientRect();
+    return rect.left + rect.width / 2;
+};
+
+// On-screen keyboard for the text editor. One focus stop: the arrows move a
+// highlighted key, Enter presses it. ← / → wrap at the row's ends, but a held
+// arrow stops there; ↑ / ↓ go to the nearest key and leave past the first and
+// last rows.
+const TvKeyboard = ({ focusKey, inputRef, startOnDone, onDone }: Props) => {
     const [layoutName, setLayoutName] = useState<keyof typeof LAYOUT>('default');
-
-    const grid = () => Array.from(containerRef.current?.querySelectorAll('.hg-row') ?? [])
-        .map((row) => Array.from(row.querySelectorAll<HTMLElement>('.hg-button')));
-
-    const current = () => {
-        const rows = grid();
-        const { row, col } = position.current;
-        return rows[row]?.[Math.min(col, rows[row].length - 1)] ?? null;
-    };
+    const rows = useMemo(() => LAYOUT[layoutName].map((row) => row.split(' ')), [layoutName]);
+    const [cursor, setCursor] = useState<Cursor>(() => (startOnDone ? findKey(rows, '{enter}') : { row: 1, col: 0 }));
+    // the layouts' rows aren't all the same length
+    const row = Math.min(cursor.row, rows.length - 1);
+    const col = Math.min(cursor.col, rows[row].length - 1);
 
     const press = useCallback((button: string) => {
         const input = inputRef.current;
@@ -120,61 +119,20 @@ const TvKeyboard = ({ inputRef, focusKey, onDone }: Props) => {
         }
     }, [onDone]);
 
-    const move = (direction: string) => {
-        const rows = grid();
-        let { row, col } = position.current;
-        col = Math.min(col, rows[row].length - 1);
-        if (direction === 'left' || direction === 'right') {
-            // wraps around within the row, but a held key stops at the edge
-            const length = rows[row].length;
-            const next = col + (direction === 'left' ? -1 : 1);
-            if ((next < 0 || next >= length) && held.current) return false;
-            col = (next + length) % length;
-        } else {
-            const nextRow = row + (direction === 'up' ? -1 : 1);
-            // past the edge: let the navigation take over (input above, buttons below)
-            if (nextRow < 0 || nextRow >= rows.length) return true;
-            // the key in the next row closest under / above this one
-            const box = rows[row][col].getBoundingClientRect();
-            const x = box.left + box.width / 2;
-            col = rows[nextRow].reduce((best, key, index) => {
-                const rect = key.getBoundingClientRect();
-                const bestRect = rows[nextRow][best].getBoundingClientRect();
-                return Math.abs(rect.left + rect.width / 2 - x) < Math.abs(bestRect.left + bestRect.width / 2 - x) ? index : best;
-            }, 0);
-            row = nextRow;
-        }
-        position.current = { row, col };
-        highlight();
-        return false;
-    };
-
-    const { ref: focusRef, focused } = useFocusable<object, HTMLDivElement>({
-        focusKey,
-        onArrowPress: move,
-        onEnterPress: () => {
-            const key = current();
-            const button = key?.getAttribute('data-skbtn');
-            if (button) press(button);
-        },
-    });
-
-    const highlight = () => {
-        containerRef.current?.querySelectorAll(`.${ACTIVE}`).forEach((key) => key.classList.remove(ACTIVE));
-        if (focused) current()?.classList.add(ACTIVE);
-    };
-
-    // the keyboard redraws its keys on layout changes
-    useEffect(() => {
-        const frame = requestAnimationFrame(highlight);
-        return () => cancelAnimationFrame(frame);
-    }, [focused, layoutName]);
-
     // A real keyboard still types while the on-screen one has focus. The app's
     // shortcuts (Backspace, digits, F) only skip real inputs, so stop them here.
+    // Typing on it moves the highlight to Done, ready to submit.
     const onKeyDown = useCallback((event: React.KeyboardEvent) => {
         const input = inputRef.current;
         if (!input || event.ctrlKey || event.metaKey || event.altKey) return;
+        // Enter (and the remote's Select) presses the highlighted key. Not
+        // Norigin's onEnterPress: that runs late and would also see the Enter
+        // that opened the editor.
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (!event.repeat) press(rows[row][col]);
+            return;
+        }
         if (event.key.length === 1) {
             insert(input, event.key);
         } else if (event.key === 'Backspace') {
@@ -184,10 +142,50 @@ const TvKeyboard = ({ inputRef, focusKey, onDone }: Props) => {
         }
         event.preventDefault();
         event.stopPropagation();
-    }, []);
+        setCursor(findKey(rows, '{enter}'));
+    }, [press, rows, row, col]);
+
+    const onArrowPress = useCallback((direction: string, _props: object, details: KeyPressDetails) => {
+        const held = (details.pressedKeys[direction] ?? 0) > 1;
+        if (direction === 'left' || direction === 'right') {
+            const step = direction === 'left' ? -1 : 1;
+            const length = rows[row].length;
+            const next = col + step;
+            if (next < 0 || next >= length) {
+                if (!held) setCursor({ row, col: (next + length) % length });
+            } else {
+                setCursor({ row, col: next });
+            }
+            return false;
+        }
+        const nextRow = row + (direction === 'up' ? -1 : 1);
+        if (nextRow < 0 || nextRow >= rows.length) return true;
+        const rowElements = ref.current?.querySelectorAll('.hg-row');
+        const from = rowElements?.[row]?.children[col];
+        const targets = Array.from(rowElements?.[nextRow]?.children ?? []);
+        if (!from || targets.length === 0) return false;
+        const x = centerX(from);
+        const nearest = targets.reduce((best, element, index) => (
+            Math.abs(centerX(element) - x) < Math.abs(centerX(targets[best]) - x) ? index : best
+        ), 0);
+        setCursor({ row: nextRow, col: nearest });
+        return false;
+    }, [rows, row, col]);
+
+    const { ref, focused } = useFocusable<object, HTMLDivElement>({ focusKey, onArrowPress });
+
+    // the library draws the keys, so the highlight goes on its DOM
+    useEffect(() => {
+        const rowElements = ref.current?.querySelectorAll('.hg-row');
+        const key = focused ? rowElements?.[row]?.children[col] : null;
+        ref.current?.querySelectorAll(`.${styles['active']}`).forEach((element) => {
+            if (element !== key) element.classList.remove(styles['active']);
+        });
+        key?.classList.add(styles['active']);
+    }, [focused, layoutName, row, col]);
 
     return (
-        <div ref={mergeRefs(containerRef, focusRef)} className={styles['keyboard']} tabIndex={-1} data-text-entry={true} data-tv-arrows={true} onKeyDown={onKeyDown}>
+        <div ref={ref} className={styles['keyboard']} tabIndex={-1} data-text-entry={true} onKeyDown={onKeyDown}>
             <Keyboard
                 theme={'hg-theme-default tv-keyboard'}
                 layout={LAYOUT}

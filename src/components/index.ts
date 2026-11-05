@@ -1,10 +1,9 @@
 // Copyright (C) 2017-2026 Smart code 203358507
 
-import AddonDetailsModal from './AddonDetailsModal';
 import Button from './Button';
 import Checkbox from './Checkbox';
 import Chips from './Chips';
-import ColorInput from './ColorInput';
+import ColorInput from './TvColorInput';
 import ContinueWatchingItem from './ContinueWatchingItem';
 import Scale from './TvScale';
 import DelayedRenderer from './DelayedRenderer';
@@ -29,7 +28,6 @@ import Transition from './Transition';
 import Video from './Video';
 
 export {
-    AddonDetailsModal,
     Button,
     Checkbox,
     Chips,

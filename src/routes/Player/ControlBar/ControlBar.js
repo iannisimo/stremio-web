@@ -4,7 +4,9 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
-const { Button } = require('stremio/components');
+// HTPC fork: the buttons are focus stops in one group (upstream: Button from 'stremio/components')
+const { FocusButton: Button, FocusGroup } = require('stremio/services/Navigation');
+const { BUTTONS_FOCUS_KEY, PLAY_PAUSE_FOCUS_KEY } = require('../TvControls/playerFocusKeys');
 const SeekBar = require('./SeekBar');
 const styles = require('./styles');
 const { t } = require('i18next');
@@ -94,13 +96,13 @@ const ControlBar = React.forwardRef(({
                 seekable={seekable}
                 buffering={buffering}
             />
-            <div className={styles['control-bar-buttons-container']}>
-                <Button focusKey={'player-play'} disabled={typeof paused !== 'boolean'} className={classnames(styles['control-bar-button'], { 'disabled': typeof paused !== 'boolean' })} title={paused ? t('PLAYER_PLAY') : t('PLAYER_PAUSE')} tabIndex={-1} onClick={onPlayPauseButtonClick}>
+            <FocusGroup className={styles['control-bar-buttons-container']} focusKey={BUTTONS_FOCUS_KEY} preferredChildFocusKey={PLAY_PAUSE_FOCUS_KEY}>
+                <Button focusKey={PLAY_PAUSE_FOCUS_KEY} disabled={typeof paused !== 'boolean'} className={classnames(styles['control-bar-button'], { 'disabled': typeof paused !== 'boolean' })} title={paused ? t('PLAYER_PLAY') : t('PLAYER_PAUSE')} tabIndex={-1} onClick={onPlayPauseButtonClick}>
                     <Icon className={styles['icon']} name={typeof paused !== 'boolean' || paused ? 'play' : 'pause'} />
                 </Button>
                 {
                     nextVideo !== null ?
-                        <Button focusKey={'player-next'} className={classnames(styles['control-bar-button'])} title={t('PLAYER_NEXT_VIDEO')} tabIndex={-1} onClick={onNextVideoButtonClick}>
+                        <Button className={classnames(styles['control-bar-button'])} title={t('PLAYER_NEXT_VIDEO')} tabIndex={-1} onClick={onNextVideoButtonClick}>
                             <Icon className={styles['icon']} name={'next'} />
                         </Button>
                         :
@@ -110,32 +112,32 @@ const ControlBar = React.forwardRef(({
                 <div className={classnames(styles['control-bar-buttons-menu-container'], 'open')}>
                     {
                         statisticsAvailable &&
-                            <Button focusKey={'player-statistics'} data-tv-statistics className={styles['control-bar-button']} tabIndex={-1} onMouseDown={onStatisticsButtonMouseDown} onClick={onToggleStatisticsMenu}>
+                            <Button data-tv-statistics className={styles['control-bar-button']} tabIndex={-1} onMouseDown={onStatisticsButtonMouseDown} onClick={onToggleStatisticsMenu}>
                                 <Icon className={styles['icon']} name={'network'} />
                             </Button>
                     }
-                    <Button focusKey={'player-speed'} disabled={playbackSpeed === null} className={classnames(styles['control-bar-button'], { 'disabled': playbackSpeed === null })} tabIndex={-1} onMouseDown={onSpeedButtonMouseDown} onClick={onToggleSpeedMenu}>
+                    <Button disabled={playbackSpeed === null} className={classnames(styles['control-bar-button'], { 'disabled': playbackSpeed === null })} tabIndex={-1} onMouseDown={onSpeedButtonMouseDown} onClick={onToggleSpeedMenu}>
                         <Icon className={styles['icon']} name={'speed'} />
                     </Button>
-                    <Button focusKey={'player-subtitles'} disabled={!Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0} className={classnames(styles['control-bar-button'], { 'disabled': !Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0 })} tabIndex={-1} onMouseDown={onSubtitlesButtonMouseDown} onClick={onToggleSubtitlesMenu}>
+                    <Button disabled={!Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0} className={classnames(styles['control-bar-button'], { 'disabled': !Array.isArray(subtitlesTracks) || subtitlesTracks.length === 0 })} tabIndex={-1} onMouseDown={onSubtitlesButtonMouseDown} onClick={onToggleSubtitlesMenu}>
                         <Icon className={styles['icon']} name={'subtitles'} />
                     </Button>
-                    <Button focusKey={'player-audio'} disabled={!Array.isArray(audioTracks) || audioTracks.length === 0} className={classnames(styles['control-bar-button'], { 'disabled': !Array.isArray(audioTracks) || audioTracks.length === 0 })} tabIndex={-1} onMouseDown={onAudioButtonMouseDown} onClick={onToggleAudioMenu}>
+                    <Button disabled={!Array.isArray(audioTracks) || audioTracks.length === 0} className={classnames(styles['control-bar-button'], { 'disabled': !Array.isArray(audioTracks) || audioTracks.length === 0 })} tabIndex={-1} onMouseDown={onAudioButtonMouseDown} onClick={onToggleAudioMenu}>
                         <Icon className={styles['icon']} name={'audio-tracks'} />
                     </Button>
                     {
                         metaItem?.content?.videos?.length > 0 ?
-                            <Button focusKey={'player-episodes'} className={styles['control-bar-button']} tabIndex={-1} onMouseDown={onVideosButtonMouseDown} onClick={onToggleSideDrawer}>
+                            <Button className={styles['control-bar-button']} tabIndex={-1} onMouseDown={onVideosButtonMouseDown} onClick={onToggleSideDrawer}>
                                 <Icon className={styles['icon']} name={'episodes'} />
                             </Button>
                             :
                             null
                     }
-                    <Button focusKey={'player-scale'} disabled={videoScale === null} className={classnames(styles['control-bar-button'], { 'disabled': videoScale === null })} title={videoScaleLabel} tabIndex={-1} onClick={onVideoScaleChanged}>
+                    <Button disabled={videoScale === null} className={classnames(styles['control-bar-button'], { 'disabled': videoScale === null })} title={videoScaleLabel} tabIndex={-1} onClick={onVideoScaleChanged}>
                         <Icon className={styles['icon']} name={VIDEO_SCALE_ICONS[videoScale || 'contain']} />
                     </Button>
                 </div>
-            </div>
+            </FocusGroup>
         </div>
     );
 });

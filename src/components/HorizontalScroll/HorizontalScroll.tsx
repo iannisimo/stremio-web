@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { keepFocusedInView } from 'stremio/services/Navigation';
 import styles from './HorizontalScroll.less';
 
 const SCROLL_THRESHOLD = 1;
@@ -32,7 +31,7 @@ const HorizontalScroll = ({ className, children }: Props) => {
     }, []);
 
     return (
-        <div ref={ref} className={classNames(styles['horizontal-scroll'], className, [styles[scrollPosition]])} onFocus={keepFocusedInView}>
+        <div ref={ref} className={classNames(styles['horizontal-scroll'], className, [styles[scrollPosition]])}>
             {children}
         </div>
     );

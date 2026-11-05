@@ -5,7 +5,7 @@
 # Only committed changes are built.
 
 pkgname=stremio-htpc-git
-pkgver=5.0.0.beta.43.r7225.g4fed0669
+pkgver=5.0.0.beta.43.r7251.gf1e89372
 pkgrel=1
 pkgdesc="Stremio for the TV: stremio-linux-shell with a remote-first web UI"
 arch=('x86_64')
@@ -35,7 +35,7 @@ _webrepo=${STREMIO_HTPC_WEB_REPO:-https://github.com/iannisimo/stremio-web.git}
 _websrc=stremio-web
 # Local clones get their own mirror, makepkg won't reuse one across URLs.
 [[ $_webrepo == /* ]] && _webrepo=file://$_webrepo _websrc=stremio-web-local
-_webbranch=${STREMIO_HTPC_WEB_BRANCH:-htpc}
+_webbranch=${STREMIO_HTPC_WEB_BRANCH:-nav-reset}
 # Shell main after v1.2.2 (hardware decoding, playback CPU fixes, mpv config).
 # When bumping, check that its server.js still answers CORS for any origin
 # (it does because the shell passes NO_CORS="0", a truthy string).

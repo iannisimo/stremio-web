@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useTranslation } from 'react-i18next';
-import { doesFocusableExist } from '@noriginmedia/norigin-spatial-navigation';
+import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { useCore } from 'stremio/core';
 import useProfile from 'stremio/common/useProfile';
-import Button from 'stremio/components/Button';
 import Image from 'stremio/components/Image';
+import { FocusButton as Button } from 'stremio/services/Navigation';
+import { takeOpenedEpisode } from './openedEpisode';
 import TextInput from 'stremio/components/TextInput';
 import VideoRow from 'stremio/components/Video';
-import { setFocus, useLongPressEnter } from 'stremio/services/Navigation';
+import { useLongPressEnter } from 'stremio/services/Input';
 import EpisodePicker from '../EpisodePicker';
-import { seasonsOf, pickSeason, videosForSeason, pickInitialVideoId } from './detailLogic';
+import { seasonsOf, pickSeason, videosForSeason } from './detailLogic';
 import { EpisodeActions } from './TvRowActions';
 import TvSeasonSwitcher from './TvSeasonSwitcher';
 import styles from './TvEpisodesPanel.less';
@@ -18,18 +19,17 @@ import styles from './TvEpisodesPanel.less';
 // the JS row infers its props too narrowly
 const Video = VideoRow as React.ComponentType<any> & { Placeholder: typeof VideoRow.Placeholder };
 
-const SEARCH_KEY = 'detail-episode-search';
+const episodeFocusKey = (id: string) => `detail:episode:${id}`;
 
 type Props = {
     metaItem: any,
     libraryItem: any,
     season: number | null,
-    returnVideoId: string | null,
     seasonOnSelect: (event: { type: string, value: number }) => void,
     toggleNotifications: () => void,
 };
 
-const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonOnSelect, toggleNotifications }: Props) => {
+const TvEpisodesPanel = ({ metaItem, libraryItem, season, seasonOnSelect, toggleNotifications }: Props) => {
     const { t } = useTranslation();
     const core = useCore();
     const profile = useProfile();
@@ -56,6 +56,18 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
     }, [seasonVideos, search, profile.settings.interfaceLanguage]);
     const showNotifications = !!meta?.inLibrary && videos.length > 0 && !!libraryItem;
 
+    // Once the episodes are there: the one whose streams were just open, else
+    // the one being watched, else the first.
+    const placedFocus = useRef(false);
+    useEffect(() => {
+        if (placedFocus.current || visibleVideos.length === 0) return;
+        placedFocus.current = true;
+        const ids = visibleVideos.map((video) => video.id);
+        const opened = takeOpenedEpisode();
+        const target = [opened, libraryVideoId].find((id) => typeof id === 'string' && ids.includes(id)) ?? ids[0];
+        setFocus(episodeFocusKey(target));
+    }, [visibleVideos, libraryVideoId]);
+
     const onSeasonSelect = useCallback((value: number) => seasonOnSelect({ type: 'select', value }), [seasonOnSelect]);
     const onSeasonSearch = useCallback((value: number) => {
         if (value) onSeasonSelect(value);
@@ -79,46 +91,10 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
         const id = target.closest<HTMLElement>('[data-row-id]')?.dataset.rowId;
         if (id) setMenuVideoId(id);
     }, []));
-    const closeMenu = useCallback(() => {
-        setMenuVideoId((id) => {
-            if (id) window.setTimeout(() => setFocus(`detail-episode-${id}`), 0);
-            return null;
-        });
-    }, []);
+    const closeMenu = useCallback(() => setMenuVideoId(null), []);
     const menuVideo = menuVideoId === null ? null : seasonVideos.find((video) => video.id === menuVideoId);
 
     const onSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setSearch(event.target.value), []);
-
-    // First focus once per title: the episode being watched, else the first.
-    // Not when the user already moved, or a dialog is open.
-    const titleKey: string | undefined = meta?.id;
-    const userMoved = useRef(false);
-    const focusedFor = useRef<string | null>(null);
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key.startsWith('Arrow')) userMoved.current = true;
-        };
-        window.addEventListener('keydown', onKeyDown, true);
-        return () => window.removeEventListener('keydown', onKeyDown, true);
-    }, []);
-    useEffect(() => {
-        if (!ready || titleKey === undefined || focusedFor.current === titleKey) return;
-        const timer = window.setTimeout(() => {
-            if (focusedFor.current === titleKey) return;
-            focusedFor.current = titleKey;
-            if (userMoved.current || document.querySelector('.modals-container > .modal-container')) return;
-            const id = returnVideoId !== null && seasonVideos.some((video) => video.id === returnVideoId) ?
-                returnVideoId
-                :
-                pickInitialVideoId({ videosForSeason: seasonVideos, libraryVideoId });
-            if (id !== null) {
-                setFocus(`detail-episode-${id}`);
-            } else {
-                setFocus(doesFocusableExist('detail-action-trailer') ? 'detail-action-trailer' : 'detail-action-library');
-            }
-        }, 0);
-        return () => window.clearTimeout(timer);
-    }, [ready, titleKey, seasonVideos, returnVideoId, libraryVideoId]);
 
     if (!metaItem || metaItem.content.type === 'Loading') {
         return (
@@ -155,7 +131,6 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
                         null
                 }
                 <TextInput
-                    focusKey={SEARCH_KEY}
                     className={styles['search']}
                     value={search}
                     placeholder={t('SEARCH_VIDEOS')}
@@ -168,7 +143,6 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
                         {
                             selectedSeason !== null ?
                                 <Button
-                                    focusKey={'detail-season-watched'}
                                     className={styles['chip']}
                                     onClick={() => onMarkSeasonAsWatched(selectedSeason, seasonWatched)}
                                 >
@@ -180,7 +154,6 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
                         {
                             showNotifications ?
                                 <Button
-                                    focusKey={'detail-notifications'}
                                     className={classnames(styles['chip'], { [styles['selected']]: !libraryItem.state.noNotif })}
                                     onClick={toggleNotifications}
                                 >
@@ -198,7 +171,7 @@ const TvEpisodesPanel = ({ metaItem, libraryItem, season, returnVideoId, seasonO
                     visibleVideos.map((video) => (
                         <div key={video.id} data-row-id={video.id}>
                             <Video
-                                focusKey={`detail-episode-${video.id}`}
+                                focusKey={episodeFocusKey(video.id)}
                                 id={video.id}
                                 title={video.title}
                                 thumbnail={video.thumbnail}

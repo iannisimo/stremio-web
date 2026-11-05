@@ -1,11 +1,25 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useFocusable, FocusContext } from '@noriginmedia/norigin-spatial-navigation';
 import Image from 'stremio/components/Image';
-import { FocusContext, useFocusGroup } from 'stremio/services/Navigation';
+import { usePageStartFocus, useInSuspenseFallback } from 'stremio/services/Navigation';
 import useDetailBack from './useDetailBack';
 import styles from './TvDetail.less';
 
 export type MetaState = 'none' | 'noAddons' | 'loading' | 'error' | 'ready';
+
+// The first row of the panel (stream or episode), where the page starts.
+export const FIRST_ROW_FOCUS_KEY = 'detail:first-row';
+
+// The info and panel columns, each back on its last focus stop when re-entered.
+const Column = ({ className, children }: { className: string, children: React.ReactNode }) => {
+    const { ref, focusKey } = useFocusable<object, HTMLDivElement>({ saveLastFocusedChild: true });
+    return (
+        <FocusContext.Provider value={focusKey}>
+            <div ref={ref} className={className}>{children}</div>
+        </FocusContext.Provider>
+    );
+};
 
 type Props = {
     meta: { background?: string | null } | null,
@@ -23,15 +37,17 @@ const MESSAGES: Record<string, string> = {
 
 const TvDetail = ({ meta, metaState, info, panel, onBack }: Props) => {
     const { t } = useTranslation();
-    const infoGroup = useFocusGroup<HTMLDivElement>({ focusKey: 'detail-info' });
-    const panelGroup = useFocusGroup<HTMLDivElement>({ focusKey: 'detail-panel' });
     useDetailBack(onBack);
+    // the page container, from Route
+    const pageFocusKey = useContext(FocusContext);
+    const inFallback = useInSuspenseFallback();
+    usePageStartFocus({ enabled: !inFallback, startFocusKey: FIRST_ROW_FOCUS_KEY, returnFocusKey: pageFocusKey, fallbackFocusKey: pageFocusKey });
 
     const background = typeof meta?.background === 'string' && meta.background.length > 0 ? meta.background : null;
     const message = MESSAGES[metaState];
 
     return (
-        <div className={styles['tv-detail']} data-tv-own-focus={true}>
+        <div className={styles['tv-detail']}>
             {
                 background ?
                     <Image className={styles['backdrop']} src={background} alt={' '} renderFallback={() => null} />
@@ -47,16 +63,12 @@ const TvDetail = ({ meta, metaState, info, panel, onBack }: Props) => {
                     </div>
                     :
                     <>
-                        <FocusContext.Provider value={infoGroup.focusKey}>
-                            <div ref={infoGroup.ref} className={styles['info']}>
-                                {info}
-                            </div>
-                        </FocusContext.Provider>
-                        <FocusContext.Provider value={panelGroup.focusKey}>
-                            <div ref={panelGroup.ref} className={styles['panel']}>
-                                {panel}
-                            </div>
-                        </FocusContext.Provider>
+                        <Column className={styles['info']}>
+                            {info}
+                        </Column>
+                        <Column className={styles['panel']}>
+                            {panel}
+                        </Column>
                     </>
             }
         </div>

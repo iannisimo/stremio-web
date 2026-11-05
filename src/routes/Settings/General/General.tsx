@@ -1,7 +1,8 @@
 import React, { forwardRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCore } from 'stremio/core';
-import { Button } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import { usePlatform } from 'stremio/common';
 import { Section, Option, Link } from '../components';
 import User from './User';

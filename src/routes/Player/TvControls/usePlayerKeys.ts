@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { doesFocusableExist } from '@noriginmedia/norigin-spatial-navigation';
-import { addKeyInterceptor, getCurrentFocusKey, setFocus } from 'stremio/services/Navigation';
+import { getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
+import { addKeyInterceptor } from 'stremio/services/Input';
+import { BUTTONS_FOCUS_KEY, PLAY_PAUSE_FOCUS_KEY, SEEK_BAR_FOCUS_KEY } from './playerFocusKeys';
 
 const BACK_KEYS = ['Escape', 'Backspace', 'BrowserBack'];
 const REPEAT_MS = 130;
@@ -14,28 +15,20 @@ type Options = {
     active: boolean,
     playerRef: React.RefObject<HTMLElement>,
     overlayHidden: boolean,
+    playing: boolean,
     // a popup is open (menus or the next video popup)
     popupOpen: boolean,
     seekTimeDuration: number,
     seekShortTimeDuration: number,
     seekBy: (offset: number) => void,
+    pause: () => void,
     // restart the auto-hide countdown
     keepControls: () => void,
-    // close the top popup and put focus back on its button
+    // hide them now (only while playing: paused, they stay)
+    hideControls: () => void,
+    // close the top popup
     closePopup: () => void,
     leave: () => void,
-};
-
-// The seek bar's center sits right of most buttons, so spatial navigation
-// would jump to it: step through the button row in DOM order instead.
-const stepButtons = (root: HTMLElement, direction: number) => {
-    const focused = document.activeElement;
-    const buttons = Array.from(root.querySelectorAll<HTMLElement>('[class*="control-bar-buttons-container-"] [class*="control-bar-button-"]'))
-        .filter((button) => button.offsetParent !== null && !button.classList.contains('disabled'));
-    const index = buttons.findIndex((button) => button === focused);
-    if (index === -1) return false;
-    buttons[index + direction]?.focus();
-    return true;
 };
 
 const isInside = (root: HTMLElement | null) => {
@@ -43,9 +36,12 @@ const isInside = (root: HTMLElement | null) => {
     return root !== null && element instanceof HTMLElement && element !== root && root.contains(element);
 };
 
-// Remote handling for the player. Runs ahead of the navigation, see
-// addKeyInterceptor: hidden controls seek on left/right and wake on up/down/Enter,
-// visible controls restart the hide timer, Back closes popups before it leaves.
+// Remote handling for the player. Runs ahead of other key handlers (and
+// Norigin), see addKeyInterceptor. With the controls hidden (or nothing in them
+// focused): ← / → seek on the seek bar, ↑ goes to the seek bar, ↓ to the
+// button row, Enter pauses on Play/Pause. With the controls up, Norigin moves
+// focus, ← / → on the seek bar keep seeking, and any key restarts the hide
+// timer. Back closes popups, then hides the controls (while playing), then leaves.
 const usePlayerKeys = (options: Options) => {
     const latest = useRef(options);
     latest.current = options;
@@ -75,8 +71,18 @@ const usePlayerKeys = (options: Options) => {
                     if (!event.repeat) o.closePopup();
                     return true;
                 }
-                // Escape goes through the 'exit' shortcut (fullscreen aware)
-                if (event.key === 'Escape') return false;
+                // controls up while playing: Back only hides them
+                if (!o.overlayHidden && o.playing) {
+                    if (!event.repeat) o.hideControls();
+                    return true;
+                }
+                // Escape goes through the 'exit' shortcut (fullscreen aware).
+                // Shortcuts don't mark keys handled, so do it here: the Back
+                // fallback would otherwise go to Home after the player left.
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    return false;
+                }
                 if (!event.repeat) o.leave();
                 return true;
             }
@@ -92,14 +98,22 @@ const usePlayerKeys = (options: Options) => {
                     case 'ArrowLeft':
                     case 'ArrowRight':
                         seek(event, event.key === 'ArrowLeft' ? -1 : 1);
+                        if (!event.repeat) setFocus(SEEK_BAR_FOCUS_KEY);
                         return true;
                     case 'ArrowUp':
                     case 'ArrowDown':
-                    case 'Enter':
-                        if (event.key === 'Enter') swallowEnter.current = true;
                         if (!event.repeat) {
                             o.keepControls();
-                            setTimeout(() => setFocus('player-play'), 0);
+                            setFocus(event.key === 'ArrowUp' ? SEEK_BAR_FOCUS_KEY : BUTTONS_FOCUS_KEY);
+                        }
+                        return true;
+                    case 'Enter':
+                        // the same press must not also click Play/Pause
+                        swallowEnter.current = true;
+                        if (!event.repeat) {
+                            o.pause();
+                            o.keepControls();
+                            setFocus(PLAY_PAUSE_FOCUS_KEY);
                         }
                         return true;
                     default:
@@ -107,27 +121,13 @@ const usePlayerKeys = (options: Options) => {
                 }
             }
 
-            if (event.key === 'Enter' && swallowEnter.current) return true;
-            o.keepControls();
-            if (getCurrentFocusKey() === 'player-seek') {
-                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                    seek(event, event.key === 'ArrowLeft' ? -1 : 1);
-                    return true;
-                }
-                if (event.key === 'ArrowDown' && doesFocusableExist('player-play')) {
-                    setFocus('player-play');
-                    return true;
-                }
-            }
-            const buttonsRow = document.activeElement?.closest('[class*="control-bar-buttons-container-"]');
-            if (buttonsRow && (event.key === 'ArrowLeft' || event.key === 'ArrowRight') && o.playerRef.current) {
-                return stepButtons(o.playerRef.current, event.key === 'ArrowLeft' ? -1 : 1);
-            }
-            // the bar touches the row, which spatial navigation doesn't count as above
-            if (buttonsRow && event.key === 'ArrowUp' && doesFocusableExist('player-seek')) {
-                setFocus('player-seek');
+            if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && getCurrentFocusKey() === SEEK_BAR_FOCUS_KEY) {
+                seek(event, event.key === 'ArrowLeft' ? -1 : 1);
                 return true;
             }
+
+            if (event.key === 'Enter' && swallowEnter.current) return true;
+            o.keepControls();
             return false;
         });
 

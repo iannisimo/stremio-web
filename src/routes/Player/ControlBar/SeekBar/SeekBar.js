@@ -9,8 +9,9 @@ const { useTranslation } = require('react-i18next');
 const { default: useRouteFocused } = require('stremio/common/useRouteFocused');
 const { useBinaryState } = require('stremio/common');
 const { getInterfaceScale } = require('stremio/common/interfaceScale');
+const { useFocusable } = require('@noriginmedia/norigin-spatial-navigation');
 const { Button, Slider } = require('stremio/components');
-const { useFocusable, mergeRefs } = require('stremio/services/Navigation');
+const { SEEK_BAR_FOCUS_KEY } = require('../../TvControls/playerFocusKeys');
 const formatTime = require('./formatTime');
 const styles = require('./styles');
 
@@ -22,9 +23,8 @@ const SeekBar = ({ className, time, duration, buffered, onSeekRequested, onPlayR
     const maximum = live ? seekable ? liveTiming.end : 100 : duration;
     const disabled = !seekable || !Number.isFinite(time) || !Number.isFinite(maximum) || maximum <= minimum;
     const routeFocused = useRouteFocused();
-    const sliderRef = React.useRef(null);
-    const { ref: focusRef } = useFocusable({ focusKey: 'player-seek', focusable: !disabled });
-    const setSliderRef = React.useMemo(() => mergeRefs(sliderRef, focusRef), [focusRef]);
+    // HTPC fork: the slider is a focus stop (upstream: React.useRef(null))
+    const { ref: sliderRef } = useFocusable({ focusKey: SEEK_BAR_FOCUS_KEY });
     const [seekTime, setSeekTime] = React.useState(null);
     const [hover, setHover] = React.useState(null);
     const displayedTime = seekTime !== null ? seekTime : time;
@@ -90,7 +90,7 @@ const SeekBar = ({ className, time, duration, buffered, onSeekRequested, onPlayR
                         formatTime(currentTime)
                 }
             </div>
-            <div ref={setSliderRef} tabIndex={disabled ? -1 : 0} className={styles['slider-wrapper']} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+            <div ref={sliderRef} tabIndex={disabled ? -1 : 0} className={styles['slider-wrapper']} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
                 <Slider
                     className={classnames(styles['slider'], { 'active': seekTime !== null, [styles['live-slider']]: live })}
                     value={
@@ -130,7 +130,7 @@ const SeekBar = ({ className, time, duration, buffered, onSeekRequested, onPlayR
                 <div className={styles['live-action']}>
                     {seekable && (behindLive || paused) && <Button className={styles['go-live']} role={'button'} onClick={goLive}>{t('PLAYER_GO_LIVE', { defaultValue: 'Go live' })}</Button>}
                 </div>
-                : <Button focusable={false} onClick={toggleRemainingTimeMode} tabIndex={-1}>
+                : <Button onClick={toggleRemainingTimeMode} tabIndex={-1}>
                     <div className={styles['label']}>
                         {remainingTimeMode && duration !== null && !isNaN(duration)
                             ? formatTime((duration - currentTime)/playbackSpeed, '-')

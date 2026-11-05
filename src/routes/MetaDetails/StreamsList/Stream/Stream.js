@@ -6,12 +6,14 @@ const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { useCore } = require('stremio/core');
 const { useProfile, usePlatform, useToast } = require('stremio/common');
+const { useFocusable } = require('@noriginmedia/norigin-spatial-navigation');
 const { Button, Image } = require('stremio/components');
 const ActionButton = require('stremio/components/MetaPreview/ActionButton');
 const StreamPlaceholder = require('./StreamPlaceholder');
 const styles = require('./styles');
 
-const Stream = ({ className = '', compact = false, isEpg = false, videoId = undefined, videoReleased = undefined, addonName, name, description, thumbnail = undefined, progress, deepLinks, externalPlayerCallbackCanMarkWatched, focusKey = undefined, ...props }) => {
+const Stream = ({ className = '', compact = false, isEpg = false, videoId = undefined, videoReleased = undefined, addonName, name, description, thumbnail = undefined, progress, deepLinks, externalPlayerCallbackCanMarkWatched, focusKey, ...props }) => {
+    const { ref: focusRef } = useFocusable({ focusKey });
     const profile = useProfile();
     const toast = useToast();
     const platform = usePlatform();
@@ -89,13 +91,13 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
 
     const renderLabel = React.useMemo(() => function renderLabel({ className, children, ...props }) {
         if (compact) {
-            return <ActionButton className={classnames(className, styles['stream-action'])} icon={'play'} label={name || addonName} variant={'wide'} href={href} target={target} download={download} onClick={onClick} {...props}>
+            return <ActionButton ref={focusRef} className={classnames(className, styles['stream-action'])} icon={'play'} label={name || addonName} variant={'wide'} href={href} target={target} download={download} onClick={onClick} {...props}>
                 {children}
             </ActionButton>;
         }
 
         return (
-            <Button className={classnames(className, styles['stream-container'])} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
+            <Button ref={focusRef} className={classnames(className, styles['stream-container'])} title={addonName} href={href} target={target} download={download} onClick={onClick} {...props}>
                 <div className={styles['info-container']}>
                     {
                         typeof thumbnail === 'string' && thumbnail.length > 0 ?
@@ -130,13 +132,14 @@ const Stream = ({ className = '', compact = false, isEpg = false, videoId = unde
     }, [compact, thumbnail, progress, addonName, name, description, href, target, download, onClick]);
 
     // HTPC fork: no popup menu; long press / right click opens our row actions
-    return renderLabel({ className, focusKey });
+    return renderLabel({ className });
 };
 
 Stream.Placeholder = StreamPlaceholder;
 
 Stream.propTypes = {
     className: PropTypes.string,
+    focusKey: PropTypes.string,
     compact: PropTypes.bool,
     isEpg: PropTypes.bool,
     videoId: PropTypes.string,
@@ -165,7 +168,6 @@ Stream.propTypes = {
         })
     }),
     externalPlayerCallbackCanMarkWatched: PropTypes.bool,
-    focusKey: PropTypes.string,
     onClick: PropTypes.func
 };
 

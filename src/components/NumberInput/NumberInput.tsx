@@ -5,7 +5,8 @@ import React, { ChangeEvent, forwardRef, memo, useCallback, useState } from 'rea
 import { type KeyboardEvent, type InputHTMLAttributes } from 'react';
 import classnames from 'classnames';
 import styles from './NumberInput.less';
-import Button from '../Button';
+// HTPC fork: the - / + buttons are focus stops (upstream: '../Button')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
     containerClassName?: string;

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import styles from './Link.less';
 
 type Props = {

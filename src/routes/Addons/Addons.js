@@ -7,10 +7,9 @@ const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { useCore } = require('stremio/core');
-const { usePlatform, useBinaryState, withCoreSuspender } = require('stremio/common');
-const { AddonDetailsModal, Button, Image, MainNavBars, ModalDialog, SearchBar, SharePrompt, TextInput, MultiselectMenu } = require('stremio/components');
+const { usePlatform, useBinaryState, useProfile, withCoreSuspender } = require('stremio/common');
+const { Button, Image, MainNavBars, ModalDialog, SearchBar, SharePrompt, TextInput, MultiselectMenu } = require('stremio/components');
 const useToast = require('stremio/common/Toast/useToast');
-const receivesWatchActivity = require('stremio/components/AddonDetailsModal/receivesWatchActivity');
 const Addon = require('./Addon');
 const useInstalledAddons = require('./useInstalledAddons');
 const useRemoteAddons = require('./useRemoteAddons');
@@ -20,9 +19,10 @@ const styles = require('./styles');
 const { AddonPlaceholder } = require('./AddonPlaceholder');
 const { default: TvAddonsNotice } = require('./TvAddonsNotice');
 
-// HTPC fork: a notice to use web/mobile instead of the list; install links
-// (`?addon=`) still open the details dialog below
+// HTPC fork: a notice to use web/mobile instead of the list
 const SHOW_ADDONS_LIST = false;
+// HTPC fork: the notice's log-in button (logged out), where the page starts
+const NOTICE_FOCUS_KEY = 'addons:notice';
 
 const Addons = () => {
     const { type, transportUrl, catalogId } = useParams();
@@ -34,11 +34,12 @@ const Addons = () => {
     }), [type, transportUrl, catalogId]);
     const { t } = useTranslation();
     const platform = usePlatform();
+    const profile = useProfile();
     const core = useCore();
     const toast = useToast();
     const installedAddons = useInstalledAddons(urlParams);
     const remoteAddons = useRemoteAddons(urlParams);
-    const [addonDetailsTransportUrl, setAddonDetailsTransportUrl] = useAddonDetailsTransportUrl(urlParams);
+    const [, setAddonDetailsTransportUrl] = useAddonDetailsTransportUrl(urlParams);
     const selectInputs = useSelectableInputs(installedAddons, remoteAddons);
     const [filtersModalOpen, openFiltersModal, closeFiltersModal] = useBinaryState(false);
     const [addAddonModalOpen, openAddAddonModal, closeAddAddonModal] = useBinaryState(false);
@@ -86,11 +87,8 @@ const Addons = () => {
     const onAddonShare = React.useCallback((event) => {
         setSharedAddon(event.dataset.addon);
     }, []);
+    // HTPC fork: no addon details dialog, so no consent step for watch activity addons
     const onAddonInstall = React.useCallback((event) => {
-        if (receivesWatchActivity(event.dataset.addon.manifest)) {
-            setAddonDetailsTransportUrl(event.dataset.addon.transportUrl);
-            return;
-        }
         core.transport.dispatch({
             action: 'Ctx',
             args: {
@@ -98,7 +96,7 @@ const Addons = () => {
                 args: event.dataset.addon,
             }
         });
-    }, [setAddonDetailsTransportUrl]);
+    }, []);
     const onAddonUninstall = React.useCallback((event) => {
         core.transport.dispatch({
             action: 'Ctx',
@@ -113,9 +111,6 @@ const Addons = () => {
     }, []);
     const onAddonOpen = React.useCallback((event) => {
         setAddonDetailsTransportUrl(event.dataset.addon.transportUrl);
-    }, [setAddonDetailsTransportUrl]);
-    const closeAddonDetails = React.useCallback(() => {
-        setAddonDetailsTransportUrl(null);
     }, [setAddonDetailsTransportUrl]);
     const searchFilterPredicate = React.useCallback((addon) => {
         return search.length === 0 ||
@@ -133,8 +128,8 @@ const Addons = () => {
         clearSharedAddon();
     }, [urlParams, queryParams]);
     return (
-        <MainNavBars className={styles['addons-container']} route={'addons'}>
-            {!SHOW_ADDONS_LIST && <TvAddonsNotice />}
+        <MainNavBars className={styles['addons-container']} route={'addons'} startFocusKey={!SHOW_ADDONS_LIST && profile.auth === null ? NOTICE_FOCUS_KEY : undefined}>
+            {!SHOW_ADDONS_LIST && <TvAddonsNotice focusKey={NOTICE_FOCUS_KEY} />}
             {SHOW_ADDONS_LIST &&
             <div className={styles['addons-content']}>
                 <div className={styles['selectable-inputs-container']}>
@@ -309,15 +304,6 @@ const Addons = () => {
                             url={sharedAddon.transportUrl}
                         />
                     </ModalDialog>
-                    :
-                    null
-            }
-            {
-                typeof addonDetailsTransportUrl === 'string' ?
-                    <AddonDetailsModal
-                        transportUrl={addonDetailsTransportUrl}
-                        onCloseRequest={closeAddonDetails}
-                    />
                     :
                     null
             }

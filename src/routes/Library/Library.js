@@ -16,6 +16,8 @@ const useSelectableInputs = require('./useSelectableInputs');
 const styles = require('./styles');
 
 const SCROLL_TO_BOTTOM_TRESHOLD = 400;
+// HTPC fork: the logged-out notice's buttons, where the page starts
+const NOTICE_FOCUS_KEY = 'library:notice';
 
 function withModel(Library) {
     const LibraryWithModel = () => {
@@ -71,7 +73,7 @@ const Library = ({ model }) => {
         }
     }, [typeSelect.value, library.selected]);
     return (
-        <MainNavBars className={styles['library-container']} route={model}>
+        <MainNavBars className={styles['library-container']} route={model} startFocusKey={profile.auth !== null ? `${model}:grid` : NOTICE_FOCUS_KEY}>
             {
                 profile.auth !== null ?
                     <div className={styles['library-content']}>
@@ -108,6 +110,7 @@ const Library = ({ model }) => {
                                                 <LibItem
                                                     {...libItem}
                                                     key={index}
+                                                    focusKey={index === 0 ? `${model}:grid` : undefined}
                                                     notifications={notifications}
                                                     removable={model === 'library'}
                                                     detailsVideosFirst={model === 'library'}
@@ -118,7 +121,7 @@ const Library = ({ model }) => {
                         }
                     </div>
                     :
-                    <Placeholder />
+                    <Placeholder focusKey={NOTICE_FOCUS_KEY} />
             }
         </MainNavBars>
     );

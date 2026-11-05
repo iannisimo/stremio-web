@@ -7,22 +7,24 @@ const { useTranslation } = require('react-i18next');
 const { useHover } = require('react-aria/useHover');
 const filterInvalidDOMProps = require('filter-invalid-dom-props').default;
 const { useNavigateWithOrigin } = require('stremio-router');
+const { useFocusable } = require('@noriginmedia/norigin-spatial-navigation');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { default: Button } = require('stremio/components/Button');
 const { default: Image } = require('stremio/components/Image');
-const { useLongPressEnter } = require('stremio/services/Navigation');
+const { useLongPressEnter } = require('stremio/services/Input');
 const useBinaryState = require('stremio/common/useBinaryState');
 const { default: getMetaDetailsHref } = require('stremio/common/getMetaDetailsHref');
 const { ICON_FOR_TYPE } = require('stremio/common/CONSTANTS');
 const TvMetaItemActions = require('./TvMetaItemActions');
 const styles = require('./styles');
 
-const MetaItem = React.memo(({ className, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, href: customHref, dataset, optionOnSelect, onPlayClick, watched, live, metaItem, ...props }) => {
+const MetaItem = React.memo(({ className, focusKey, type, name, poster, posterShape, posterChangeCursor, progress, newVideos, options, deepLinks, href: customHref, dataset, optionOnSelect, onPlayClick, watched, live, metaItem, ...props }) => {
     const { t } = useTranslation();
     const artwork = poster && typeof poster === 'object' ? poster : { src: poster, shape: posterShape, changeCursor: posterChangeCursor };
     const { navigateWithOrigin } = useNavigateWithOrigin();
     const [menuOpen, onMenuOpen, onMenuClose] = useBinaryState(false);
     const { hoverProps, isHovered } = useHover({});
+    const { ref: focusRef } = useFocusable({ focusKey });
     const href = React.useMemo(() => {
         return typeof customHref === 'string' ? customHref : getMetaDetailsHref(deepLinks);
     }, [customHref, deepLinks]);
@@ -73,7 +75,7 @@ const MetaItem = React.memo(({ className, type, name, poster, posterShape, poste
     ), [type]);
     return (
         <div {...hoverProps} {...longPress} className={classnames(className, styles['meta-item-container'], styles['poster-shape-poster'], styles[`poster-shape-${artwork.shape === 'square' ? 'poster' : artwork.shape}`], { 'active': menuOpen, 'hovered': isHovered })}>
-            <Button title={name} href={href} {...filterInvalidDOMProps(props)} className={styles['meta-item-link']} onClick={metaItemOnClick}>
+            <Button ref={focusRef} title={name} href={href} {...filterInvalidDOMProps(props)} className={styles['meta-item-link']} onClick={metaItemOnClick}>
                 <div className={classnames(styles['poster-container'], { 'poster-change-cursor': artwork.changeCursor })}>
                     {
                         watched ?
@@ -159,6 +161,7 @@ MetaItem.displayName = 'MetaItem';
 
 MetaItem.propTypes = {
     className: PropTypes.string,
+    focusKey: PropTypes.string,
     type: PropTypes.string,
     name: PropTypes.string,
     poster: PropTypes.oneOfType([

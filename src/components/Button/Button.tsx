@@ -1,10 +1,9 @@
 // Copyright (C) 2017-2023 Smart code 203358507
 
-import { createElement, forwardRef, useCallback, useMemo } from 'react';
+import { createElement, forwardRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import { LongPressEventType, useLongPress } from 'use-long-press';
-import { useFocusable, mergeRefs } from 'stremio/services/Navigation';
 import styles from './Button.less';
 
 type Props = {
@@ -17,10 +16,6 @@ type Props = {
     disabled?: boolean,
     role?: React.AriaRole,
     tabIndex?: number,
-    focusable?: boolean,
-    focusKey?: string,
-    // return false to stop spatial navigation for that arrow
-    onArrowPress?: (direction: string) => boolean,
     children: React.ReactNode,
     onKeyDown?: (event: React.KeyboardEvent) => void,
     onMouseDown?: (event: React.MouseEvent) => void,
@@ -31,14 +26,8 @@ type Props = {
     onDoubleClick?: () => void,
 };
 
-const Button = forwardRef(({ className, href, disabled, children, onLongPress, onDoubleClick, focusable = true, focusKey, onArrowPress, ...props }: Props, ref) => {
+const Button = forwardRef(({ className, href, disabled, children, onLongPress, onDoubleClick, ...props }: Props, ref) => {
     const longPress = useLongPress(onLongPress!, { detect: LongPressEventType.Pointer });
-    const { ref: focusRef } = useFocusable({
-        focusable: focusable && !disabled,
-        focusKey,
-        onArrowPress: onArrowPress ? (direction: string) => onArrowPress(direction) : undefined,
-    });
-    const setRef = useMemo(() => mergeRefs(focusRef, ref as React.Ref<HTMLElement>), [ref]);
     const to = typeof href === 'string' && href.startsWith('#/') && typeof props.download !== 'string' ? href.slice(1) : null;
     const component: React.ElementType = to !== null ? Link : typeof href === 'string' && href.length > 0 ? 'a' : 'div';
 
@@ -77,7 +66,7 @@ const Button = forwardRef(({ className, href, disabled, children, onLongPress, o
         {
             tabIndex: 0,
             ...props,
-            ref: setRef,
+            ref,
             className: classNames(className, styles['button-container'], { 'disabled': disabled }),
             href,
             ...(to !== null ? { to } : {}),

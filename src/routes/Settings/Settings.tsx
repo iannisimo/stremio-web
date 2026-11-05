@@ -7,7 +7,7 @@ import { useProfile, useStreamingServer, useRouteFocused, withCoreSuspender } fr
 import { MainNavBars } from 'stremio/components';
 import { SECTIONS } from './constants';
 import TvPane from './TvPane';
-import Menu from './TvMenu'; // HTPC fork: two-pane section list, upstream './Menu'
+import Menu, { MENU_FOCUS_KEY } from './TvMenu'; // HTPC fork: two-pane section list, upstream './Menu'
 import General from './General';
 import Interface from './Interface';
 import Player from './Player';
@@ -82,7 +82,7 @@ const Settings = () => {
     }, [routeFocused]);
 
     return (
-        <MainNavBars className={styles['settings-container']} route={'settings'}>
+        <MainNavBars className={styles['settings-container']} route={'settings'} startFocusKey={MENU_FOCUS_KEY}>
             <div className={classnames(styles['settings-content'], 'animation-fade-in')}>
                 <Menu
                     selected={selectedSectionId}
@@ -90,7 +90,7 @@ const Settings = () => {
                     onSelect={onMenuSelect}
                 />
 
-                <TvPane ref={sectionsContainerRef} className={styles['sections-container']} onScroll={onContainerScroll}>
+                <TvPane ref={sectionsContainerRef} className={styles['sections-container']} backFocusKey={MENU_FOCUS_KEY} onScroll={onContainerScroll}>
                     {
                         selectedSectionId === SECTIONS.GENERAL && <General
                             ref={generalSectionRef}
@@ -126,7 +126,7 @@ const Settings = () => {
 };
 
 const SettingsFallback = () => (
-    <MainNavBars className={styles['settings-container']} route={'settings'} />
+    <MainNavBars className={styles['settings-container']} route={'settings'} startFocusKey={MENU_FOCUS_KEY} />
 );
 
 export default withCoreSuspender(Settings, SettingsFallback);

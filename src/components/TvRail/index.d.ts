@@ -12,6 +12,7 @@ type Tab = {
 
 type Props = {
     className?: string,
+    focusKey: string,
     selected?: string,
     tabs: Tab[],
 };

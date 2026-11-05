@@ -4,7 +4,7 @@ const React = require('react');
 const { createPath, useLocation } = require('react-router');
 const { useCore } = require('stremio/core');
 const { CONSTANTS, withCoreSuspender, useModelState, useProfile, useToast } = require('stremio/common');
-const { default: StreamingServerUrlModal } = require('./StreamingServerUrlModal');
+const { default: StreamingServerUrlModal } = require('./TvServerUrlDialog');
 
 const DEFAULT_STREAMING_SERVER_URLS = new Set([
     new URL(CONSTANTS.DEFAULT_STREAMING_SERVER_URL).href,

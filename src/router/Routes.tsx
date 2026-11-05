@@ -17,6 +17,8 @@ type CachedView = {
 };
 
 const VIEW_COUNT = Math.max(...routerPaths.map((route) => route.view)) + 1;
+// HTPC fork: see the view transition below
+const VIEW_TRANSITION_TIMEOUT = 200;
 
 const getRouteForLocation = (location: Location) => {
     return routerPaths.find((route) => matchPath({ path: route.path, end: true }, location.pathname));
@@ -79,10 +81,26 @@ const Routes = () => {
             typeof document.startViewTransition === 'function' &&
             !window.matchMedia('(prefers-reduced-motion: reduce)').matches
         ) {
-            const transition = document.startViewTransition(() => flushSync(updateViews));
+            // HTPC fork: the transition only runs the update after a rendered
+            // frame, and a window that isn't drawn (another workspace) renders
+            // none, so the page would stay until it shows again. Past a short
+            // wait, skip the transition and update directly, once.
+            let updated = false;
+            const update = () => {
+                if (updated) return;
+                updated = true;
+                flushSync(updateViews);
+            };
+            const transition = document.startViewTransition(update);
             // a push that lands while another transition runs skips it, and
             // the skipped one rejects `ready`
             transition.ready.catch(() => undefined);
+            const fallback = setTimeout(() => {
+                if (updated) return;
+                transition.skipTransition();
+                update();
+            }, VIEW_TRANSITION_TIMEOUT);
+            transition.updateCallbackDone.finally(() => clearTimeout(fallback)).catch(() => undefined);
         } else {
             updateViews();
         }
@@ -97,7 +115,7 @@ const Routes = () => {
                     <RRoutes key={view.key} location={view.location}>
                         <RRoute
                             path={view.route.path}
-                            element={<Route component={view.route.element} focused={index === visibleViews.length - 1} view={view.route.view} />}
+                            element={<Route component={view.route.element} focused={index === visibleViews.length - 1} focusKey={view.key} />}
                         />
                     </RRoutes>
                 ))

@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import { useTranslation } from 'react-i18next';
 import classnames from 'classnames';
 import { useCore } from 'stremio/core';
-import useRouteFocused from 'stremio/common/useRouteFocused';
-import Button from 'stremio/components/Button';
+import useRouteFocused, { useRouteActive } from 'stremio/common/useRouteFocused';
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import TextInput from 'stremio/components/TextInput';
-import { FocusContext, useFocusGroup, setFocus, useRouteScope } from 'stremio/services/Navigation';
 import useLinkCode from './useLinkCode';
 import styles from './TvIntro.less';
 
@@ -23,12 +23,11 @@ const Field = (props: React.ComponentProps<typeof TextInput>) => (
 );
 
 type CodeLoginProps = {
-    keys: Record<string, string>,
     onStandardLogin: () => void,
     onGuest: () => void,
 };
 
-const CodeLogin = ({ keys, onStandardLogin, onGuest }: CodeLoginProps) => {
+const CodeLogin = ({ onStandardLogin, onGuest }: CodeLoginProps) => {
     const { t } = useTranslation();
     const { linkCode, status, refresh } = useLinkCode(true);
 
@@ -45,12 +44,12 @@ const CodeLogin = ({ keys, onStandardLogin, onGuest }: CodeLoginProps) => {
                 <div className={styles['actions']}>
                     {
                         status === 'error' ?
-                            <Button className={styles['action']} focusKey={keys.refresh} onClick={refresh}>New code</Button>
+                            <Button focusKey={'intro:new-code'} className={styles['action']} onClick={refresh}>New code</Button>
                             :
                             null
                     }
-                    <Button className={styles['action']} focusKey={keys.standard} onClick={onStandardLogin}>Standard login</Button>
-                    <Button className={styles['action']} onClick={onGuest}>Enter as guest</Button>
+                    <Button focusKey={'intro:standard'} className={styles['action']} onClick={onStandardLogin}>Standard login</Button>
+                    <Button focusKey={'intro:guest'} className={styles['action']} onClick={onGuest}>Enter as guest</Button>
                 </div>
             </div>
             <div className={classnames(styles['code-container'], { [styles['dimmed']]: status !== 'waiting' })}>
@@ -69,7 +68,7 @@ const CodeLogin = ({ keys, onStandardLogin, onGuest }: CodeLoginProps) => {
     );
 };
 
-const StandardLogin = ({ keys, onBack }: { keys: Record<string, string>, onBack: () => void }) => {
+const StandardLogin = ({ onBack }: { onBack: () => void }) => {
     const { t } = useTranslation();
     const core = useCore();
     const [email, setEmail] = useState('');
@@ -80,12 +79,10 @@ const StandardLogin = ({ keys, onBack }: { keys: Record<string, string>, onBack:
     const login = useCallback(() => {
         if (email.trim().length === 0) {
             setError(t('INVALID_EMAIL'));
-            setFocus(keys.email);
             return;
         }
         if (password.length === 0) {
             setError(t('INVALID_PASSWORD'));
-            setFocus(keys.password);
             return;
         }
         setError('');
@@ -117,15 +114,14 @@ const StandardLogin = ({ keys, onBack }: { keys: Record<string, string>, onBack:
             </div>
             <div className={styles['form']}>
                 <Field
-                    focusKey={keys.email}
+
                     type={'email'}
                     placeholder={t('EMAIL')}
                     value={email}
                     onChange={(event) => setEmail(event.currentTarget.value)}
-                    onSubmit={() => setFocus(keys.password)}
                 />
                 <Field
-                    focusKey={keys.password}
+
                     type={'password'}
                     placeholder={t('PASSWORD')}
                     value={password}
@@ -134,10 +130,10 @@ const StandardLogin = ({ keys, onBack }: { keys: Record<string, string>, onBack:
                 />
                 {error ? <div className={styles['error']}>{error}</div> : null}
                 <div className={styles['actions']}>
-                    <Button className={styles['action']} focusKey={keys.submit} disabled={busy} onClick={login}>
+                    <Button focusKey={'intro:login'} className={styles['action']} disabled={busy} onClick={login}>
                         {busy ? t('AUTHENTICATING') : t('LOG_IN')}
                     </Button>
-                    <Button className={styles['action']} focusKey={keys.back} onClick={onBack}>Log in with a code</Button>
+                    <Button focusKey={'intro:code'} className={styles['action']} onClick={onBack}>Log in with a code</Button>
                 </div>
             </div>
         </div>
@@ -148,28 +144,8 @@ const TvIntro = () => {
     const core = useCore();
     const navigate = useNavigate();
     const routeFocused = useRouteFocused();
-    const scope = useRouteScope();
+    const routeActive = useRouteActive();
     const [mode, setMode] = useState<Mode>('code');
-    const group = useFocusGroup<HTMLDivElement>({ focusKey: `${scope}-intro`, saveLastFocusedChild: false });
-
-    const keys = {
-        standard: `${scope}-intro-standard`,
-        refresh: `${scope}-intro-refresh`,
-        email: `${scope}-intro-email`,
-        password: `${scope}-intro-password`,
-        submit: `${scope}-intro-submit`,
-        back: `${scope}-intro-back`,
-    };
-
-    // Focus the first control of each mode; going back lands on the button that left it.
-    // Not again when a dialog over the route closes.
-    const focusedMode = useRef<Mode | null>(null);
-    useEffect(() => {
-        if (!routeFocused || focusedMode.current === mode) return;
-        focusedMode.current = mode;
-        const frame = requestAnimationFrame(() => setFocus(mode === 'code' ? keys.standard : keys.email));
-        return () => cancelAnimationFrame(frame);
-    }, [mode, routeFocused]);
 
     useEffect(() => {
         if (!routeFocused || mode !== 'standard') return;
@@ -186,6 +162,11 @@ const TvIntro = () => {
     }, [routeFocused, mode]);
 
     useEffect(() => {
+        if (!routeActive) return;
+        setFocus(mode === 'code' ? 'intro:standard' : 'intro:login');
+    }, [routeActive, mode]);
+
+    useEffect(() => {
         const onCoreEvent = (name: string) => {
             if (name === 'UserAuthenticated' && routeFocused) navigate('/');
         };
@@ -194,17 +175,15 @@ const TvIntro = () => {
     }, [routeFocused]);
 
     return (
-        <FocusContext.Provider value={group.focusKey}>
-            <div ref={group.ref} className={styles['tv-intro']}>
-                <img className={styles['logo']} src={require('/assets/images/logo.png')} alt={''} />
-                {
-                    mode === 'code' ?
-                        <CodeLogin keys={keys} onStandardLogin={() => setMode('standard')} onGuest={() => navigate('/')} />
-                        :
-                        <StandardLogin keys={keys} onBack={() => setMode('code')} />
-                }
-            </div>
-        </FocusContext.Provider>
+        <div className={styles['tv-intro']}>
+            <img className={styles['logo']} src={require('/assets/images/logo.png')} alt={''} />
+            {
+                mode === 'code' ?
+                    <CodeLogin onStandardLogin={() => setMode('standard')} onGuest={() => navigate('/')} />
+                    :
+                    <StandardLogin onBack={() => setMode('code')} />
+            }
+        </div>
     );
 };
 

@@ -1,0 +1,144 @@
+// shows through see-through colors
+.checkerboard() {
+    background: repeating-conic-gradient(#8a8a8e 0% 25%, #d8d8dc 0% 50%) 0 0 / 1rem 1rem;
+}
+
+.color-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .transparent-label {
+        color: var(--tv-text);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+}
+
+.picker {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    // the swatches' full row when there's room; narrower screens shrink the
+    // sliders and scroll the swatches (16rem: the dialog's side padding)
+    width: 53rem;
+    max-width: calc(100vw - 16rem);
+    margin-top: 2.5rem;
+    overflow: visible;
+}
+
+.preview {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .preview-color {
+        width: 8rem;
+        height: 4rem;
+        border-radius: 1rem;
+        border: 1px solid var(--tv-stroke-strong);
+        .checkerboard();
+    }
+
+    .preview-label {
+        font-size: 1.4rem;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--tv-text);
+    }
+}
+
+// one row; the browser scrolls it to the focused swatch. The padding keeps the
+// focused swatch's ring and scale inside the scrolling box.
+.swatches {
+    display: flex;
+    gap: 1rem;
+    padding: 0.75rem;
+    margin: -0.75rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-padding-inline: 0.75rem;
+    scrollbar-width: none;
+}
+
+.swatch {
+    flex: none;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0.3rem;
+    border-radius: 50%;
+    transition: transform 0.18s var(--tv-ease), box-shadow 0.15s ease;
+
+    .swatch-color {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 1px solid var(--tv-stroke-strong);
+        .checkerboard();
+    }
+
+    &.selected {
+        box-shadow: 0 0 0 2px var(--tv-text-2);
+    }
+
+    &:focus {
+        outline: none;
+        transform: scale(1.15);
+        box-shadow: 0 0 0 3px var(--tv-focus);
+    }
+}
+
+.slider {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem 1.1rem;
+    border-radius: 1rem;
+    outline: none;
+    transition: background-color 0.15s ease;
+
+    .slider-heading {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.15rem;
+        color: var(--tv-text-2);
+    }
+
+    .slider-value {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .track {
+        position: relative;
+        height: 1rem;
+        border-radius: 1rem;
+        cursor: pointer;
+    }
+
+    .thumb {
+        position: absolute;
+        top: 50%;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 50%;
+        border: 0.2rem solid #fff;
+        box-shadow: 0 0.1rem 0.4rem rgba(0, 0, 0, 0.6);
+        transform: translate(-50%, -50%);
+        transition: transform 0.15s var(--tv-ease);
+    }
+
+    &:focus {
+        background-color: var(--tv-select);
+
+        .slider-heading {
+            color: var(--tv-text);
+        }
+
+        .thumb {
+            transform: translate(-50%, -50%) scale(1.3);
+        }
+    }
+}

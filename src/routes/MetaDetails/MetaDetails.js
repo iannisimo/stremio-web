@@ -19,7 +19,6 @@ const MetaDetails = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { getStoredOrigin } = useNavigateWithOrigin();
-    const returnVideoIdRef = React.useRef(null);
     const core = useCore();
     const urlParams = React.useMemo(() => ({
         type,
@@ -48,10 +47,6 @@ const MetaDetails = () => {
             :
             null;
     }, [metaDetails.metaItem, streamPath]);
-    // so the episode list can refocus the episode we came back from
-    if (streamPath !== null) {
-        returnVideoIdRef.current = streamPath.id;
-    }
     const externalPlayerCallbackCanMarkWatched = React.useMemo(() => {
         return typeof video?.id === 'string' &&
             metaDetails.libraryItem?.state?.video_id === video.id &&
@@ -174,7 +169,6 @@ const MetaDetails = () => {
                 metaItem={metaDetails.metaItem}
                 libraryItem={metaDetails.libraryItem}
                 season={season}
-                returnVideoId={returnVideoIdRef.current}
                 seasonOnSelect={seasonOnSelect}
                 toggleNotifications={toggleNotifications}
             />

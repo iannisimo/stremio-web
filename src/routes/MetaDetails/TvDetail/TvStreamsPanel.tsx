@@ -2,18 +2,21 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import classnames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
-import Button from 'stremio/components/Button';
+import { setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import Image from 'stremio/components/Image';
 import useProfile from 'stremio/common/useProfile';
-import { doesFocusableExist } from '@noriginmedia/norigin-spatial-navigation';
-import { setFocus, useLongPressEnter } from 'stremio/services/Navigation';
+import { useLongPressEnter } from 'stremio/services/Input';
+import { FocusButton as Button } from 'stremio/services/Navigation';
+import { FIRST_ROW_FOCUS_KEY } from './TvDetail';
+import { setOpenedEpisode } from './openedEpisode';
+import TvChipRow from './TvChipRow';
 import StreamRow from '../StreamsList/Stream';
 import EpisodePicker from '../EpisodePicker';
 import { StreamActions } from './TvRowActions';
 import useStreamsByAddon from './useStreamsByAddon';
 import styles from './TvStreamsPanel.less';
 
-// the JS row infers `focusKey` as undefined
+// JS component without types
 const Stream = StreamRow as React.ComponentType<any> & { Placeholder: typeof StreamRow.Placeholder };
 
 const ALL_ADDONS_KEY = 'ALL';
@@ -45,18 +48,23 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
     }, [streams]);
     const showInstallAddonsButton = !profile || profile.auth === null || (profile.auth?.user?.isNewUser === true && !video?.upcoming);
     const addons = Object.keys(streamsByAddon);
+    const hasStreams = filteredStreams.length > 0;
+
+    // Opening the panel goes to the first stream, also when it replaces the
+    // episode list; the list then goes back to this episode.
+    useEffect(() => {
+        setFocus(FIRST_ROW_FOCUS_KEY);
+    }, []);
+    useEffect(() => {
+        if (typeof video?.id === 'string') setOpenedEpisode(video.id);
+    }, [video?.id]);
 
     const [menu, setMenu] = useState<{ index: number, element: HTMLElement } | null>(null);
     const longPress = useLongPressEnter(useCallback((target: HTMLElement) => {
         const row = target.closest<HTMLElement>('[data-row-index]');
         if (row) setMenu({ index: Number(row.dataset.rowIndex), element: target });
     }, []));
-    const closeMenu = useCallback(() => {
-        setMenu((current) => {
-            if (current) window.setTimeout(() => setFocus(`detail-stream-${current.index}`), 0);
-            return null;
-        });
-    }, []);
+    const closeMenu = useCallback(() => setMenu(null), []);
     const playFromMenu = useCallback(() => {
         const element = menu?.element;
         closeMenu();
@@ -69,44 +77,12 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
         setSelectedAddon(value);
     }, []);
 
-    // First focus per episode / movie: the first stream once it shows up,
-    // the first action when nothing is coming. Never once the user has moved.
-    const pageKey = video?.id ?? 'movie';
-    const userMoved = useRef(false);
-    const focusedFor = useRef<string | null>(null);
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key.startsWith('Arrow')) userMoved.current = true;
-        };
-        window.addEventListener('keydown', onKeyDown, true);
-        return () => window.removeEventListener('keydown', onKeyDown, true);
-    }, []);
-    useEffect(() => {
-        userMoved.current = false;
-    }, [pageKey]);
-    const hasStreams = filteredStreams.length > 0;
-    useEffect(() => {
-        if (focusedFor.current === pageKey) return;
-        if (!hasStreams && countLoadingAddons > 0) return;
-        const timer = window.setTimeout(() => {
-            if (focusedFor.current === pageKey) return;
-            focusedFor.current = pageKey;
-            if (userMoved.current || document.querySelector('.modals-container > .modal-container')) return;
-            if (hasStreams) {
-                setFocus('detail-stream-0');
-            } else {
-                setFocus(doesFocusableExist('detail-action-trailer') ? 'detail-action-trailer' : 'detail-action-library');
-            }
-        }, 0);
-        return () => window.clearTimeout(timer);
-    }, [pageKey, hasStreams, countLoadingAddons]);
-
     const renderEpisodePicker = type === 'series' ?
         <EpisodePicker className={styles['picker']} seriesId={''} onSubmit={onEpisodeSearch} />
         :
         null;
     const installButton = showInstallAddonsButton ?
-        <Button focusKey={'detail-install-addons'} className={styles['install-button']} title={t('ADDON_CATALOGUE_MORE')} href={'#/addons'}>
+        <Button className={styles['install-button']} title={t('ADDON_CATALOGUE_MORE')} href={'#/addons'}>
             <Icon className={styles['icon']} name={'addons'} />
             <div className={styles['label']}>{t('ADDON_CATALOGUE_MORE')}</div>
         </Button>
@@ -118,7 +94,7 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
             {
                 video ?
                     <div className={styles['episode-header']}>
-                        <Button focusKey={'detail-back'} className={styles['chip']} title={t('BUTTON_BACK', { defaultValue: 'Back' })} onClick={onBack}>
+                        <Button className={styles['chip']} title={t('BUTTON_BACK', { defaultValue: 'Back' })} onClick={onBack}>
                             <Icon className={styles['icon']} name={'chevron-back'} />
                         </Button>
                         <div className={styles['episode-title']}>
@@ -135,7 +111,7 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
             }
             {
                 addons.length > 1 ?
-                    <div className={styles['addon-chips']}>
+                    <TvChipRow className={styles['addon-chips']}>
                         {
                             [ALL_ADDONS_KEY, ...addons].map((value) => (
                                 <Button
@@ -147,7 +123,7 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
                                 </Button>
                             ))
                         }
-                    </div>
+                    </TvChipRow>
                     :
                     null
             }
@@ -180,7 +156,7 @@ const TvStreamsPanel = ({ streams, video, type, externalPlayerCallbackCanMarkWat
                                     {filteredStreams.map((stream: any, index: number) => (
                                         <div key={index} data-row-index={index}>
                                             <Stream
-                                                focusKey={`detail-stream-${index}`}
+                                                focusKey={index === 0 ? FIRST_ROW_FOCUS_KEY : undefined}
                                                 videoId={video?.id}
                                                 videoReleased={video?.released}
                                                 addonName={stream.addonName}

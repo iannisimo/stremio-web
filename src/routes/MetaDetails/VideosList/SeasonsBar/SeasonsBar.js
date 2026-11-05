@@ -5,9 +5,14 @@ const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { t } = require('i18next');
 const { default: Icon } = require('@stremio/stremio-icons/react');
-const { Button, MultiselectMenu } = require('stremio/components');
+const { MultiselectMenu } = require('stremio/components');
+// HTPC fork: prev/next are focus stops (upstream: Button); coming in from the
+// episodes lands on the season menu (upstream: a plain div)
+const { FocusButton: Button, FocusGroup } = require('stremio/services/Navigation');
 const SeasonsBarPlaceholder = require('./SeasonsBarPlaceholder');
 const styles = require('./styles');
+
+const SEASON_MENU_FOCUS_KEY = 'seasons-bar:menu';
 
 const SeasonsBar = ({ className, seasons, season, onSelect }) => {
     const options = React.useMemo(() => {
@@ -55,7 +60,7 @@ const SeasonsBar = ({ className, seasons, season, onSelect }) => {
     }, [season, seasons]);
 
     return (
-        <div className={classnames(className, styles['seasons-bar-container'])}>
+        <FocusGroup className={classnames(className, styles['seasons-bar-container'])} preferredChildFocusKey={SEASON_MENU_FOCUS_KEY} saveLastFocusedChild={false}>
             <Button className={classnames(styles['prev-season-button'], { 'disabled': prevDisabled })} title={t('PREV_SEASON')} data-action={'prev'} onClick={prevNextButtonOnClick}>
                 <Icon className={styles['icon']} name={'chevron-back'} />
                 <div className={styles['label']}>{t('BUTTON_PREV')}</div>
@@ -65,13 +70,14 @@ const SeasonsBar = ({ className, seasons, season, onSelect }) => {
                 options={options}
                 title={season > 0 ? t('SEASON_NUMBER', { season }) : t('SPECIAL')}
                 value={selectedSeason}
+                focusKey={SEASON_MENU_FOCUS_KEY}
                 onSelect={seasonOnSelect}
             />
             <Button className={classnames(styles['next-season-button'], { 'disabled': nextDisabled })} title={t('NEXT_SEASON')} data-action={'next'} onClick={prevNextButtonOnClick}>
                 <div className={styles['label']}>{t('BUTTON_NEXT')}</div>
                 <Icon className={styles['icon']} name={'chevron-forward'} />
             </Button>
-        </div>
+        </FocusGroup>
     );
 };
 

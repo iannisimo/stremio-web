@@ -1,11 +1,37 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classnames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import Icon from '@stremio/stremio-icons/react';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import { Button } from 'stremio/components';
-import { FocusContext, useFocusGroup } from 'stremio/services/Navigation';
 import styles from './TvHero.less';
+
+const FOCUS_KEY = 'board:hero';
+
+type PlayButtonProps = {
+    href?: string,
+    label: string,
+    onStep: (step: number) => void,
+};
+
+const PlayButton = ({ href, label, onStep }: PlayButtonProps) => {
+    // ← / → change the slide instead of moving focus
+    const onArrowPress = useCallback((direction: string) => {
+        if (direction === 'left' || direction === 'right') {
+            onStep(direction === 'left' ? -1 : 1);
+            return false;
+        }
+        return true;
+    }, [onStep]);
+    const { ref } = useFocusable({ focusKey: FOCUS_KEY, onArrowPress });
+    return (
+        <Button ref={ref} className={classnames(styles['button'], styles['primary'])} href={href}>
+            <Icon className={styles['icon']} name={'play'} />
+            <span>{label}</span>
+        </Button>
+    );
+};
 
 const SLIDES = 6;
 const INTERVAL = 9000;
@@ -67,8 +93,9 @@ const TvHero = ({ catalogs }: Props) => {
     const { t } = useTranslation();
     const slides = useMemo(() => pickSlides(catalogs), [catalogs]);
     const [index, setIndex] = useState(0);
-    const group = useFocusGroup<HTMLDivElement>({ focusKey: 'hero' });
-    const paused = group.hasFocusedChild;
+    const ref = useRef<HTMLDivElement>(null);
+    // the slides stop while the hero has focus
+    const [paused, setPaused] = useState(false);
 
     useEffect(() => {
         if (paused || slides.length < 2) return;
@@ -80,33 +107,25 @@ const TvHero = ({ catalogs }: Props) => {
         if (index >= slides.length) setIndex(0);
     }, [slides.length]);
 
-    const onArrowPress = useCallback((direction: string) => {
-        if (slides.length < 2) return true;
-        if (direction === 'right') {
-            setIndex((index + 1) % slides.length);
-            return false;
-        }
-        if (direction === 'left') {
-            setIndex((index - 1 + slides.length) % slides.length);
-            return false;
-        }
-        return true;
-    }, [index, slides.length]);
-
     // Entering the hero brings the page back to the top.
     const onFocus = useCallback(() => {
+        setPaused(true);
         // after the browser's own scroll-into-view for the focused button
         requestAnimationFrame(() => {
-            group.ref.current?.parentElement?.scrollTo({ top: 0, behavior: 'smooth' });
+            ref.current?.parentElement?.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }, []);
 
+    const onStep = useCallback((step: number) => {
+        setIndex((current) => (current + step + slides.length) % slides.length);
+    }, [slides.length]);
+
+    const onBlur = useCallback((event: React.FocusEvent<HTMLDivElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPaused(false);
+    }, []);
+
     const item = slides[index];
-    if (!item) {
-        // while rows load, ask the page's first focus to wait for the hero
-        const loading = catalogs.length === 0 || catalogs.some((catalog) => !catalog.content || catalog.content.type === 'Loading');
-        return loading ? <div data-tv-wait={true} /> : null;
-    }
+    if (!item) return null;
 
     const href = item.type === 'series' ?
         item.deepLinks?.metaDetailsVideos ?? item.deepLinks?.metaDetailsStreams
@@ -114,57 +133,52 @@ const TvHero = ({ catalogs }: Props) => {
         item.deepLinks?.metaDetailsStreams ?? item.deepLinks?.metaDetailsVideos;
 
     return (
-        <FocusContext.Provider value={group.focusKey}>
-            <div ref={group.ref} className={styles['hero']} data-tv-start={true} onFocus={onFocus}>
-                {
-                    slides.map((slide, slideIndex) => (
-                        <div
-                            key={slide.id}
-                            className={classnames(styles['backdrop'], { [styles['active']]: slideIndex === index })}
-                            style={{ backgroundImage: `url('${slide.background}')` }}
-                        />
-                    ))
-                }
-                <div className={styles['shade']} />
-                <div className={styles['info']}>
-                    <div key={item.id} className={styles['text']}>
-                        {
-                            item.logo ?
-                                <img className={styles['logo']} src={item.logo} alt={item.name} />
-                                :
-                                <h1 className={styles['title']}>{item.name}</h1>
-                        }
-                        <div className={styles['meta']}>
-                            {metaLine(item, t).map((part, partIndex) => <span key={partIndex}>{part}</span>)}
-                        </div>
-                        <p className={styles['description']}>{item.description}</p>
+        <div ref={ref} className={styles['hero']} onFocus={onFocus} onBlur={onBlur}>
+            {
+                slides.map((slide, slideIndex) => (
+                    <div
+                        key={slide.id}
+                        className={classnames(styles['backdrop'], { [styles['active']]: slideIndex === index })}
+                        style={{ backgroundImage: `url('${slide.background}')` }}
+                    />
+                ))
+            }
+            <div className={styles['shade']} />
+            <div className={styles['info']}>
+                <div key={item.id} className={styles['text']}>
+                    {
+                        item.logo ?
+                            <img className={styles['logo']} src={item.logo} alt={item.name} />
+                            :
+                            <h1 className={styles['title']}>{item.name}</h1>
+                    }
+                    <div className={styles['meta']}>
+                        {metaLine(item, t).map((part, partIndex) => <span key={partIndex}>{part}</span>)}
                     </div>
-                    <div className={styles['actions']}>
-                        <Button className={classnames(styles['button'], styles['primary'])} href={href} onArrowPress={onArrowPress}>
-                            <Icon className={styles['icon']} name={'play'} />
-                            <span>{t('PLAYER_PLAY')}</span>
-                        </Button>
-                    </div>
+                    <p className={styles['description']}>{item.description}</p>
                 </div>
-                {
-                    slides.length > 1 ?
-                        <div className={styles['dots']}>
-                            {
-                                slides.map((slide, slideIndex) => (
-                                    <div
-                                        key={slide.id}
-                                        className={classnames(styles['dot'], { [styles['active']]: slideIndex === index, [styles['paused']]: paused })}
-                                        style={{ animationDuration: `${INTERVAL}ms` }}
-                                        onClick={() => setIndex(slideIndex)}
-                                    />
-                                ))
-                            }
-                        </div>
-                        :
-                        null
-                }
+                <div className={styles['actions']}>
+                    <PlayButton href={href} label={t('PLAYER_PLAY')} onStep={onStep} />
+                </div>
             </div>
-        </FocusContext.Provider>
+            {
+                slides.length > 1 ?
+                    <div className={styles['dots']}>
+                        {
+                            slides.map((slide, slideIndex) => (
+                                <div
+                                    key={slide.id}
+                                    className={classnames(styles['dot'], { [styles['active']]: slideIndex === index, [styles['paused']]: paused })}
+                                    style={{ animationDuration: `${INTERVAL}ms` }}
+                                    onClick={() => setIndex(slideIndex)}
+                                />
+                            ))
+                        }
+                    </div>
+                    :
+                    null
+            }
+        </div>
     );
 };
 

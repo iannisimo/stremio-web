@@ -2,6 +2,7 @@
 
 import React from 'react';
 import routes from 'stremio/routes';
+import TvMocks from 'stremio/routes/TvMocks';
 import { PLAYER_PATH, META_DETAILS_PATH, LEGACY_META_DETAILS_PATH } from './getBackFallback';
 
 export default [
@@ -65,6 +66,12 @@ export default [
         view: 0,
         element: <routes.Board />,
     },
+    // HTPC fork: dev-only mock screens for checking navigation
+    ...(process.env.DEBUG ? [{
+        path: '/mock',
+        view: 1,
+        element: <TvMocks />,
+    }] : []),
     {
         path: '*',
         view: 1,

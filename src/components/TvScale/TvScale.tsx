@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import classNames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
-import { useFocusable } from 'stremio/services/Navigation';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import styles from './TvScale.less';
 
 type Props = {
@@ -15,8 +15,8 @@ type Props = {
     onChange: (value: number) => void,
 };
 
-// Same props as upstream's Scale. One focus stop: left/right step through
-// the options, up/down leave it.
+// Same props as upstream's Scale: one focus stop, ← / → step through the
+// options (also at the ends, so they don't leave it).
 const TvScale = ({ value, options, onChange }: Props) => {
     const { t } = useTranslation();
     const index = options.indexOf(value);
@@ -26,21 +26,19 @@ const TvScale = ({ value, options, onChange }: Props) => {
         if (next !== undefined && next !== value) onChange(next);
     }, [options, index, value, onChange]);
 
-    const { ref } = useFocusable<object, HTMLDivElement>({
-        onArrowPress: (direction) => {
-            if (direction === 'left' || direction === 'right') {
-                stepBy(direction === 'left' ? -1 : 1);
-                return false;
-            }
-            return true;
-        },
-    });
+    const onArrowPress = useCallback((direction: string) => {
+        if (direction !== 'left' && direction !== 'right') return true;
+        stepBy(direction === 'left' ? -1 : 1);
+        return false;
+    }, [stepBy]);
+
+    const { ref } = useFocusable<object, HTMLDivElement>({ onArrowPress });
 
     const atMin = index <= 0;
     const atMax = index === options.length - 1;
 
     return (
-        <div ref={ref} className={styles['tv-scale']} tabIndex={-1} data-tv-arrows={true} role={'slider'} aria-label={t('SETTINGS_UI_ZOOM')} aria-valuenow={value}>
+        <div ref={ref} className={styles['tv-scale']} tabIndex={-1} role={'slider'} aria-label={t('SETTINGS_UI_ZOOM')} aria-valuenow={value}>
             <button type={'button'} tabIndex={-1} className={classNames(styles['arrow'], { [styles['disabled']]: atMin })} onClick={() => stepBy(-1)}>
                 <Icon className={styles['icon']} name={'chevron-back'} />
             </button>

@@ -2,14 +2,14 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classnames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
-import Button from 'stremio/components/Button';
 import Image from 'stremio/components/Image';
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
 import SharePrompt from 'stremio/components/SharePrompt';
 import useRating from 'stremio/components/MetaPreview/Ratings/useRating';
 import useTranslate from 'stremio/common/useTranslate';
-import { setFocus, keepFocusedInView } from 'stremio/services/Navigation';
 import { groupLinks } from './detailLogic';
+import TvChipRow from './TvChipRow';
 import styles from './TvDetailInfo.less';
 
 type Link = { category: string, name: string, url: string };
@@ -70,24 +70,6 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
 
     // live channels can't be watched to the end
     const watchable = meta.type !== 'tv';
-    const actions = useMemo(() => [
-        trailerHref ? 'trailer' : null,
-        'library',
-        watchable ? 'watched' : null,
-        'like',
-        'love',
-        share ? 'share' : null,
-    ].filter((key): key is string => key !== null), [trailerHref, watchable, share]);
-    const lastAction = actions[actions.length - 1];
-
-    const onArrowPress = useCallback((key: string) => (direction: string) => {
-        if (direction === 'down') return false;
-        if (direction === 'right' && key === lastAction) {
-            setFocus('detail-panel');
-            return false;
-        }
-        return true;
-    }, [lastAction]);
 
     const openShare = useCallback(() => setShareOpen(true), []);
     const closeShare = useCallback(() => setShareOpen(false), []);
@@ -123,7 +105,7 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
                 groups.map(({ category, items }) => (
                     <div key={category} className={styles['chips-row']}>
                         <div className={styles['chips-label']}>{stringWithPrefix(category.toUpperCase(), 'LINKS_')}</div>
-                        <div className={styles['chips']} onFocus={keepFocusedInView}>
+                        <TvChipRow className={styles['chips']}>
                             {
                                 items.map(({ label, href }, index) => (
                                     <Button key={index} className={styles['chip']} title={label} href={href}>
@@ -131,32 +113,30 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
                                     </Button>
                                 ))
                             }
-                        </div>
+                        </TvChipRow>
                     </div>
                 ))
             }
             <div className={styles['actions']}>
                 {
                     trailerHref ?
-                        <Button focusKey={'detail-action-trailer'} className={styles['button']} href={trailerHref} onArrowPress={onArrowPress('trailer')}>
+                        <Button className={styles['button']} href={trailerHref}>
                             <Icon className={styles['icon']} name={'trailer'} />
                             <span>{t('TRAILER')}</span>
                         </Button>
                         :
                         null
                 }
-                <Button focusKey={'detail-action-library'} className={styles['button']} onClick={onToggleLibrary} onArrowPress={onArrowPress('library')}>
+                <Button className={styles['button']} onClick={onToggleLibrary}>
                     <Icon className={styles['icon']} name={meta.inLibrary ? 'remove-from-library' : 'add-to-library'} />
                     <span>{meta.inLibrary ? t('REMOVE_FROM_LIB') : t('ADD_TO_LIB')}</span>
                 </Button>
                 {
                     watchable ?
                         <Button
-                            focusKey={'detail-action-watched'}
                             className={classnames(styles['button'], styles['round'])}
                             title={meta.watched ? t('CTX_MARK_UNWATCHED') : t('CTX_MARK_WATCHED')}
                             onClick={onToggleWatched}
-                            onArrowPress={onArrowPress('watched')}
                         >
                             <Icon className={styles['icon']} name={meta.watched ? 'eye-off' : 'eye'} />
                         </Button>
@@ -164,33 +144,27 @@ const TvDetailInfo = ({ meta, video, ratingInfo, onToggleLibrary, onToggleWatche
                         null
                 }
                 <Button
-                    focusKey={'detail-action-like'}
                     className={classnames(styles['button'], styles['round'])}
                     title={liked ? t('RATING_UNLIKE') : t('RATING_LIKE')}
                     disabled={!ratingReady}
                     onClick={onLiked}
-                    onArrowPress={onArrowPress('like')}
                 >
                     <Icon className={styles['icon']} name={liked ? 'thumbs-up' : 'thumbs-up-outline'} />
                 </Button>
                 <Button
-                    focusKey={'detail-action-love'}
                     className={classnames(styles['button'], styles['round'])}
                     title={loved ? t('RATING_UNLOVE') : t('RATING_LOVE')}
                     disabled={!ratingReady}
                     onClick={onLoved}
-                    onArrowPress={onArrowPress('love')}
                 >
                     <Icon className={styles['icon']} name={loved ? 'heart' : 'heart-outline'} />
                 </Button>
                 {
                     share ?
                         <Button
-                            focusKey={'detail-action-share'}
                             className={classnames(styles['button'], styles['round'])}
                             title={t('CTX_SHARE', { defaultValue: 'Share' })}
                             onClick={openShare}
-                            onArrowPress={onArrowPress('share')}
                         >
                             <Icon className={styles['icon']} name={'share'} />
                         </Button>

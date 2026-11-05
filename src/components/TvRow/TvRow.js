@@ -3,13 +3,23 @@ const ReactIs = require('react-is');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
+const { useFocusable, FocusContext } = require('@noriginmedia/norigin-spatial-navigation');
 const { Button } = require('stremio/components');
 const useTranslate = require('stremio/common/useTranslate');
-const { FocusContext, useFocusGroup } = require('stremio/services/Navigation');
 const TvRowPlaceholder = require('./TvRowPlaceholder/TvRowPlaceholder');
 const styles = require('./styles');
 
 const ROW_SIZE = 20;
+
+const SeeAllButton = ({ className, href, label }) => {
+    const { ref } = useFocusable();
+    return (
+        <Button ref={ref} className={className} title={label} href={href}>
+            <Icon className={styles['icon']} name={'chevron-forward'} />
+            <div className={styles['label']}>{label}</div>
+        </Button>
+    );
+};
 
 const TvRow = ({ className, title, catalog, message, itemComponent, notifications }) => {
     const t = useTranslate();
@@ -26,14 +36,17 @@ const TvRow = ({ className, title, catalog, message, itemComponent, notification
         return catalog?.deepLinks?.discover ?? catalog?.deepLinks?.library;
     }, [catalog]);
 
-    const group = useFocusGroup();
-
     // square cards are drawn as posters
     const shape = items?.[0]?.posterShape === 'landscape' ? 'landscape' : 'poster';
 
+    const hasMessage = typeof message === 'string' && message.length > 0;
+    // a row with nothing to focus would take focus itself
+    const hasStops = !hasMessage && ((ReactIs.isValidElementType(itemComponent) && items?.length > 0) || !!href);
+    const { ref, focusKey } = useFocusable({ focusable: hasStops, saveLastFocusedChild: true });
+
     return (
-        <FocusContext.Provider value={group.focusKey}>
-            <div ref={group.ref} className={classnames(className, styles['tv-row-container'])}>
+        <FocusContext.Provider value={focusKey}>
+            <div ref={ref} className={classnames(className, styles['tv-row-container'])}>
                 {
                     typeof catalogTitle === 'string' && catalogTitle.length > 0 ?
                         <div className={styles['header-container']}>
@@ -43,7 +56,7 @@ const TvRow = ({ className, title, catalog, message, itemComponent, notification
                         null
                 }
                 {
-                    typeof message === 'string' && message.length > 0 ?
+                    hasMessage ?
                         <div className={styles['message-container']} title={message}>{message}</div>
                         :
                         <div className={styles['meta-items-container']}>
@@ -63,10 +76,11 @@ const TvRow = ({ className, title, catalog, message, itemComponent, notification
                             }
                             {
                                 href ?
-                                    <Button className={classnames(styles['see-all-container'], styles[`poster-shape-${shape}`])} title={t.string('BUTTON_SEE_ALL')} href={href}>
-                                        <Icon className={styles['icon']} name={'chevron-forward'} />
-                                        <div className={styles['label']}>{t.string('BUTTON_SEE_ALL')}</div>
-                                    </Button>
+                                    <SeeAllButton
+                                        className={classnames(styles['see-all-container'], styles[`poster-shape-${shape}`])}
+                                        href={href}
+                                        label={t.string('BUTTON_SEE_ALL')}
+                                    />
                                     :
                                     null
                             }

@@ -2,85 +2,73 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useToast from 'stremio/common/Toast/useToast';
 import usePlayUrl from 'stremio/common/usePlayUrl';
-import TvFullscreenDialog from 'stremio/components/TvFullscreenDialog';
-// already a dialog, so the plain input
-import TextInput from 'stremio/components/TextInput/TextInput';
-import { useFocusable, setFocus } from 'stremio/services/Navigation';
-import styles from './TvPlayUrlDialog.less';
-
-const INPUT_KEY = 'play-url-input';
-const PLAY_KEY = 'play-url-play';
+import { TvTextEditor } from 'stremio/components/TvTextInput';
 
 const isPlayable = (text: string) => /^https?:\/\/.+/i.test(text) || /^magnet:\?/i.test(text);
+
+// how long to wait for the clipboard before opening without it
+const CLIPBOARD_TIMEOUT = 500;
 
 type Props = {
     onClose: () => void,
 };
 
+// The text editor on its own: Done plays the link, a bad one keeps it open.
 const TvPlayUrlDialog = ({ onClose }: Props) => {
     const { t } = useTranslation();
     const toast = useToast();
     const { handlePlayUrl } = usePlayUrl();
-    const [value, setValue] = useState('');
+    // prefilled from the clipboard when it holds something playable
+    const [prefill, setPrefill] = useState<string | null>(null);
 
-    // Left/right move the caret; up/down leave the field.
-    const { ref: focusRef } = useFocusable<object, HTMLInputElement>({
-        focusKey: INPUT_KEY,
-        onArrowPress: (direction) => direction === 'up' || direction === 'down',
-    });
-
-    // Prefill from the clipboard when it holds something playable.
     useEffect(() => {
-        let cancelled = false;
+        let done = false;
+        const settle = (text: string) => {
+            if (done) return;
+            done = true;
+            setPrefill(text);
+        };
+        const timer = setTimeout(() => settle(''), CLIPBOARD_TIMEOUT);
         navigator.clipboard?.readText()
-            .then((text) => {
-                const trimmed = text.trim();
-                if (!cancelled && isPlayable(trimmed)) {
-                    setValue(trimmed);
-                    setFocus(PLAY_KEY);
-                }
-            })
-            .catch(() => null);
+            .then((text) => settle(isPlayable(text.trim()) ? text.trim() : ''))
+            .catch(() => settle(''));
         return () => {
-            cancelled = true;
+            done = true;
+            clearTimeout(timer);
         };
     }, []);
 
-    const play = useCallback(async () => {
-        const text = value.trim();
+    const play = useCallback(async (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const text = event.currentTarget.value.trim();
         if (!isPlayable(text)) {
             toast.show({ type: 'error', title: 'Not a valid URL or magnet link.', timeout: 5000 });
-            setFocus(INPUT_KEY);
             return;
         }
         if (await handlePlayUrl(text)) onClose();
-    }, [value, handlePlayUrl, onClose, toast]);
+    }, [handlePlayUrl, onClose, toast]);
 
-    const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => setValue(event.target.value), []);
+    // Done runs the play check first; only Cancel and Back close right away
+    const onEditorClose = useCallback((after?: () => void) => {
+        if (after) after();
+        else onClose();
+    }, [onClose]);
 
-    const actions = useMemo(() => [
-        { label: t('PLAYER_PLAY'), focusKey: PLAY_KEY, onClick: play },
-        { label: t('BUTTON_CANCEL'), onClick: onClose },
-    ], [t, play, onClose]);
+    const inputProps = useMemo(() => ({
+        type: 'text',
+        placeholder: 'https://…  or  magnet:?xt=…',
+        defaultValue: prefill ?? '',
+        onSubmit: play,
+    }), [prefill, play]);
+
+    if (prefill === null) return null;
 
     return (
-        <TvFullscreenDialog
-            icon={'magnet-link'}
+        <TvTextEditor
             title={t('PLAY_URL_MAGNET_LINK')}
-            message={'Paste an http(s) stream URL or a magnet link.'}
-            actions={actions}
-            initialFocusKey={INPUT_KEY}
-            onClose={onClose}
-        >
-            <TextInput
-                ref={focusRef}
-                className={styles['input']}
-                value={value}
-                placeholder={'https://…  or  magnet:?xt=…'}
-                onChange={onChange}
-                onSubmit={play}
-            />
-        </TvFullscreenDialog>
+            inputProps={inputProps}
+            startOnDone={prefill.length > 0}
+            onClose={onEditorClose}
+        />
     );
 };
 

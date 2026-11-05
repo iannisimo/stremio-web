@@ -3,7 +3,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
-import Button from 'stremio/components/Button';
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import styles from './Label.less';
 
 type Props = {
@@ -11,11 +11,13 @@ type Props = {
     icon?: string,
     disabled?: boolean,
     open: boolean,
+    focusKey?: string,
     onClick: (event: React.MouseEvent<HTMLDivElement>) => void,
 };
 
-const Label = ({ text, icon, disabled, open, onClick }: Props) => (
+const Label = ({ text, icon, disabled, open, focusKey, onClick }: Props) => (
     <Button
+        focusKey={focusKey}
         className={classNames(styles['button'], { [styles['open']]: open })}
         disabled={disabled}
         onClick={onClick}

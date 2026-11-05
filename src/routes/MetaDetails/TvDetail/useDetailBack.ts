@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import useRouteFocused from 'stremio/common/useRouteFocused';
-import { setFocus } from 'stremio/services/Navigation';
 
 const BACK_KEYS = ['Escape', 'Backspace', 'BrowserBack'];
 
@@ -21,7 +20,6 @@ const useDetailBack = (onBack: () => void) => {
                     event.preventDefault();
                     event.stopImmediatePropagation();
                     target.blur();
-                    setFocus('detail-panel');
                 }
                 return;
             }

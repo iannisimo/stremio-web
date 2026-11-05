@@ -2,7 +2,8 @@
 
 import React, { MouseEvent, memo, useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { Button } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import styles from './Chip.less';
 
 type Props = {
@@ -20,6 +21,11 @@ const Chip = memo(({ label, value, active, onSelect }: Props) => {
         value && onSelect(value);
     }, [onselect]);
 
+    // HTPC fork: a focused chip is brought fully into view, clear of the edge fade
+    const onFocus = useCallback(() => {
+        ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }, []);
+
     useEffect(() => {
         active && ref.current?.scrollIntoView({
             block: 'nearest',
@@ -36,6 +42,7 @@ const Chip = memo(({ label, value, active, onSelect }: Props) => {
             tabIndex={0}
             data-value={value}
             onClick={onClick}
+            onFocus={onFocus}
         >
             {label}
         </Button>

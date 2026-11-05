@@ -2,6 +2,8 @@
 
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+// HTPC fork: the grid remembers its last focused day (upstream: a plain div)
+import { FocusGroup } from 'stremio/services/Navigation';
 import styles from './Table.less';
 import Cell from './Cell/Cell';
 
@@ -37,7 +39,7 @@ const Table = ({ items, selected, monthInfo, onChange }: Props) => {
                     ))
                 }
             </div>
-            <div className={styles['grid']}>
+            <FocusGroup className={styles['grid']}>
                 {
                     cellsOffset.map((day) => (
                         <span key={day} />
@@ -54,7 +56,7 @@ const Table = ({ items, selected, monthInfo, onChange }: Props) => {
                         />
                     ))
                 }
-            </div>
+            </FocusGroup>
         </div>
     );
 };

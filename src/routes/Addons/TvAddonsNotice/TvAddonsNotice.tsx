@@ -6,13 +6,15 @@ import styles from './TvAddonsNotice.less';
 
 // Shown in place of the addons list: managing addons with a remote is
 // painful, and they sync from any other Stremio through the account.
-const TvAddonsNotice = () => {
+// focusKey: the log-in button's container, shown only when logged out
+const TvAddonsNotice = ({ focusKey }: { focusKey?: string }) => {
     const { t } = useTranslation();
     const profile = useProfile();
 
     if (profile.auth === null) {
         return (
             <TvNotice
+                focusKey={focusKey}
                 icon={'addons-outline'}
                 title={'Log in to get your addons'}
                 message={'Addons follow your Stremio account. Log in here, then manage them on the web or on your phone.'}

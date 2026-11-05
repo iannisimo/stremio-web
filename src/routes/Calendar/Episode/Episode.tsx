@@ -3,12 +3,13 @@
 import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
-import { Button, Image } from 'stremio/components';
+import { Image } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import styles from './Episode.less';
 
 type Props = CalendarContentItem & {
     hideSpoilers: boolean,
-    focusKey?: string,
     onClick?: (event: React.MouseEvent<HTMLDivElement>, target: string) => void,
 };
 
@@ -16,7 +17,7 @@ const renderPlaceholder = () => (
     <Icon className={styles['placeholder']} name={'symbol'} />
 );
 
-const Episode = ({ name, title, season, episode, poster, background, thumbnail, deepLinks, hideSpoilers, focusKey, onClick }: Props) => {
+const Episode = ({ name, title, season, episode, poster, background, thumbnail, deepLinks, hideSpoilers, onClick }: Props) => {
     const onEpisodeClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
         onClick && onClick(event, deepLinks.metaDetailsStreams);
     }, [onClick, deepLinks.metaDetailsStreams]);
@@ -30,7 +31,7 @@ const Episode = ({ name, title, season, episode, poster, background, thumbnail, 
     ), [background, renderPoster]);
 
     return (
-        <Button className={styles['episode']} focusKey={focusKey} href={deepLinks.metaDetailsStreams} onClick={onEpisodeClick}>
+        <Button className={styles['episode']} href={deepLinks.metaDetailsStreams} onClick={onEpisodeClick}>
             <div className={styles['artwork-container']}>
                 <Image
                     className={classNames(styles['artwork'], { [styles['blurred']]: hideSpoilers })}

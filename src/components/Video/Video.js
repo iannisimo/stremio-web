@@ -7,6 +7,7 @@ const { default: toPath } = require('stremio-router/toPath');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
+const { useFocusable } = require('@noriginmedia/norigin-spatial-navigation');
 const { Button, Image } = require('stremio/components');
 const useProfile = require('stremio/common/useProfile');
 const { usePlatform } = require('stremio/common/Platform');
@@ -41,13 +42,14 @@ VideoLabel.propTypes = {
     shouldScroll: PropTypes.bool,
 };
 
-const Video = ({ className, id, title, thumbnail, season, episode, released, upcoming, watched, progress, scheduled, seasonWatched, selected, deepLinks, isEpg, isNow, startTime, endTime, onSelect, onMarkVideoAsWatched, onMarkSeasonAsWatched, ...props }) => {
+const Video = ({ className, id, title, thumbnail, season, episode, released, upcoming, watched, progress, scheduled, seasonWatched, selected, deepLinks, isEpg, isNow, startTime, endTime, onSelect, onMarkVideoAsWatched, onMarkSeasonAsWatched, focusKey = undefined, ...props }) => {
     const profile = useProfile();
     const navigate = useNavigate();
     const platform = usePlatform();
     const { t } = useTranslation();
 
-    const labelRef = React.useRef(null);
+    // HTPC fork: the row is a focus stop (upstream: React.useRef(null))
+    const { ref: labelRef, focusKey: labelFocusKey } = useFocusable({ focusKey });
 
     const selectVideo = React.useCallback(() => {
         if (typeof onSelect === 'function') {
@@ -166,7 +168,6 @@ const Video = ({ className, id, title, thumbnail, season, episode, released, upc
                 {
                     deepLinks && typeof deepLinks.player === 'string' ?
                         <Button
-                            focusable={false}
                             className={styles['play-button-container']}
                             title={t('CTX_WATCH')}
                             onClick={playButtonOnClick}
@@ -194,6 +195,8 @@ const Video = ({ className, id, title, thumbnail, season, episode, released, upc
         progress,
         scheduled,
         onClick: videoButtonOnClick,
+        // HTPC fork: popups open on the selected row
+        'data-focus-key': labelFocusKey,
         ...props,
         ref: labelRef,
     });
@@ -203,6 +206,7 @@ Video.Placeholder = VideoPlaceholder;
 
 Video.propTypes = {
     className: PropTypes.string,
+    focusKey: PropTypes.string,
     id: PropTypes.string,
     title: PropTypes.string,
     thumbnail: PropTypes.string,

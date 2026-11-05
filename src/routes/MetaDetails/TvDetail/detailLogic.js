@@ -93,14 +93,6 @@ const videosForSeason = (videos, season) => {
         .sort((a, b) => a.episode - b.episode);
 };
 
-const pickInitialVideoId = ({ videosForSeason, libraryVideoId }) => {
-    if (videosForSeason.some((video) => video.id === libraryVideoId)) {
-        return libraryVideoId;
-    }
-
-    return videosForSeason.length > 0 ? videosForSeason[0].id : null;
-};
-
 const groupStreamsByAddon = (streams) => {
     return streams
         .filter((streams) => streams.content.type === 'Ready')
@@ -119,6 +111,5 @@ module.exports = {
     seasonsOf,
     pickSeason,
     videosForSeason,
-    pickInitialVideoId,
     groupStreamsByAddon
 };

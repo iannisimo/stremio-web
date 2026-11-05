@@ -2,6 +2,7 @@
 
 const React = require('react');
 const { useCore } = require('stremio/core');
+const { SuspenseFallbackProvider } = require('stremio/services/Navigation');
 
 const CoreSuspenderContext = React.createContext(null);
 
@@ -66,7 +67,7 @@ const withCoreSuspender = (Component, Fallback = () => { }) => {
             }
         }, []);
         return render ?
-            <React.Suspense fallback={<Fallback {...props} />}>
+            <React.Suspense fallback={<SuspenseFallbackProvider value={true}><Fallback {...props} /></SuspenseFallbackProvider>}>
                 <CoreSuspenderContext.Provider value={suspender}>
                     <Component {...props} />
                 </CoreSuspenderContext.Provider>

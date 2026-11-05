@@ -12,8 +12,8 @@ importers:
         specifier: 7.29.2
         version: 7.29.2
       '@noriginmedia/norigin-spatial-navigation':
-        specifier: 3.4.0
-        version: 3.4.0(react@18.3.1)
+        specifier: 3.3.0
+        version: 3.3.0(react@18.3.1)
       '@sentry/browser':
         specifier: 8.42.0
         version: 8.42.0
@@ -101,9 +101,6 @@ importers:
       react-simple-keyboard:
         specifier: 3.8.282
         version: 3.8.282(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      spatial-navigation-polyfill:
-        specifier: github:Stremio/spatial-navigation#64871b1422466f5f45d24ebc8bbd315b2ebab6a6
-        version: https://codeload.github.com/Stremio/spatial-navigation/tar.gz/64871b1422466f5f45d24ebc8bbd315b2ebab6a6
       stremio-translations:
         specifier: github:Stremio/stremio-translations#2be2d578fed03c615d58617c554655100c99bc6f
         version: https://codeload.github.com/Stremio/stremio-translations/tar.gz/2be2d578fed03c615d58617c554655100c99bc6f
@@ -1181,8 +1178,8 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
 
-  '@noriginmedia/norigin-spatial-navigation@3.4.0':
-    resolution: {integrity: sha512-c2Ol17bHFL2uIXxqedqRyI/V0TC0/TewQYlAW+zNqPnDKPf3M1SyWN/FabYDzlrMRHTTsphVE3D68Swa2WfsRg==}
+  '@noriginmedia/norigin-spatial-navigation@3.3.0':
+    resolution: {integrity: sha512-8LfwMC3IRuDIntJpcNLEcf+nyXz9F52dCqnJBkLq1bypVibnAPE+uF3KReFFCHzH9VYZK7P0AWZvTtbx3vwjhQ==}
 
   '@peculiar/asn1-cms@2.7.0':
     resolution: {integrity: sha512-hew63shtzzvBcSHbhm+cyAmKe6AIfinT9hzEqSPjDC6opTTMKmTkQ0gHuN2KsWlvqiKw1S/fS94fhag/FJkioQ==}
@@ -4518,10 +4515,6 @@ packages:
     engines: {node: '>= 8'}
     deprecated: The work that was done in this beta branch won't be included in future versions
 
-  spatial-navigation-polyfill@https://codeload.github.com/Stremio/spatial-navigation/tar.gz/64871b1422466f5f45d24ebc8bbd315b2ebab6a6:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/Stremio/spatial-navigation/tar.gz/64871b1422466f5f45d24ebc8bbd315b2ebab6a6}
-    version: 1.2.0
-
   spdy-transport@3.0.0:
     resolution: {integrity: sha512-hsLVFE5SjA6TCisWeJXFKniGGOpBgMLmerfO2aCyCU5s7nJ/rpAepqmFifv/GCbSbueEeAJJnmSQ2rKC/g8Fcw==}
 
@@ -6352,7 +6345,7 @@ snapshots:
       lodash-es: 4.18.1
       react: 18.3.1
 
-  '@noriginmedia/norigin-spatial-navigation@3.4.0(react@18.3.1)':
+  '@noriginmedia/norigin-spatial-navigation@3.3.0(react@18.3.1)':
     dependencies:
       '@noriginmedia/norigin-spatial-navigation-core': 4.2.0
       '@noriginmedia/norigin-spatial-navigation-react': 3.3.0(react@18.3.1)
@@ -10211,8 +10204,6 @@ snapshots:
   source-map@0.8.0-beta.0:
     dependencies:
       whatwg-url: 7.1.0
-
-  spatial-navigation-polyfill@https://codeload.github.com/Stremio/spatial-navigation/tar.gz/64871b1422466f5f45d24ebc8bbd315b2ebab6a6: {}
 
   spdy-transport@3.0.0:
     dependencies:

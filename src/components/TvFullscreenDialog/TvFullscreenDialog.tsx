@@ -1,18 +1,20 @@
 import React, { useEffect, useRef } from 'react';
 import classnames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
+import { useFocusable, FocusContext, getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import RouterModal from 'stremio/router/Modal';
+import { mergeRefs } from 'stremio/services/Input';
 import { useModalsContainer } from 'stremio/router/ModalsContainerContext';
 import useRouteFocused from 'stremio/common/useRouteFocused';
-import { FocusContext, useFocusGroup, setFocus } from 'stremio/services/Navigation';
 import Button from 'stremio/components/Button';
 import styles from './TvFullscreenDialog.less';
 
 export type DialogAction = {
     label: string,
-    focusKey?: string,
     href?: string,
     target?: string,
+    // for preferredChildFocusKey
+    focusKey?: string,
     onClick?: () => void,
 };
 
@@ -26,25 +28,36 @@ type Props = {
     message?: string,
     actions: DialogAction[],
     children?: React.ReactNode,
-    initialFocusKey?: string,
+    // the control the dialog opens on; the first one when not given
+    preferredChildFocusKey?: string,
     onClose?: () => void,
 };
 
 // JS component without types
 const Modal = RouterModal as React.ComponentType<{ className?: string, children?: React.ReactNode, ref?: React.Ref<HTMLElement> }>;
 
-let nextId = 0;
+const ActionButton = ({ action }: { action: DialogAction }) => {
+    const { ref } = useFocusable({ focusKey: action.focusKey });
+    return (
+        <Button ref={ref} className={styles['action']} href={action.href} target={action.target} onClick={action.onClick}>
+            {action.label}
+        </Button>
+    );
+};
 
-const TvFullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, initialFocusKey, onClose }: Props) => {
+const TvFullscreenDialog = ({ className, icon, image, background, eyebrow, title, message, actions, children, preferredChildFocusKey, onClose }: Props) => {
     const routeFocused = useRouteFocused();
     const modalsContainer = useModalsContainer() as HTMLElement | null;
     const containerRef = useRef<HTMLElement | null>(null);
-    const id = useRef(`dialog-${nextId++}`).current;
-    const group = useFocusGroup<HTMLDivElement>({ focusKey: id, isFocusBoundary: true, saveLastFocusedChild: false });
+    const { ref: focusRef, focusKey, focusSelf } = useFocusable<object, HTMLElement>({ isFocusBoundary: true, preferredChildFocusKey });
 
+    // Opens on its first control; closing gives focus back to what had it.
     useEffect(() => {
-        const frame = requestAnimationFrame(() => setFocus(initialFocusKey ?? actions[0]?.focusKey ?? `${id}-action-0`));
-        return () => cancelAnimationFrame(frame);
+        const opener = getCurrentFocusKey();
+        focusSelf();
+        return () => {
+            if (opener) setFocus(opener);
+        };
     }, []);
 
     useEffect(() => {
@@ -65,15 +78,15 @@ const TvFullscreenDialog = ({ className, icon, image, background, eyebrow, title
     }, [routeFocused, onClose]);
 
     return (
-        <Modal ref={containerRef} className={classnames(className, styles['fullscreen-dialog'])}>
-            {
-                background ?
-                    <div className={styles['background']} style={{ backgroundImage: `url('${background}')` }} />
-                    :
-                    null
-            }
-            <FocusContext.Provider value={group.focusKey}>
-                <div ref={group.ref} className={styles['content']}>
+        <Modal ref={mergeRefs(containerRef, focusRef)} className={classnames(className, styles['fullscreen-dialog'])}>
+            <FocusContext.Provider value={focusKey}>
+                {
+                    background ?
+                        <div className={styles['background']} style={{ backgroundImage: `url('${background}')` }} />
+                        :
+                        null
+                }
+                <div className={styles['content']}>
                     {
                         image ?
                             <img className={styles['image']} src={image} alt={''} />
@@ -98,20 +111,7 @@ const TvFullscreenDialog = ({ className, icon, image, background, eyebrow, title
                     }
                     {children}
                     <div className={styles['actions']}>
-                        {
-                            actions.map((action, index) => (
-                                <Button
-                                    key={index}
-                                    className={styles['action']}
-                                    focusKey={action.focusKey ?? `${id}-action-${index}`}
-                                    href={action.href}
-                                    target={action.target}
-                                    onClick={action.onClick}
-                                >
-                                    {action.label}
-                                </Button>
-                            ))
-                        }
+                        {actions.map((action, index) => <ActionButton key={index} action={action} />)}
                     </div>
                 </div>
             </FocusContext.Provider>

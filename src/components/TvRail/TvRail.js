@@ -2,45 +2,47 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
-const { FocusContext, SIDEBAR_KEY, useFocusGroup, useRouteScope, mergeRefs } = require('stremio/services/Navigation');
+const { useFocusable, FocusContext } = require('@noriginmedia/norigin-spatial-navigation');
 const TvRailButton = require('./TvRailButton/TvRailButton');
 const styles = require('./styles');
 
-const TvRail = React.memo(React.forwardRef(({ className, selected, tabs }, ref) => {
+const TvRail = React.memo(React.forwardRef(({ className, focusKey, selected, tabs }, ref) => {
     const { t } = useTranslation();
-    const key = `${useRouteScope()}:${SIDEBAR_KEY}`;
-    const group = useFocusGroup({
-        focusKey: key,
+    const { ref: focusRef } = useFocusable({
+        focusKey,
+        // always the current page's tab
         saveLastFocusedChild: false,
-        preferredChildFocusKey: selected ? `${key}-${selected}` : undefined,
+        preferredChildFocusKey: `${focusKey}:${selected}`,
     });
-    const setRef = React.useMemo(() => mergeRefs(group.ref, ref), [ref]);
     const renderTab = (tab) => (
         <TvRailButton
             key={tab.id}
+            focusKey={`${focusKey}:${tab.id}`}
             className={styles['rail-button']}
             selected={tab.id === selected}
             href={tab.href}
             logo={tab.logo}
             icon={tab.icon}
             label={t(tab.label)}
-            focusKey={`${key}-${tab.id}`}
             onClick={tab.onClick}
         />
     );
     const topTabs = Array.isArray(tabs) ? tabs.filter((tab) => !tab.bottom) : [];
     const bottomTabs = Array.isArray(tabs) ? tabs.filter((tab) => tab.bottom) : [];
     return (
-        <FocusContext.Provider value={group.focusKey}>
-            <nav ref={setRef} className={classnames(className, styles['rail-container'], 'rail')}>
-                <div className={styles['tabs']}>{topTabs.map(renderTab)}</div>
-                {
-                    bottomTabs.length > 0 ?
-                        <div className={styles['footer']}>{bottomTabs.map(renderTab)}</div>
-                        :
-                        null
-                }
-            </nav>
+        <FocusContext.Provider value={focusKey}>
+            {/* navigation measures this box: the rail at its collapsed width, even while it is expanded */}
+            <div ref={focusRef} className={classnames(className, styles['rail-slot'])}>
+                <nav ref={ref} className={classnames(styles['rail-container'], 'rail')}>
+                    <div className={styles['tabs']}>{topTabs.map(renderTab)}</div>
+                    {
+                        bottomTabs.length > 0 ?
+                            <div className={styles['footer']}>{bottomTabs.map(renderTab)}</div>
+                            :
+                            null
+                    }
+                </nav>
+            </div>
         </FocusContext.Provider>
     );
 }));
@@ -49,6 +51,7 @@ TvRail.displayName = 'TvRail';
 
 TvRail.propTypes = {
     className: PropTypes.string,
+    focusKey: PropTypes.string.isRequired,
     selected: PropTypes.string,
     tabs: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string,

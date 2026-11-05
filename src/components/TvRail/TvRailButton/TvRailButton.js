@@ -5,9 +5,9 @@ const { default: Icon } = require('@stremio/stremio-icons/react');
 const { Image } = require('stremio/components');
 const styles = require('./styles');
 const { Link } = require('react-router-dom');
-const { useFocusable } = require('stremio/services/Navigation');
+const { useFocusable } = require('@noriginmedia/norigin-spatial-navigation');
 
-const TvRailButton = ({ className, logo, icon, label, href, selected, focusKey, onClick }) => {
+const TvRailButton = ({ className, focusKey, logo, icon, label, href, selected, onClick }) => {
     const { ref } = useFocusable({ focusKey });
     const onKeyDown = React.useCallback((event) => {
         if (event.key === 'Enter' && !event.repeat) {
@@ -61,12 +61,12 @@ const TvRailButton = ({ className, logo, icon, label, href, selected, focusKey, 
 
 TvRailButton.propTypes = {
     className: PropTypes.string,
+    focusKey: PropTypes.string.isRequired,
     logo: PropTypes.string,
     icon: PropTypes.string,
     label: PropTypes.string,
     href: PropTypes.string,
     selected: PropTypes.bool,
-    focusKey: PropTypes.string,
     onClick: PropTypes.func
 };
 

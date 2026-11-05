@@ -3,7 +3,9 @@
 import React, { useCallback, useMemo, useState, ChangeEvent } from 'react';
 import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Button, NumberInput } from 'stremio/components';
+import { NumberInput } from 'stremio/components';
+// HTPC fork: the button is a focus stop (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import styles from './EpisodePicker.less';
 
 type Props = {

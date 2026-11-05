@@ -1,6 +1,13 @@
 // Player overrides for the remote. Selectors are attribute-based, so
 // CSS-module hashing doesn't matter.
 
+// Focus landing in the side drawer while it slides in from off-screen made the
+// browser scroll the player sideways to show it (hidden overflow still scrolls
+// from code); clip can't be scrolled at all.
+[class*='player-container-'] {
+    overflow: clip;
+}
+
 // upstream clips everything (* { overflow: hidden }), which cuts the focused
 // button's scale, outline and shadow
 [class*='control-bar-buttons-container-'],

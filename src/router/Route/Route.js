@@ -4,19 +4,24 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const { ModalsContainerProvider } = require('../ModalsContainerContext');
 const { RouteFocusedProvider } = require('stremio/common/useRouteFocused');
-const { useRouteFocusScope } = require('stremio/services/Navigation');
+const { FocusContext } = require('@noriginmedia/norigin-spatial-navigation');
+const { usePageFocus } = require('stremio/services/Navigation');
+const { TvServerUrlSlot } = require('stremio/App/TvServerUrlDialog');
 
-const Route = ({ component, focused, view }) => {
-    const scope = useRouteFocusScope(view, focused);
+const Route = ({ component, focused, focusKey }) => {
+    const pageRef = usePageFocus(focusKey);
     return (
-        <div ref={scope.ref} className={'route-container'}>
-            <RouteFocusedProvider value={focused}>
-                <ModalsContainerProvider>
-                    <div className={'route-content'}>
-                        <scope.Provider>{component}</scope.Provider>
-                    </div>
-                </ModalsContainerProvider>
-            </RouteFocusedProvider>
+        <div ref={pageRef} className={'route-container'}>
+            <FocusContext.Provider value={focusKey}>
+                <RouteFocusedProvider value={focused}>
+                    <ModalsContainerProvider>
+                        <div className={'route-content'}>
+                            {component}
+                        </div>
+                        <TvServerUrlSlot />
+                    </ModalsContainerProvider>
+                </RouteFocusedProvider>
+            </FocusContext.Provider>
         </div>
     );
 };
@@ -24,7 +29,7 @@ const Route = ({ component, focused, view }) => {
 Route.propTypes = {
     component: PropTypes.node,
     focused: PropTypes.bool,
-    view: PropTypes.number,
+    focusKey: PropTypes.string.isRequired,
 };
 
 module.exports = Route;

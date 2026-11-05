@@ -2,10 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import classNames from 'classnames';
 import { useTranslation } from 'react-i18next';
 import Icon from '@stremio/stremio-icons/react';
-import { Button } from 'stremio/components';
-import { FocusContext, useFocusGroup, useRouteScope } from 'stremio/services/Navigation';
+import { FocusButton, FocusGroup } from 'stremio/services/Navigation';
 import { SECTIONS } from '../constants';
 import styles from './TvMenu.less';
+
+export const MENU_FOCUS_KEY = 'settings:menu';
+
+const itemFocusKey = (id: string) => `${MENU_FOCUS_KEY}:${id}`;
 
 type Props = {
     selected: string,
@@ -17,8 +20,6 @@ type Props = {
 // Focus picks the section, so moving down the list switches the right pane.
 const TvMenu = ({ selected, onSelect }: Props) => {
     const { t } = useTranslation();
-    const scope = useRouteScope();
-    const keyOf = (id: string) => `${scope}-settings-${id}`;
 
     const items = useMemo(() => [
         { id: SECTIONS.GENERAL, label: t('SETTINGS_NAV_GENERAL'), icon: 'person-outline' },
@@ -33,29 +34,27 @@ const TvMenu = ({ selected, onSelect }: Props) => {
         if (item) onSelect({ ...event, currentTarget: item } as React.SyntheticEvent<HTMLDivElement>);
     }, [onSelect]);
 
-    const group = useFocusGroup<HTMLDivElement>({ preferredChildFocusKey: keyOf(selected), saveLastFocusedChild: false });
-
     return (
-        <FocusContext.Provider value={group.focusKey}>
-            <div ref={group.ref} className={styles['tv-menu']} data-tv-start={true} onFocusCapture={onFocusCapture}>
-                <div className={styles['title']}>{t('SETTINGS')}</div>
+        <div className={styles['tv-menu']} onFocusCapture={onFocusCapture}>
+            <div className={styles['title']}>{t('SETTINGS')}</div>
+            <FocusGroup className={styles['items']} focusKey={MENU_FOCUS_KEY} preferredChildFocusKey={itemFocusKey(selected)}>
                 {
                     items.map(({ id, label, icon }) => (
-                        <Button
+                        <FocusButton
                             key={id}
+                            focusKey={itemFocusKey(id)}
                             className={classNames(styles['item'], { [styles['selected']]: selected === id })}
-                            focusKey={keyOf(id)}
                             title={label}
                             data-section={id}
                             onClick={onSelect}
                         >
                             <Icon className={styles['icon']} name={icon} />
                             <span className={styles['label']}>{label}</span>
-                        </Button>
+                        </FocusButton>
                     ))
                 }
-            </div>
-        </FocusContext.Provider>
+            </FocusGroup>
+        </div>
     );
 };
 

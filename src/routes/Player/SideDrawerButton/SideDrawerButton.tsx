@@ -3,7 +3,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import Icon from '@stremio/stremio-icons/react';
-import { useFocusable } from 'stremio/services/Navigation';
+import { useFocusable } from '@noriginmedia/norigin-spatial-navigation';
 import styles from './SideDrawerButton.less';
 
 type Props = {
@@ -12,7 +12,8 @@ type Props = {
 };
 
 const SideDrawerButton = ({ className, onClick }: Props) => {
-    const { ref } = useFocusable({ focusKey: 'player-drawer-button' });
+    // HTPC fork: a focus stop
+    const { ref } = useFocusable<object, HTMLDivElement>();
     const onMouseDown = (event: React.MouseEvent) => {
         // @ts-expect-error: Property 'videosMenuClosePrevented' does not exist on type 'MouseEvent'.
         event.nativeEvent.videosMenuClosePrevented = true;

@@ -18,14 +18,14 @@ const { default: Buffering } = require('./Buffering');
 const Error = require('./Error');
 const { default: ControlBar } = require('./TvControls/TvControlBar');
 const { default: withTvPopup } = require('./TvControls/popups');
-const { default: withTvPlayerRoot } = require('./TvControls/TvPlayerRoot');
+require('./TvControls/tvPlayer.less');
 const { default: useTvPlayer } = require('./TvControls/useTvPlayer');
-const NextVideoPopup = withTvPopup(require('./NextVideoPopup'), { focusKey: 'player-popup-next', initial: '[class*="play-button"]' });
-const SubtitlesMenu = withTvPopup(require('./SubtitlesMenu'), { focusKey: 'player-popup-subtitles', centered: true });
-const AudioMenu = withTvPopup(require('./AudioMenu').default, { focusKey: 'player-popup-audio', centered: true });
-const SpeedMenu = withTvPopup(require('./SpeedMenu'), { focusKey: 'player-popup-speed', centered: true });
+const NextVideoPopup = withTvPopup(require('./NextVideoPopup'));
+const SubtitlesMenu = withTvPopup(require('./SubtitlesMenu'), { centered: true });
+const AudioMenu = withTvPopup(require('./AudioMenu').default, { centered: true });
+const SpeedMenu = withTvPopup(require('./SpeedMenu'), { centered: true });
 const { default: SideDrawerButton } = require('./SideDrawerButton');
-const SideDrawer = withTvPopup(require('./SideDrawer').default, { focusKey: 'player-popup-drawer' });
+const SideDrawer = withTvPopup(require('./SideDrawer').default);
 const usePlayer = require('./usePlayer');
 const { default: usePlayOnDevice } = require('./usePlayOnDevice');
 const { default: useCastDevice } = require('./useCastDevice');
@@ -340,14 +340,15 @@ const Player = () => {
     useTvPlayer({
         routeFocused,
         playerRef,
-        controlBarRef,
         overlayHidden,
+        paused: video.state.paused,
         menusOpen,
         nextVideoPopupOpen,
         openMenu: subtitlesMenuOpen ? 'subtitles' : audioMenuOpen ? 'audio' : speedMenuOpen ? 'speed' : statisticsMenuOpen ? 'statistics' : sideDrawerOpen ? 'episodes' : null,
         seekTimeDuration: settings.seekTimeDuration,
         seekShortTimeDuration: settings.seekShortTimeDuration,
         seekBy: onKeyboardSeekRequested,
+        pause: onPauseRequested,
         setImmersed,
         setImmersedDebounced,
         closeMenus,
@@ -595,7 +596,7 @@ const Player = () => {
         return () => platform.shell.off('media-key', onMediaKey);
     }, [isEpg, video.state.paused, player.nextVideo, onPlayRequested, onPauseRequested, onNextVideoRequested]);
 
-    // arrows are the remote's: useTvPlayer seeks and navigates
+    // arrows are the remote's: useTvPlayer seeks
     useShortcut('seekForward', React.useCallback((combo) => {
         const seekDuration = combo === 1 ? settings.seekShortTimeDuration : settings.seekTimeDuration;
         onKeyboardSeekRequested(seekDuration);
@@ -963,4 +964,4 @@ const PlayerFallback = () => (
     <div className={classnames(styles['player-container'])} />
 );
 
-module.exports = withTvPlayerRoot(withCoreSuspender(Player, PlayerFallback));
+module.exports = withCoreSuspender(Player, PlayerFallback);

@@ -5,7 +5,9 @@ const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { default: Icon } = require('@stremio/stremio-icons/react');
 const { CONSTANTS, useProfile } = require('stremio/common');
-const { Button, Image } = require('stremio/components');
+const { Image } = require('stremio/components');
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+const { FocusButton: Button } = require('stremio/services/Navigation');
 const styles = require('./styles');
 const { useTranslation } = require('react-i18next');
 

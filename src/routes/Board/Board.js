@@ -80,7 +80,7 @@ const Board = () => {
     return (
         <div className={styles['board-container']}>
             <TvEventModal />
-            <MainNavBars className={styles['board-content-container']} route={'board'}>
+            <MainNavBars className={styles['board-content-container']} route={'board'} startFocusKey={'board:hero'}>
                 <div ref={scrollContainerRef} className={styles['board-content']} onScroll={onScroll}>
                     <TvHero catalogs={board.catalogs} />
                     {
@@ -158,7 +158,7 @@ const Board = () => {
 
 const BoardFallback = () => (
     <div className={styles['board-container']}>
-        <MainNavBars className={styles['board-content-container']} route={'board'} />
+        <MainNavBars className={styles['board-content-container']} route={'board'} startFocusKey={'board:hero'} />
     </div>
 );
 

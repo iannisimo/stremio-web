@@ -4,7 +4,8 @@ import React, { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { toPath } from 'stremio-router';
 import Icon from '@stremio/stremio-icons/react';
-import { Button } from 'stremio/components';
+// HTPC fork: focus stops (upstream: Button from 'stremio/components')
+import { FocusButton as Button } from 'stremio/services/Navigation';
 import useCalendarDate from '../useCalendarDate';
 import styles from './Selector.less';
 

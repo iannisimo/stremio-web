@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { useFocusable, FocusContext, getCurrentFocusKey, setFocus } from '@noriginmedia/norigin-spatial-navigation';
 import RouterModal from 'stremio/router/Modal';
 import { useModalsContainer } from 'stremio/router/ModalsContainerContext';
 import useBinaryState from 'stremio/common/useBinaryState';
-import Button from 'stremio/components/Button';
+import { mergeRefs } from 'stremio/services/Input';
+import { FocusButton } from 'stremio/services/Navigation';
 import Label from './Label';
-import { FocusContext, useFocusGroup, setFocus } from 'stremio/services/Navigation';
 import styles from './TvSelect.less';
 
 // Drop-in replacement for upstream's MultiselectMenu (same props): the label
-// opens a centered list over the dimmed page. Up/Down pick, Enter selects,
-// Back closes; focus returns to the label either way.
+// opens a centered list over the dimmed page. Enter selects, Back closes.
 
 type Props = {
     className?: string,
@@ -21,12 +21,12 @@ type Props = {
     disabled?: boolean,
     // upstream positions its menu in a portal; the list here always is one
     portal?: boolean,
+    // the label's focus key, for code that moves focus to it
+    focusKey?: string,
     onSelect: (value: any) => void,
 };
 
 const Modal = RouterModal as React.ComponentType<{ className?: string, children?: React.ReactNode, ref?: React.Ref<HTMLElement>, onMouseDown?: (event: React.MouseEvent) => void }>;
-
-let nextId = 0;
 
 type ListProps = {
     options: MultiselectMenuOption[],
@@ -35,17 +35,22 @@ type ListProps = {
     onClose: () => void,
 };
 
+// Arrows stay in the list; it opens on the selected option, closing gives
+// focus back to the label.
 const List = ({ options, value, onSelect, onClose }: ListProps) => {
     const modalsContainer = useModalsContainer() as HTMLElement | null;
     const containerRef = useRef<HTMLElement | null>(null);
-    const id = useRef(`select-${nextId++}`).current;
-    const group = useFocusGroup<HTMLDivElement>({ focusKey: id, isFocusBoundary: true, saveLastFocusedChild: false });
     const visible = options.filter((option) => !option.hidden);
-    const selectedIndex = Math.max(0, visible.findIndex((option) => option.value === value));
+    const { ref: focusRef, focusKey } = useFocusable<object, HTMLElement>({ isFocusBoundary: true });
+    const optionFocusKey = (index: number) => `${focusKey}:${index}`;
 
     useEffect(() => {
-        const frame = requestAnimationFrame(() => setFocus(`${id}-${selectedIndex}`));
-        return () => cancelAnimationFrame(frame);
+        const opener = getCurrentFocusKey();
+        const selected = visible.findIndex((option) => option.value === value);
+        setFocus(selected >= 0 ? optionFocusKey(selected) : focusKey);
+        return () => {
+            if (opener) setFocus(opener);
+        };
     }, []);
 
     useEffect(() => {
@@ -67,16 +72,16 @@ const List = ({ options, value, onSelect, onClose }: ListProps) => {
     }, [onClose]);
 
     return (
-        <Modal ref={containerRef} className={styles['tv-select-modal']} onMouseDown={onBackdropMouseDown}>
-            <FocusContext.Provider value={group.focusKey}>
-                <div ref={group.ref} className={styles['list']} role={'listbox'}>
+        <Modal ref={mergeRefs(containerRef, focusRef)} className={styles['tv-select-modal']} onMouseDown={onBackdropMouseDown}>
+            <FocusContext.Provider value={focusKey}>
+                <div className={styles['list']} role={'listbox'}>
                     <div className={styles['options']}>
                         {
                             visible.map((option, index) => (
-                                <Button
+                                <FocusButton
                                     key={`${index}-${option.value}`}
+                                    focusKey={optionFocusKey(index)}
                                     className={classNames(styles['option'], { [styles['selected']]: option.value === value })}
-                                    focusKey={`${id}-${index}`}
                                     role={'option'}
                                     onClick={() => onSelect(option.value)}
                                 >
@@ -87,7 +92,7 @@ const List = ({ options, value, onSelect, onClose }: ListProps) => {
                                             :
                                             null
                                     }
-                                </Button>
+                                </FocusButton>
                             ))
                         }
                     </div>
@@ -97,32 +102,22 @@ const List = ({ options, value, onSelect, onClose }: ListProps) => {
     );
 };
 
-const TvSelect = ({ className, title, icon, options, value, disabled, onSelect }: Props) => {
+const TvSelect = ({ className, title, icon, options, value, disabled, focusKey, onSelect }: Props) => {
     const [open, openList, closeList] = useBinaryState(false);
-    const labelRef = useRef<HTMLDivElement>(null);
     const selectedOption = options.find((option) => option.value === value);
     const labelText = typeof title === 'function' ? title() : title ?? selectedOption?.label;
 
-    const close = useCallback(() => {
-        closeList();
-        // back to the label, which the list's focus boundary took focus from
-        requestAnimationFrame(() => {
-            const button = labelRef.current?.querySelector<HTMLElement>('[tabindex]');
-            button?.focus();
-        });
-    }, [closeList]);
-
     const select = useCallback((selected: any) => {
-        close();
+        closeList();
         if (selected !== value) onSelect(selected);
-    }, [close, onSelect, value]);
+    }, [closeList, onSelect, value]);
 
     return (
-        <div ref={labelRef} className={classNames(className, styles['tv-select'], { [styles['active']]: open })}>
-            <Label text={labelText} icon={icon} disabled={disabled} open={open} onClick={openList} />
+        <div className={classNames(className, styles['tv-select'], { [styles['active']]: open })}>
+            <Label text={labelText} icon={icon} disabled={disabled} open={open} focusKey={focusKey} onClick={openList} />
             {
                 open ?
-                    <List options={options} value={value} onSelect={select} onClose={close} />
+                    <List options={options} value={value} onSelect={select} onClose={closeList} />
                     :
                     null
             }

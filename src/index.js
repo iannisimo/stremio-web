@@ -20,8 +20,10 @@ const stremioTranslations = require('stremio-translations');
 const App = require('./App');
 const { CoreProvider } = require('./core');
 const { FileDropProvider, PlatformProvider } = require('./common');
+const { initInput } = require('./services/Input');
 const { initNavigation } = require('./services/Navigation');
 
+initInput();
 initNavigation();
 
 const translations = Object.fromEntries(Object.entries(stremioTranslations()).map(([key, value]) => [key, {

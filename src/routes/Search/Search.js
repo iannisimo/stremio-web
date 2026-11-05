@@ -13,6 +13,9 @@ const useSearch = require('./useSearch');
 const styles = require('./styles');
 const { useSearchParams } = require('react-router-dom');
 
+// HTPC fork: the search field, where the page starts
+const FIELD_FOCUS_KEY = 'search:field';
+
 const Search = () => {
     const [queryParams] = useSearchParams();
     const t = useTranslate();
@@ -34,9 +37,9 @@ const Search = () => {
         loadRange: loadSearchRows,
     });
     return (
-        <MainNavBars className={styles['search-container']} route={'search'} query={query}>
+        <MainNavBars className={styles['search-container']} route={'search'} query={query} startFocusKey={FIELD_FOCUS_KEY}>
             <div ref={scrollContainerRef} className={styles['search-content']} onScroll={onScroll}>
-                <TvSearchField query={query} />
+                <TvSearchField query={query} focusKey={FIELD_FOCUS_KEY} />
                 {
                     query === null ?
                         <TvSearchHistory />
@@ -96,7 +99,7 @@ const Search = () => {
 
 const SearchFallback = () => {
     const [queryParams] = useSearchParams();
-    return <MainNavBars className={styles['search-container']} route={'search'} query={queryParams.get('search') ?? queryParams.get('query')} />;
+    return <MainNavBars className={styles['search-container']} route={'search'} query={queryParams.get('search') ?? queryParams.get('query')} startFocusKey={FIELD_FOCUS_KEY} />;
 };
 
 module.exports = withCoreSuspender(Search, SearchFallback);

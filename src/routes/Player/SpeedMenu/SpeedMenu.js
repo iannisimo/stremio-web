@@ -4,7 +4,8 @@ const React = require('react');
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const { useTranslation } = require('react-i18next');
-const Button = require('stremio/components/Button').default;
+// HTPC fork: focus stops (upstream: require('stremio/components/Button').default)
+const { FocusButton: Button } = require('stremio/services/Navigation');
 const Slider = require('stremio/components/Slider');
 
 const styles = require('./styles');

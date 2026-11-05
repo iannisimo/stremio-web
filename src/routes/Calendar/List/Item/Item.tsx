@@ -3,10 +3,13 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useNavigateWithOrigin } from 'stremio-router';
+// HTPC fork: a day's episodes are a focus group (upstream: a plain div)
+import { FocusGroup } from 'stremio/services/Navigation';
 import Episode from '../../Episode';
 import useCalendarDate from '../../useCalendarDate';
-import calendarDayFocusKey from '../../calendarDayFocusKey';
 import styles from './Item.less';
+
+export const dayFocusKey = (day: number) => `calendar:day:${day}`;
 
 type Props = {
     selected: CalendarDate | null,
@@ -54,19 +57,18 @@ const Item = ({ selected, monthInfo, date, items, profile, onClick }: Props) => 
             <div className={styles['heading']}>
                 {toDayMonth(date)}
             </div>
-            <div className={styles['body']}>
+            <FocusGroup className={styles['body']} focusKey={dayFocusKey(date.day)}>
                 {
-                    items.map((video, index) => (
+                    items.map((video) => (
                         <Episode
                             key={video.id}
                             {...video}
-                            focusKey={index === 0 ? calendarDayFocusKey(date) : undefined}
                             hideSpoilers={profile.settings.hideSpoilers}
                             onClick={onVideoClick}
                         />
                     ))
                 }
-            </div>
+            </FocusGroup>
         </div>
     );
 };
